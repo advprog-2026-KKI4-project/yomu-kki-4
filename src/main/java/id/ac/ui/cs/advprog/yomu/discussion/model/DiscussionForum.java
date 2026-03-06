@@ -1,13 +1,16 @@
 package id.ac.ui.cs.advprog.yomu.discussion.model;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Discussion")
+@Table(name = "discussion_comments")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DiscussionForum {
 
     @Id
