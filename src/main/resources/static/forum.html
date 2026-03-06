@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Yomu — Discussion Forum</title>
+</head>
+<body>
+
+<h1>Discussion Forum</h1>
+<p>Material: material-001</p>
+
+<hr>
+
+<input id="author-id" placeholder="Your user ID" value="user-123"/>
+<br><br>
+<textarea id="comment-content" rows="3" cols="60" placeholder="Add a comment..."></textarea>
+<br>
+<span id="reply-badge" style="display:none">
+    Replying to: <span id="reply-label"></span>
+    <button onclick="clearReply()">x</button>
+</span>
+<br>
+<button onclick="postComment()">Send</button>
+
+<p id="error-msg" style="color:red"></p>
+
+<hr>
+
+<div id="comment-section">Loading...</div>
+
+<script>
+    const MATERIAL_ID = 'material-001';
+    const BASE = 'http://localhost:8080';
+    let parentId = null;
+
+    function setReply(id, authorId) {
+        parentId = id;
+        document.getElementById('reply-label').textContent = authorId + ' (#' + id + ')';
+        document.getElementById('reply-badge').style.display = 'inline';
+        document.getElementById('comment-content').focus();
+    }
+
+    function clearReply() {
+        parentId = null;
+        document.getElementById('reply-badge').style.display = 'none';
+        document.getElementById('reply-label').textContent = '';
+    }
+
+    async function fetchComments() {
+        const res = await fetch(`${BASE}/api/discussions/${MATERIAL_ID}`);
+        const comments = await res.json();
+        const section = document.getElementById('comment-section');
+
+        if (!comments.length) {
+            section.innerHTML = '<p>No comments</p>';
+            return;
+        }
+
+        const topLevel = comments.filter(c => !c.parentCommentId);
+        const replies = comments.filter(c => c.parentCommentId);
+
+        let html = '';
+        for (const c of topLevel) {
+            html += renderComment(c);
+            const children = replies.filter(r => r.parentCommentId === c.id);
+            for (const r of children) {
+                html += '<blockquote>' + renderComment(r) + '</blockquote>';
+            }
+        }
+
+        section.innerHTML = html;
+    }
+
+
+    function renderComment(c) {
+        return ` <p> <b>${c.authorId}</b>: ${c.content}<br>
+            <button onclick="setReply(${c.id}, '${c.authorId}')">Reply</button>
+        </p>`;
+    }
+
+    async function postComment() {
+        document.getElementById('error-msg').textContent = '';
+
+        const content = document.getElementById('comment-content').value.trim();
+        const authorId = document.getElementById('author-id').value.trim();
+
+        if (!content) {
+            document.getElementById('error-msg').textContent = 'Comment cannot be empty.';
+            return;
+        }
+        if (!authorId) {
+            document.getElementById('error-msg').textContent = 'Author ID cannot be empty.';
+            return;
+        }
+
+        const res = await fetch(`${BASE}/api/discussions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content, materialId: MATERIAL_ID, authorId, parentCommentId: parentId })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            document.getElementById('error-msg').textContent = 'Error: ' + JSON.stringify(err);
+            return;
+        }
+
+        document.getElementById('comment-content').value = '';
+        clearReply();
+        fetchComments();
+    }
+
+    fetchComments();
+</script>
+</body>
+</html>
