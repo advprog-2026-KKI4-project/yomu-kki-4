@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Achievement - Yomu</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; color: #555; }
+        input, select { width: 100%; max-width: 400px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; color: white; font-size: 14px; }
+        .btn-primary { background: #4a90d9; }
+        .btn-secondary { background: #909399; }
+        .actions { display: flex; gap: 8px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<h1>Create Achievement</h1>
+
+<form th:action="@{/achievements/create}" th:object="${achievement}" method="post">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" th:field="*{name}" required placeholder="e.g., Bookworm"/>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <input type="text" id="description" th:field="*{description}" required placeholder="e.g., Read 10 articles"/>
+    </div>
+    <div class="form-group">
+        <label for="type">Type</label>
+        <select id="type" th:field="*{type}" required>
+            <option value="">-- Select Type --</option>
+            <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="targetCount">Target Count</label>
+        <input type="number" id="targetCount" th:field="*{targetCount}" required min="1" placeholder="e.g., 10"/>
+    </div>
+    <div class="form-group">
+        <label for="points">Points</label>
+        <input type="number" id="points" th:field="*{points}" required min="0" placeholder="e.g., 50"/>
+    </div>
+    <div class="form-group">
+        <label for="badgeIcon">Badge Icon (optional)</label>
+        <input type="text" id="badgeIcon" th:field="*{badgeIcon}" placeholder="e.g., badge_bookworm.png"/>
+    </div>
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a th:href="@{/achievements}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+</body>
+</html>
