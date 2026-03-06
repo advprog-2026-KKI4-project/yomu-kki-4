@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | Muhammad Adra Prakoso | 2406453530 | Authentication and Authorization |
 | Radithya Naufal Mulia | 2406365225 | Learning and Quiz |
-| Muhammad Vegard Fathul Islam | 2406365332 | Achievement and Daily Missions |
+| Muhammad Vegard Fathul Islam | 2406365332 | Achievement |
 | Arisa Raezzura Zahra | 2406453392 | Social Interaction, Clan, and League |
 | Herdayani Elision Sitio | 2406365313 | Discussion Forum |
 
