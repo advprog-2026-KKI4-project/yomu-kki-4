@@ -36,13 +36,10 @@ class ReadingMaterialControllerTest {
 
     @Test
     void testGetAllMaterials() {
-        // Mock the service behavior
         when(service.getAllMaterials()).thenReturn(Arrays.asList(material));
 
-        // Call the controller directly
         ResponseEntity<List<ReadingMaterial>> response = controller.getAllMaterials();
 
-        // Verify the results
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
         assertEquals("News", response.getBody().get(0).getTitle());
@@ -50,13 +47,10 @@ class ReadingMaterialControllerTest {
 
     @Test
     void testAddMaterial() {
-        // Mock the service behavior
         when(service.createMaterial(any(ReadingMaterial.class))).thenReturn(material);
 
-        // Call the controller directly
         ResponseEntity<ReadingMaterial> response = controller.addMaterial(material);
 
-        // Verify the results
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals("News", response.getBody().getTitle());
     }
