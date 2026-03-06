@@ -1,7 +1,7 @@
-package id.ac.ui.cs.advprog.yomu.repository;
+package id.ac.ui.cs.advprog.yomu.clans.repository;
 
-import id.ac.ui.cs.advprog.yomu.model.ClanMember;
-import id.ac.ui.cs.advprog.yomu.model.Clan;
+import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
+import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

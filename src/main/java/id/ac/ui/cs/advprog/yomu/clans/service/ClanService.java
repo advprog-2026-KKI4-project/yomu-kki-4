@@ -1,6 +1,6 @@
-package id.ac.ui.cs.advprog.yomu.service;
+package id.ac.ui.cs.advprog.yomu.clans.service;
 
-import id.ac.ui.cs.advprog.yomu.model.Clan;
+import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
 import java.util.List;
 
 public interface ClanService {

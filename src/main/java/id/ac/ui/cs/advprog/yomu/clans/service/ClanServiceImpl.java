@@ -1,7 +1,7 @@
-package id.ac.ui.cs.advprog.yomu.service;
+package id.ac.ui.cs.advprog.yomu.clans.service;
 
-import id.ac.ui.cs.advprog.yomu.model.*;
-import id.ac.ui.cs.advprog.yomu.repository.*;
+import id.ac.ui.cs.advprog.yomu.clans.model.*;
+import id.ac.ui.cs.advprog.yomu.clans.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

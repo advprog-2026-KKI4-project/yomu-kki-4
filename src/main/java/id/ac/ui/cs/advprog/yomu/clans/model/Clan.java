@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.yomu.model;
+package id.ac.ui.cs.advprog.yomu.clans.model;
 
 import jakarta.persistence.*;
 
@@ -38,6 +38,6 @@ public class Clan {
     @Column(name = "previous_rank")
     private Integer previousRank;
 
-    @OneToMany(mappedBy = "clan_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "clanId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClanMember> members = new ArrayList<>();
 }

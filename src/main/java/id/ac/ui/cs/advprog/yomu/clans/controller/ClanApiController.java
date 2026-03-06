@@ -1,7 +1,7 @@
-package id.ac.ui.cs.advprog.yomu.controller;
+package id.ac.ui.cs.advprog.yomu.clans.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.Clan;
-import id.ac.ui.cs.advprog.yomu.service.ClanService;
+import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
+import id.ac.ui.cs.advprog.yomu.clans.service.ClanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
