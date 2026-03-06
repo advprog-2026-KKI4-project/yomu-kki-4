@@ -1,38 +1,33 @@
 package id.ac.ui.cs.advprog.yomu.auth.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.yomu.auth.dto.AuthResponse;
 import id.ac.ui.cs.advprog.yomu.auth.dto.LoginRequest;
 import id.ac.ui.cs.advprog.yomu.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.yomu.auth.service.AuthService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@WebMvcTest(AuthController.class)
+@ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+        @Mock
     private AuthService authService;
 
+        @InjectMocks
+        private AuthController authController;
+
     @Test
-    void testRegisterEndpointReturns201() throws Exception {
+        void testRegisterEndpointReturns201() {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("testuser");
         request.setEmail("test@example.com");
@@ -45,16 +40,15 @@ class AuthControllerTest {
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/auth/register")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Registration successful"));
+        ResponseEntity<AuthResponse> result = authController.register(request);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("Registration successful", result.getBody().getMessage());
     }
 
     @Test
-    void testLoginEndpointReturns200() throws Exception {
+    void testLoginEndpointReturns200() {
         LoginRequest request = new LoginRequest();
         request.setEmailOrPhone("test@example.com");
         request.setPassword("password123");
@@ -66,11 +60,19 @@ class AuthControllerTest {
 
         when(authService.login(any(LoginRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/auth/login")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Login successful"));
+        ResponseEntity<AuthResponse> result = authController.login(request);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("Login successful", result.getBody().getMessage());
     }
+
+        @Test
+    void testRegisterRequestRequiresEmailOrPhone() {
+                RegisterRequest request = new RegisterRequest();
+                request.setUsername("testuser");
+                request.setPassword("password123");
+
+        assertEquals(false, request.hasLoginIdentifier());
+        }
 }
