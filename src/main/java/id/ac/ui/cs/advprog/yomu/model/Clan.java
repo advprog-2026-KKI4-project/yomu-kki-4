@@ -38,6 +38,6 @@ public class Clan {
     @Column(name = "previous_rank")
     private Integer previousRank;
 
-    @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "clan_id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClanMember> members = new ArrayList<>();
 }

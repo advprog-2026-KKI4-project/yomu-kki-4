@@ -47,11 +47,14 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     public void approveMember(Long clanId, String leaderId, String targetId) {
-        Clan clan = clanRepository.findById(clanId).orElseThrow();
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Unauthorized");
 
-        ClanMember member = memberRepository.findByStudentId(targetId).orElseThrow();
+        ClanMember member = memberRepository.findByClanAndStudentId(clan, targetId)
+                .orElseThrow(() -> new RuntimeException("Membership request not found for this clan"));
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
     }
@@ -72,9 +75,14 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     public void acceptInvitation(Long clanId, String studentId) {
-        ClanMember member = memberRepository.findByStudentId(studentId).orElseThrow();
-        if (!member.getStatus().equals("PENDING_INVITE"))
-            throw new RuntimeException("No invitation found");
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
+        ClanMember member = memberRepository.findByClanAndStudentId(clan, studentId)
+                .orElseThrow(() -> new RuntimeException("Invitation not found for this clan"));
+
+        if (!"PENDING_INVITE".equals(member.getStatus()))
+            throw new RuntimeException("No valid invitation found");
 
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
@@ -83,10 +91,14 @@ public class ClanServiceImpl implements ClanService {
     @Override
     @Transactional
     public void leaveClan(String studentId) {
-        ClanMember member = memberRepository.findByStudentId(studentId).orElseThrow();
-        if ("LEADER".equals(member.getRole()))
+        List<ClanMember> memberships = memberRepository.findByStudentId(studentId);
+        ClanMember activeMember = memberships.stream()
+                .filter(m -> "ACCEPTED".equals(m.getStatus()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("You are not currently in an active clan"));
+        if ("LEADER".equals(activeMember.getRole()))
             throw new RuntimeException("Leaders cannot leave");
-        memberRepository.delete(member);
+        memberRepository.delete(activeMember);
     }
 
     @Override

@@ -15,7 +15,7 @@ public class ClanMember {
     @Column(name = "clanmember_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clan_id", nullable = false)
     private Clan clanId;
 
