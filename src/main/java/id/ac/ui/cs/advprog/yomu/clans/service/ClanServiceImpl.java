@@ -36,7 +36,9 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     public void requestToJoin(Long clanId, String studentId) {
-        Clan clan = clanRepository.findById(clanId).orElseThrow();
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
         ClanMember request = new ClanMember();
         request.setClanId(clan);
         request.setStudentId(studentId);
@@ -53,15 +55,18 @@ public class ClanServiceImpl implements ClanService {
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Unauthorized");
 
-        ClanMember member = memberRepository.findByClanAndStudentId(clan, targetId)
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetId)
                 .orElseThrow(() -> new RuntimeException("Membership request not found for this clan"));
+
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
     }
 
     @Override
     public void inviteStudent(Long clanId, String leaderId, String targetStudentId) {
-        Clan clan = clanRepository.findById(clanId).orElseThrow();
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Only leaders can invite");
 
@@ -78,7 +83,7 @@ public class ClanServiceImpl implements ClanService {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
-        ClanMember member = memberRepository.findByClanAndStudentId(clan, studentId)
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, studentId)
                 .orElseThrow(() -> new RuntimeException("Invitation not found for this clan"));
 
         if (!"PENDING_INVITE".equals(member.getStatus()))
@@ -97,7 +102,8 @@ public class ClanServiceImpl implements ClanService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("You are not currently in an active clan"));
         if ("LEADER".equals(activeMember.getRole()))
-            throw new RuntimeException("Leaders cannot leave");
+            throw new RuntimeException("Leaders cannot leave. Delete the clan instead.");
+
         memberRepository.delete(activeMember);
     }
 
@@ -114,5 +120,4 @@ public class ClanServiceImpl implements ClanService {
     public List<Clan> findAllClans() {
         return clanRepository.findAll();
     }
-
 }
