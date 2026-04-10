@@ -7,8 +7,11 @@ public interface ClanService {
     Clan createClan(String clanName, String clanBio, String leaderId);
     void requestToJoin(Long clanId, String studentId);
     void approveMember(Long clanId, String leaderId, String targetStudentId);
+    void rejectRequest(Long clanId, String leaderId, String targetStudentId);
     void inviteStudent(Long clanId, String leaderId, String targetStudentId);
     void acceptInvitation(Long clanId, String studentId);
+    void declineInvitation(Long clanId, String studentId);
+    void kickMember(Long clanId, String leaderId, String targetStudentId);
     void leaveClan(String studentId);
     void deleteClan(Long clanId, String leaderId);
     List<Clan> findAllClans();

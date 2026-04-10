@@ -46,6 +46,14 @@ public class ClanApiController {
         return ResponseEntity.ok("Member approved.");
     }
 
+    @PostMapping("/{clanId}/reject/{targetStudentId}")
+    public ResponseEntity<String> rejectRequest(@PathVariable Long clanId,
+                                                @RequestParam String leaderId,
+                                                @PathVariable String targetStudentId) {
+        clanService.rejectRequest(clanId, leaderId, targetStudentId);
+        return ResponseEntity.ok("Join request rejected and removed.");
+    }
+
     @PostMapping("/{clanId}/invite")
     public ResponseEntity<String> inviteMember(@PathVariable Long clanId,
                                                @RequestParam String leaderId,
@@ -59,6 +67,21 @@ public class ClanApiController {
                                                    @RequestParam String studentId) {
         clanService.acceptInvitation(clanId, studentId);
         return ResponseEntity.ok("Invitation accepted! You are now a member of the clan.");
+    }
+
+    @PostMapping("/{clanId}/decline")
+    public ResponseEntity<String> declineInvitation(@PathVariable Long clanId,
+                                                    @RequestParam String studentId) {
+        clanService.declineInvitation(clanId, studentId);
+        return ResponseEntity.ok("Invitation declined and removed.");
+    }
+
+    @PostMapping("/{clanId}/kick/{targetStudentId}")
+    public ResponseEntity<?> kick(@PathVariable Long clanId,
+                                  @RequestParam String leaderId,
+                                  @PathVariable String targetStudentId) {
+        clanService.kickMember(clanId, leaderId, targetStudentId);
+        return ResponseEntity.ok("Member kicked successfully");
     }
 
     @DeleteMapping("/leave")

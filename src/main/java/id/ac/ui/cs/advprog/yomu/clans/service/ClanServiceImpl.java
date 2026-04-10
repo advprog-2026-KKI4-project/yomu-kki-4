@@ -58,8 +58,27 @@ public class ClanServiceImpl implements ClanService {
         ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetId)
                 .orElseThrow(() -> new RuntimeException("Membership request not found for this clan"));
 
+        if (!"PENDING_REQUEST".equals(member.getStatus())) {
+            throw new RuntimeException("This student did not request to join; they cannot be approved.");
+        }
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
+    }
+
+    @Override
+    @Transactional
+    public void rejectRequest(Long clanId, String leaderId, String targetStudentId) {
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
+        if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
+
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetStudentId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+
+        if (!"PENDING_REQUEST".equals(member.getStatus())) {
+            throw new RuntimeException("This is not a pending join request");
+        }
+
+        memberRepository.delete(member);
     }
 
     @Override
@@ -91,6 +110,38 @@ public class ClanServiceImpl implements ClanService {
 
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
+    }
+
+    @Override
+    @Transactional
+    public void declineInvitation(Long clanId, String studentId) {
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
+
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, studentId)
+                .orElseThrow(() -> new RuntimeException("Invitation not found"));
+
+        if (!"PENDING_INVITE".equals(member.getStatus())) {
+            throw new RuntimeException("You do not have a pending invitation to this clan");
+        }
+
+        memberRepository.delete(member);
+    }
+
+    @Override
+    @Transactional
+    public void kickMember(Long clanId, String leaderId, String targetStudentId) {
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
+
+        if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
+
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetStudentId)
+                .orElseThrow(() -> new RuntimeException("Member not found in this clan"));
+
+        if ("LEADER".equals(member.getRole())) {
+            throw new RuntimeException("Leaders cannot be kicked. They must delete the clan.");
+        }
+
+        memberRepository.delete(member);
     }
 
     @Override
