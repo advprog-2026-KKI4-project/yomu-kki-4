@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.clans.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class ClanMember {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clan_id", nullable = false)
+    @JsonIgnoreProperties("members")
     private Clan clanId;
 
     @Column(name = "member_id", nullable = false)
