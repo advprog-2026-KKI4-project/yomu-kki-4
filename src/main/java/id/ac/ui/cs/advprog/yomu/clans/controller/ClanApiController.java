@@ -1,12 +1,14 @@
 package id.ac.ui.cs.advprog.yomu.clans.controller;
 
 import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
+import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
 import id.ac.ui.cs.advprog.yomu.clans.service.ClanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/clans")
@@ -32,14 +34,14 @@ public class ClanApiController {
     }
 
     @PostMapping("/{clanId}/request")
-    public ResponseEntity<String> requestToJoin(@PathVariable Long clanId,
+    public ResponseEntity<String> requestToJoin(@PathVariable UUID clanId,
                                                 @RequestParam String studentId) {
         clanService.requestToJoin(clanId, studentId);
         return ResponseEntity.ok("Request sent to clan leader.");
     }
 
     @PostMapping("/{clanId}/approve")
-    public ResponseEntity<String> approveMember(@PathVariable Long clanId,
+    public ResponseEntity<String> approveMember(@PathVariable UUID clanId,
                                                 @RequestParam String leaderId,
                                                 @RequestParam String targetStudentId) {
         clanService.approveMember(clanId, leaderId, targetStudentId);
@@ -47,7 +49,7 @@ public class ClanApiController {
     }
 
     @PostMapping("/{clanId}/reject/{targetStudentId}")
-    public ResponseEntity<String> rejectRequest(@PathVariable Long clanId,
+    public ResponseEntity<String> rejectRequest(@PathVariable UUID clanId,
                                                 @RequestParam String leaderId,
                                                 @PathVariable String targetStudentId) {
         clanService.rejectRequest(clanId, leaderId, targetStudentId);
@@ -55,7 +57,7 @@ public class ClanApiController {
     }
 
     @PostMapping("/{clanId}/invite")
-    public ResponseEntity<String> inviteMember(@PathVariable Long clanId,
+    public ResponseEntity<String> inviteMember(@PathVariable UUID clanId,
                                                @RequestParam String leaderId,
                                                @RequestParam String targetStudentId) {
         clanService.inviteStudent(clanId, leaderId, targetStudentId);
@@ -63,21 +65,21 @@ public class ClanApiController {
     }
 
     @PostMapping("/{clanId}/accept-invitation")
-    public ResponseEntity<String> acceptInvitation(@PathVariable Long clanId,
+    public ResponseEntity<String> acceptInvitation(@PathVariable UUID clanId,
                                                    @RequestParam String studentId) {
         clanService.acceptInvitation(clanId, studentId);
         return ResponseEntity.ok("Invitation accepted! You are now a member of the clan.");
     }
 
     @PostMapping("/{clanId}/decline")
-    public ResponseEntity<String> declineInvitation(@PathVariable Long clanId,
+    public ResponseEntity<String> declineInvitation(@PathVariable UUID clanId,
                                                     @RequestParam String studentId) {
         clanService.declineInvitation(clanId, studentId);
         return ResponseEntity.ok("Invitation declined and removed.");
     }
 
     @PostMapping("/{clanId}/kick/{targetStudentId}")
-    public ResponseEntity<?> kick(@PathVariable Long clanId,
+    public ResponseEntity<?> kick(@PathVariable UUID clanId,
                                   @RequestParam String leaderId,
                                   @PathVariable String targetStudentId) {
         clanService.kickMember(clanId, leaderId, targetStudentId);
@@ -91,7 +93,7 @@ public class ClanApiController {
     }
 
     @DeleteMapping("/{clanId}/delete")
-    public ResponseEntity<String> deleteClan(@PathVariable Long clanId,
+    public ResponseEntity<String> deleteClan(@PathVariable UUID clanId,
                                              @RequestParam String leaderId) {
         clanService.deleteClan(clanId, leaderId);
         return ResponseEntity.ok("Clan deleted successfully.");
