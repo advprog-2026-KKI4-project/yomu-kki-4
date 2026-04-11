@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface ClanRepository extends JpaRepository<Clan, UUID> {
     List<Clan> findByName(String name);
     Optional<Clan> findByLeaderId(String leaderId);
+    List<Clan> findAllByOrderByTotalScoreDescIdAsc();
 }

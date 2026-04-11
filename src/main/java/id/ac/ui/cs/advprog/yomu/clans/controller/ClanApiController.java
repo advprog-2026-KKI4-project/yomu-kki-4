@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.clans.controller;
 
 import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
-import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
 import id.ac.ui.cs.advprog.yomu.clans.service.ClanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -97,5 +96,14 @@ public class ClanApiController {
                                              @RequestParam String leaderId) {
         clanService.deleteClan(clanId, leaderId);
         return ResponseEntity.ok("Clan deleted successfully.");
+    }
+
+    // Temporary Endpoint
+    @PostMapping("/test/update-member-score")
+    public ResponseEntity<String> updateMemberScore(@RequestParam String studentId,
+                                                    @RequestParam int newScore) {
+
+        clanService.updateMemberScoreMock(studentId, newScore);
+        return ResponseEntity.ok("Score updated successfully.");
     }
 }

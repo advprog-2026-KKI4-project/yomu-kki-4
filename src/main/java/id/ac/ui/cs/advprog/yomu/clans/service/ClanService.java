@@ -16,4 +16,6 @@ public interface ClanService {
     void leaveClan(String studentId);
     void deleteClan(UUID clanId, String leaderId);
     List<Clan> findAllClans();
+
+    void updateMemberScoreMock(String studentId, int newScore); // Temporary use
 }

@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.yomu.clans.service;
 
 import id.ac.ui.cs.advprog.yomu.clans.model.*;
 import id.ac.ui.cs.advprog.yomu.clans.repository.*;
+import id.ac.ui.cs.advprog.yomu.clans.service.LeaderboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,9 @@ public class ClanServiceImpl implements ClanService {
 
     @Autowired
     private ClanMemberRepository memberRepository;
+
+    @Autowired
+    private LeaderboardService leaderboardService;
 
     @Override
     @Transactional
@@ -64,6 +68,7 @@ public class ClanServiceImpl implements ClanService {
         }
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
+        leaderboardService.updateClanScore(clan);
     }
 
     @Override
@@ -111,6 +116,7 @@ public class ClanServiceImpl implements ClanService {
 
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
+        leaderboardService.updateClanScore(clan);
     }
 
     @Override
@@ -143,6 +149,7 @@ public class ClanServiceImpl implements ClanService {
         }
 
         memberRepository.delete(member);
+        leaderboardService.updateClanScore(clan);
     }
 
     @Override
@@ -156,7 +163,9 @@ public class ClanServiceImpl implements ClanService {
         if ("LEADER".equals(activeMember.getRole()))
             throw new RuntimeException("Leaders cannot leave. Delete the clan instead.");
 
+        Clan clan = activeMember.getClanId();
         memberRepository.delete(activeMember);
+        leaderboardService.updateClanScore(clan);
     }
 
     @Override
@@ -171,5 +180,21 @@ public class ClanServiceImpl implements ClanService {
     @Override
     public List<Clan> findAllClans() {
         return clanRepository.findAll();
+    }
+
+    // Temporary Function
+    @Override
+    @Transactional
+    public void updateMemberScoreMock(String studentId, int newScore) {
+        ClanMember member = memberRepository.findByStudentId(studentId)
+                .stream()
+                .filter(m -> "ACCEPTED".equals(m.getStatus()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Active member not found"));
+
+        member.setLocalScore(newScore);
+        memberRepository.save(member);
+
+        leaderboardService.updateClanScore(member.getClanId());
     }
 }
