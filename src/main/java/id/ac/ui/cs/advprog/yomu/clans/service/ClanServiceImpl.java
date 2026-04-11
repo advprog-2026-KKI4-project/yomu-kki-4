@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ClanServiceImpl implements ClanService {
@@ -35,7 +36,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void requestToJoin(Long clanId, String studentId) {
+    public void requestToJoin(UUID clanId, String studentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -48,7 +49,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void approveMember(Long clanId, String leaderId, String targetId) {
+    public void approveMember(UUID clanId, String leaderId, String targetId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -67,7 +68,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void rejectRequest(Long clanId, String leaderId, String targetStudentId) {
+    public void rejectRequest(UUID clanId, String leaderId, String targetStudentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
         if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
 
@@ -82,7 +83,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void inviteStudent(Long clanId, String leaderId, String targetStudentId) {
+    public void inviteStudent(UUID clanId, String leaderId, String targetStudentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -98,7 +99,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void acceptInvitation(Long clanId, String studentId) {
+    public void acceptInvitation(UUID clanId, String studentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -114,7 +115,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void declineInvitation(Long clanId, String studentId) {
+    public void declineInvitation(UUID clanId, String studentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
 
         ClanMember member = memberRepository.findByClanIdAndStudentId(clan, studentId)
@@ -129,7 +130,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void kickMember(Long clanId, String leaderId, String targetStudentId) {
+    public void kickMember(UUID clanId, String leaderId, String targetStudentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
 
         if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
@@ -160,7 +161,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void deleteClan(Long clanId, String leaderId) {
+    public void deleteClan(UUID clanId, String leaderId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Unauthorized");

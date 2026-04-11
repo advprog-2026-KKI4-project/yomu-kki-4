@@ -14,8 +14,8 @@ import lombok.Setter;
 @Getter @Setter
 public class Clan {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clan_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "clan_id", updatable = false, nullable = false)
     private UUID id;
 
     @Column(name = "clan_name", unique = true, nullable = false)

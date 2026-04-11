@@ -2,17 +2,18 @@ package id.ac.ui.cs.advprog.yomu.clans.service;
 
 import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
 import java.util.List;
+import java.util.UUID;
 
 public interface ClanService {
     Clan createClan(String clanName, String clanBio, String leaderId);
-    void requestToJoin(Long clanId, String studentId);
-    void approveMember(Long clanId, String leaderId, String targetStudentId);
-    void rejectRequest(Long clanId, String leaderId, String targetStudentId);
-    void inviteStudent(Long clanId, String leaderId, String targetStudentId);
-    void acceptInvitation(Long clanId, String studentId);
-    void declineInvitation(Long clanId, String studentId);
-    void kickMember(Long clanId, String leaderId, String targetStudentId);
+    void requestToJoin(UUID clanId, String studentId);
+    void approveMember(UUID clanId, String leaderId, String targetStudentId);
+    void rejectRequest(UUID clanId, String leaderId, String targetStudentId);
+    void inviteStudent(UUID clanId, String leaderId, String targetStudentId);
+    void acceptInvitation(UUID clanId, String studentId);
+    void declineInvitation(UUID clanId, String studentId);
+    void kickMember(UUID clanId, String leaderId, String targetStudentId);
     void leaveClan(String studentId);
-    void deleteClan(Long clanId, String leaderId);
+    void deleteClan(UUID clanId, String leaderId);
     List<Clan> findAllClans();
 }

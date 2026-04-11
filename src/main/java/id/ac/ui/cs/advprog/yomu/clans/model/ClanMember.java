@@ -12,8 +12,8 @@ import lombok.Setter;
 @Getter @Setter
 public class ClanMember {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clanmember_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "clanmember_id", updatable = false, nullable = false)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
