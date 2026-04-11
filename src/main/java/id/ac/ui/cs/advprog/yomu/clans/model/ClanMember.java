@@ -28,6 +28,9 @@ public class ClanMember {
 
     private String status;
 
+    @Column(name = "local_score")
+    private int localScore = 0;
+
     @Column(name = "join_at")
     private LocalDateTime joinedAt = LocalDateTime.now();
 }
