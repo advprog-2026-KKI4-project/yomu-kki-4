@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ClanRepository extends JpaRepository<Clan, Long> {
+public interface ClanRepository extends JpaRepository<Clan, UUID> {
     List<Clan> findByName(String name);
     Optional<Clan> findByLeaderId(String leaderId);
 }
