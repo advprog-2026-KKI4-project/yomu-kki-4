@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,12 @@ public class DiscussionForumController {
     }
 
     @PostMapping
-    public ResponseEntity<DiscussionForum> postComment(@Valid @RequestBody CommentRequest requestDTO) {
+    public ResponseEntity<DiscussionForum> postComment(
+            @Valid @RequestBody CommentRequest requestDTO,
+            Principal principal) {
+
+        requestDTO.setAuthorId(principal.getName());
+
         DiscussionForum savedComment = service.postComment(requestDTO);
         return new ResponseEntity<>(savedComment, HttpStatus.CREATED);
     }
