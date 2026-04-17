@@ -5,5 +5,7 @@ import java.util.List;
 
 public interface LeaderboardService {
     void updateClanScore(Clan clan);
+    void endCurrentSeason();
     List<Clan> getGlobalLeaderboard();
+    List<Clan> getDivisionLeaderboard(String division);
 }
