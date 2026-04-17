@@ -44,6 +44,13 @@ public class ClanServiceImpl implements ClanService {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
+        boolean alreadyRequested = memberRepository.findByStudentId(studentId).stream()
+                .anyMatch(m -> m.getClanId().getId().equals(clanId));
+
+        if (alreadyRequested) {
+            throw new RuntimeException("You already have a pending request or are a member of this clan.");
+        }
+
         ClanMember request = new ClanMember();
         request.setClanId(clan);
         request.setStudentId(studentId);
@@ -164,8 +171,11 @@ public class ClanServiceImpl implements ClanService {
             throw new RuntimeException("Leaders cannot leave. Delete the clan instead.");
 
         Clan clan = activeMember.getClanId();
+        clan.getMembers().remove(activeMember);
+        activeMember.setClanId(null);
         memberRepository.delete(activeMember);
         leaderboardService.updateClanScore(clan);
+        clanRepository.save(clan);
     }
 
     @Override
