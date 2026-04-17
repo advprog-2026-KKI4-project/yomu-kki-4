@@ -4,56 +4,74 @@
     <meta charset="UTF-8">
     <title>Create Daily Mission - Yomu</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }
-        h1 { color: #333; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 4px; font-weight: bold; color: #555; }
-        input, select { width: 100%; max-width: 400px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        .checkbox-group { display: flex; align-items: center; gap: 8px; }
-        .checkbox-group input { width: auto; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; color: white; font-size: 14px; }
-        .btn-primary { background: #4a90d9; }
-        .btn-secondary { background: #909399; }
-        .actions { display: flex; gap: 8px; margin-top: 1rem; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 2rem; background-color: #111016; color: #f7ecf4; }
+        h1 { text-align: center; color: #f7ecf4; font-weight: 800; letter-spacing: 1px; margin-bottom: 2rem; }
+        .container { max-width: 500px; margin: 0 auto; background-color: #564b8f; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8); }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #a096e0; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid transparent;
+            background: #6b5ce0; color: #f7ecf4; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease;
+        }
+        input::placeholder { color: #a096e0; opacity: 0.7; }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #f5b17f; box-shadow: 0 0 8px rgba(245, 177, 127, 0.3); }
+        select option { background: #564b8f; color: #f7ecf4; }
+
+        .checkbox-group { display: flex; align-items: center; gap: 12px; background: #6b5ce0; padding: 14px 16px; border-radius: 12px; margin-top: 0.5rem; cursor: pointer; }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: #f5b17f; cursor: pointer; margin: 0; }
+        .checkbox-group label { margin-bottom: 0; color: #f7ecf4; text-transform: none; font-size: 14px; letter-spacing: normal; cursor: pointer; }
+
+        .btn { padding: 14px 24px; border: none; border-radius: 24px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 15px; transition: all 0.2s ease; text-align: center; display: block; width: 100%; box-sizing: border-box; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .btn-primary { background: #f5b17f; color: #111016; margin-bottom: 12px; }
+        .btn-secondary { background: transparent; color: #a096e0; border: 2px solid #6b5ce0; }
+        .btn-secondary:hover { background: #6b5ce0; color: #f7ecf4; }
+
+        .actions { margin-top: 2.5rem; }
     </style>
 </head>
 <body>
-<h1>Create Daily Mission</h1>
+<div class="container">
+    <h1>Create Mission</h1>
 
-<form th:action="@{/daily-missions/create}" th:object="${mission}" method="post">
-    <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" th:field="*{name}" required placeholder="e.g., Daily Reader"/>
-    </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <input type="text" id="description" th:field="*{description}" required placeholder="e.g., Read at least 1 article today"/>
-    </div>
-    <div class="form-group">
-        <label for="type">Type</label>
-        <select id="type" th:field="*{type}" required>
-            <option value="">-- Select Type --</option>
-            <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="targetCount">Target Count</label>
-        <input type="number" id="targetCount" th:field="*{targetCount}" required min="1" placeholder="e.g., 1"/>
-    </div>
-    <div class="form-group">
-        <label for="rewardPoints">Reward Points</label>
-        <input type="number" id="rewardPoints" th:field="*{rewardPoints}" required min="0" placeholder="e.g., 10"/>
-    </div>
-    <div class="form-group">
-        <div class="checkbox-group">
-            <input type="checkbox" id="active" th:field="*{active}"/>
-            <label for="active" style="display:inline; font-weight:normal;">Active (available to users)</label>
+    <form th:action="@{/daily-missions/create}" th:object="${mission}" method="post">
+        <div class="form-group">
+            <label for="name">Mission Name</label>
+            <input type="text" id="name" th:field="*{name}" required placeholder="e.g., Daily Reader"/>
         </div>
-    </div>
-    <div class="actions">
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a th:href="@{/daily-missions}" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" th:field="*{description}" required placeholder="e.g., Read at least 1 article today"/>
+        </div>
+        <div class="form-group">
+            <label for="type">Category</label>
+            <select id="type" th:field="*{type}" required>
+                <option value="" disabled selected>-- Select Type --</option>
+                <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="targetCount">Target Count</label>
+            <input type="number" id="targetCount" th:field="*{targetCount}" required min="1" placeholder="e.g., 1"/>
+        </div>
+        <div class="form-group">
+            <label for="rewardPoints">Reward Points</label>
+            <input type="number" id="rewardPoints" th:field="*{rewardPoints}" required min="0" placeholder="e.g., 10"/>
+        </div>
+
+        <label>Availability</label>
+        <div class="checkbox-group" onclick="document.getElementById('active').click();">
+            <input type="checkbox" id="active" th:field="*{active}"/>
+            <label for="active">Mission is active and available to users</label>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Create Mission</button>
+            <a th:href="@{/daily-missions}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
 </body>
 </html>
