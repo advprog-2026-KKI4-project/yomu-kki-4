@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +14,9 @@ import lombok.Setter;
 @Getter @Setter
 public class Clan {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clan_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "clan_id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name = "clan_name", unique = true, nullable = false)
     private String name;

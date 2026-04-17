@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.clans.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -11,12 +12,13 @@ import lombok.Setter;
 @Getter @Setter
 public class ClanMember {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clanmember_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "clanmember_id", updatable = false, nullable = false)
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clan_id", nullable = false)
+    @JsonIgnoreProperties("members")
     private Clan clanId;
 
     @Column(name = "member_id", nullable = false)
@@ -25,6 +27,9 @@ public class ClanMember {
     private String role;
 
     private String status;
+
+    @Column(name = "local_score")
+    private int localScore = 0;
 
     @Column(name = "join_at")
     private LocalDateTime joinedAt = LocalDateTime.now();

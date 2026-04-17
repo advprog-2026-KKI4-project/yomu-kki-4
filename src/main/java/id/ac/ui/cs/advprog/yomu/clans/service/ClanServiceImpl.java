@@ -2,10 +2,12 @@ package id.ac.ui.cs.advprog.yomu.clans.service;
 
 import id.ac.ui.cs.advprog.yomu.clans.model.*;
 import id.ac.ui.cs.advprog.yomu.clans.repository.*;
+import id.ac.ui.cs.advprog.yomu.clans.service.LeaderboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ClanServiceImpl implements ClanService {
@@ -15,6 +17,9 @@ public class ClanServiceImpl implements ClanService {
 
     @Autowired
     private ClanMemberRepository memberRepository;
+
+    @Autowired
+    private LeaderboardService leaderboardService;
 
     @Override
     @Transactional
@@ -35,8 +40,17 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void requestToJoin(Long clanId, String studentId) {
-        Clan clan = clanRepository.findById(clanId).orElseThrow();
+    public void requestToJoin(UUID clanId, String studentId) {
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
+        boolean alreadyRequested = memberRepository.findByStudentId(studentId).stream()
+                .anyMatch(m -> m.getClanId().getId().equals(clanId));
+
+        if (alreadyRequested) {
+            throw new RuntimeException("You already have a pending request or are a member of this clan.");
+        }
+
         ClanMember request = new ClanMember();
         request.setClanId(clan);
         request.setStudentId(studentId);
@@ -46,22 +60,45 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void approveMember(Long clanId, String leaderId, String targetId) {
+    public void approveMember(UUID clanId, String leaderId, String targetId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Unauthorized");
 
-        ClanMember member = memberRepository.findByClanAndStudentId(clan, targetId)
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetId)
                 .orElseThrow(() -> new RuntimeException("Membership request not found for this clan"));
+
+        if (!"PENDING_REQUEST".equals(member.getStatus())) {
+            throw new RuntimeException("This student did not request to join; they cannot be approved.");
+        }
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
+        leaderboardService.updateClanScore(clan);
     }
 
     @Override
-    public void inviteStudent(Long clanId, String leaderId, String targetStudentId) {
+    @Transactional
+    public void rejectRequest(UUID clanId, String leaderId, String targetStudentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
+        if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
+
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetStudentId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+
+        if (!"PENDING_REQUEST".equals(member.getStatus())) {
+            throw new RuntimeException("This is not a pending join request");
+        }
+
+        memberRepository.delete(member);
+    }
+
+    @Override
+    public void inviteStudent(UUID clanId, String leaderId, String targetStudentId) {
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Only leaders can invite");
 
@@ -74,11 +111,11 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void acceptInvitation(Long clanId, String studentId) {
+    public void acceptInvitation(UUID clanId, String studentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
-        ClanMember member = memberRepository.findByClanAndStudentId(clan, studentId)
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, studentId)
                 .orElseThrow(() -> new RuntimeException("Invitation not found for this clan"));
 
         if (!"PENDING_INVITE".equals(member.getStatus()))
@@ -86,6 +123,40 @@ public class ClanServiceImpl implements ClanService {
 
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
+        leaderboardService.updateClanScore(clan);
+    }
+
+    @Override
+    @Transactional
+    public void declineInvitation(UUID clanId, String studentId) {
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
+
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, studentId)
+                .orElseThrow(() -> new RuntimeException("Invitation not found"));
+
+        if (!"PENDING_INVITE".equals(member.getStatus())) {
+            throw new RuntimeException("You do not have a pending invitation to this clan");
+        }
+
+        memberRepository.delete(member);
+    }
+
+    @Override
+    @Transactional
+    public void kickMember(UUID clanId, String leaderId, String targetStudentId) {
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
+
+        if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
+
+        ClanMember member = memberRepository.findByClanIdAndStudentId(clan, targetStudentId)
+                .orElseThrow(() -> new RuntimeException("Member not found in this clan"));
+
+        if ("LEADER".equals(member.getRole())) {
+            throw new RuntimeException("Leaders cannot be kicked. They must delete the clan.");
+        }
+
+        memberRepository.delete(member);
+        leaderboardService.updateClanScore(clan);
     }
 
     @Override
@@ -97,13 +168,19 @@ public class ClanServiceImpl implements ClanService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("You are not currently in an active clan"));
         if ("LEADER".equals(activeMember.getRole()))
-            throw new RuntimeException("Leaders cannot leave");
+            throw new RuntimeException("Leaders cannot leave. Delete the clan instead.");
+
+        Clan clan = activeMember.getClanId();
+        clan.getMembers().remove(activeMember);
+        activeMember.setClanId(null);
         memberRepository.delete(activeMember);
+        leaderboardService.updateClanScore(clan);
+        clanRepository.save(clan);
     }
 
     @Override
     @Transactional
-    public void deleteClan(Long clanId, String leaderId) {
+    public void deleteClan(UUID clanId, String leaderId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Unauthorized");
@@ -115,4 +192,19 @@ public class ClanServiceImpl implements ClanService {
         return clanRepository.findAll();
     }
 
+    // Temporary Function
+    @Override
+    @Transactional
+    public void updateMemberScoreMock(String studentId, int newScore) {
+        ClanMember member = memberRepository.findByStudentId(studentId)
+                .stream()
+                .filter(m -> "ACCEPTED".equals(m.getStatus()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Active member not found"));
+
+        member.setLocalScore(newScore);
+        memberRepository.save(member);
+
+        leaderboardService.updateClanScore(member.getClanId());
+    }
 }
