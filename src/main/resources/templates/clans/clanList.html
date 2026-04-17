@@ -11,95 +11,141 @@
         .sidebar-btn { border: none; background: transparent; padding: 10px; width: 100%; text-align: left; color: #7b61ff; font-weight: 600; margin-bottom: 10px; }
         .sidebar-btn.active { background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .main-card { background-color: white; border-radius: 25px; min-height: 90vh; margin: 20px; padding: 30px; }
-
-        /* Search Bar Style */
-        .search-container { max-width: 500px; margin: 0 auto 30px; position: relative; }
-        .search-input { border-radius: 50px; padding: 10px 25px; border: 1px solid #ddd; width: 100%; }
-        .search-icon { position: absolute; right: 20px; top: 12px; color: #aaa; }
-
-        /* List Style */
-        .discover-list-container { background-color: #9d8df1; border-radius: 20px; padding: 20px; }
-        .clan-item { background-color: #e0e0e0; border-radius: 50px; padding: 10px 25px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; border: none; width: 100%; text-align: left; }
-        .clan-item:hover { background-color: #d0d0d0; transform: scale(1.01); }
-        .clan-avatar { width: 50px; height: 50px; background: white; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 15px; }
-
-        /* Modal Custom Style (Similar to My Clan) */
-        .modal-content { border-radius: 25px; border: none; background-color: #9d8df1; color: white; }
-        .info-box { background-color: #e2e2e2; border-radius: 10px; padding: 15px; color: #333; margin-top: 5px; }
+        .search-container { max-width: 600px; margin: 0 auto 40px; position: relative; }
+        .search-input { border-radius: 50px; padding: 12px 25px; border: 2px solid #d1c4e9; width: 100%; outline: none; transition: 0.3s; }
+        .search-input:focus { border-color: #5e35b1; box-shadow: 0 0 10px rgba(94, 53, 177, 0.2); }
+        .search-icon { position: absolute; right: 25px; top: 15px; color: #5e35b1; font-size: 1.2rem; }
+        .clan-row { background-color: #ede7f6; border-radius: 20px; margin-bottom: 15px; padding: 15px; border-left: 8px solid #b39ddb; transition: transform 0.2s; cursor: pointer; width: 100%; text-align: left; border-top: none; border-right: none; border-bottom: none; }
+        .clan-row:hover { transform: scale(1.01); background-color: #e5def5; }
+        .clan-icon { width: 50px; height: 50px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #5e35b1; }
+        .view-btn { border: 2px solid #5e35b1; color: #5e35b1; border-radius: 10px; font-weight: bold; background: white; }
+        .modal-content { border-radius: 25px; border: none; padding: 10px; }
+        .profile-circle { width: 80px; height: 80px; background-color: #e0e0e0; border-radius: 50%; border: 3px solid #5e35b1; }
     </style>
 </head>
 <body>
-
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-2 sidebar d-none d-md-block">
-            <button class="sidebar-btn"><i class="bi bi-shield"></i> My Clan</button>
-            <button class="sidebar-btn active"><i class="bi bi-search"></i> Discover</button>
-            <button class="sidebar-btn"><i class="bi bi-trophy"></i> Leaderboard</button>
+            <a th:href="@{/clans/my-clan(studentId=${param.studentId})}" class="sidebar-btn d-block text-decoration-none">
+                <i class="bi bi-shield"></i> My Clan
+            </a>
+            <a th:href="@{/clans/discover(studentId=${param.studentId})}" class="sidebar-btn active d-block text-decoration-none">
+                <i class="bi bi-search"></i> Discover
+            </a>
+            <a th:href="@{/leaderboard(studentId=${param.studentId})}" class="sidebar-btn d-block text-decoration-none">
+                <i class="bi bi-trophy"></i> Leaderboard
+            </a>
         </div>
 
-        <div class="col-md-10">
-            <div class="main-card shadow text-center">
-                <h1 class="mb-4" style="color: #ffb74d; font-weight: 800; font-size: 3rem;">Discover Clans</h1>
+        <div class="col-md-10" th:with="currentUserId=${param.studentId}">
+            <div class="main-card shadow">
+                <h1 class="text-center mb-4" style="color: #ffb74d; font-weight: 800; font-size: 2.5rem;">Discover Clans</h1>
 
-                <div class="search-container shadow-sm">
-                    <input type="text" id="clanSearch" class="search-input" placeholder="Search Clan Name" onkeyup="filterClans()">
+                <!--<div class="search-container">
+                    <input type="text" id="clanSearch" class="search-input" placeholder="Search Clan Name..." onkeyup="filterClans()">
                     <i class="bi bi-search search-icon"></i>
-                </div>
+                </div>-->
 
-                <div class="discover-list-container shadow">
-                    <div id="clanList">
-                        <button th:each="clan : ${clans}"
-                                class="clan-item d-flex align-items-center justify-content-between"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#modal-' + ${clan.id}">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-star-fill text-white me-3" style="font-size: 1.5rem;"></i>
-                                <div class="clan-avatar"></div>
-                                <h4 class="mb-0 fw-bold text-dark" th:text="${clan.name}">Clan Name</h4>
+                <div id="clan-list-container" class="px-lg-5">
+                    <div th:each="clan : ${clans}" class="clan-row d-flex align-items-center justify-content-between"
+                         data-bs-toggle="modal"
+                         th:data-bs-target="|#modal-${clan.id}|">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <div class="clan-icon me-3">
+                                <i class="bi bi-shield-shaded text-primary"></i>
                             </div>
-                            <div class="bg-white rounded-pill px-4 py-2 text-primary fw-bold">View</div>
-                        </button>
+                            <div>
+                                <h5 class="mb-0 fw-bold">
+                                    <span th:text="${clan.name}">Clan Name</span>
+                                    <span class="badge rounded-pill bg-secondary" style="font-size: 0.6em;" th:text="${clan.division}">BRONZE</span>
+                                </h5>
+                                <small class="text-muted">
+                                    <i class="bi bi-people-fill"></i> <span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + '/20'">0/20</span> Members |
+                                    <span th:text="${clan.bio}">Small bio...</span>
+                                </small>
+                            </div>
+                        </div>
+                        <button class="btn view-btn">Details <i class="bi bi-eye"></i></button>
+                    </div>
+
+                    <div th:if="${clans.isEmpty()}" class="text-center py-5">
+                        <p class="text-muted">No clans available to discover.</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div th:each="clan : ${clans}" class="modal fade" th:id="'modal-' + ${clan.id}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-4 shadow-lg">
-            <div class="modal-header border-0">
-                <h3 class="modal-title fw-bold" th:text="${clan.name}">Clan Detail</h3>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="fw-bold">Description</label>
-                    <div class="info-box" th:text="${clan.bio}">Bio goes here...</div>
-                </div>
-                <div class="row mb-3 text-center">
-                    <div class="col-6">
-                        <label class="fw-bold">Division</label>
-                        <div class="info-box" th:text="${clan.division}">BRONZE</div>
-                    </div>
-                    <div class="col-6">
-                        <label class="fw-bold">Members</label>
-                        <div class="info-box" th:text="${clan.members.size()} + '/20'">5/20</div>
-                    </div>
-                </div>
+            <div th:each="clan : ${clans}" class="modal fade" th:id="|modal-${clan.id}|" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content shadow-lg">
+                        <div class="modal-body p-4">
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
 
-                <div class="mt-4 text-center">
-                    <form th:if="${!hasClan}" th:action="@{/api/clans/join}" method="POST">
-                        <input type="hidden" name="clanId" th:value="${clan.id}">
-                        <button type="submit" class="btn btn-light rounded-pill px-5 fw-bold text-primary shadow">
-                            Request to Join
-                        </button>
-                    </form>
-                    <p th:unless="${!hasClan}" class="text-white-50 small italic">
-                        You are already a member of a clan.
-                    </p>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="profile-circle me-3"></div>
+                                    <div>
+                                        <h2 class="mb-0 fw-bold text-dark" th:text="${clan.name}">Clan Name</h2>
+                                        <span class="badge rounded-pill bg-warning text-dark" th:text="${clan.division}">GOLD</span>
+                                        <p class="text-muted mb-0 mt-1" th:text="${clan.bio}">Bio goes here...</p>
+                                    </div>
+                                </div>
+
+                                <div th:if="${!hasClan}">
+                                    <button th:if="${#lists.contains(pendingClanIds, clan.id)}"
+                                            type="button"
+                                            class="btn btn-success rounded-pill px-5 fw-bold shadow-sm"
+                                            disabled>
+                                        <i class="bi bi-check-lg"></i> Request Sent
+                                    </button>
+                                    <button th:unless="${#lists.contains(pendingClanIds, clan.id)}"
+                                            type="button"
+                                            th:id="|request-btn-${clan.id}|"
+                                            class="btn btn-primary rounded-pill px-5 fw-bold shadow"
+                                            th:data-clan-id="${clan.id}"
+                                            th:data-student-id="${currentUserId}"
+                                            onclick="sendJoinRequest(this)">
+                                        Request to Join
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4 text-center text-dark">
+                                <div class="col-4">
+                                    <div class="p-2 border rounded-4 bg-light shadow-sm">
+                                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Multiplier</small>
+                                        <h5 class="fw-bold text-primary mb-0" th:text="${clan.activeMultiplier} + 'x'">1.0x</h5>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 border rounded-4 bg-light shadow-sm">
+                                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Score</small>
+                                        <h5 class="fw-bold text-success mb-0" th:text="${clan.totalScore}">0</h5>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 border rounded-4 bg-light shadow-sm">
+                                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Global Rank</small>
+                                        <h5 class="fw-bold text-dark mb-0" th:text="'#' + ${clan.previousRank != null ? clan.previousRank : '??'}">#1</h5>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 border rounded-4 bg-white shadow-sm text-dark">
+                                <h6 class="fw-bold mb-3">Members (<span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])}"></span>/20)</h6>
+                                <table class="table table-sm table-hover align-middle">
+                                    <tbody>
+                                    <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
+                                        <td><i class="bi bi-person me-1"></i> <span th:text="${member.studentId}"></span></td>
+                                        <td class="text-end"><span class="badge bg-light text-dark border" th:text="${member.role}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -110,13 +156,42 @@
 <script>
     function filterClans() {
         let input = document.getElementById('clanSearch').value.toLowerCase();
-        let items = document.getElementsByClassName('clan-item');
-        for (let i = 0; i < items.length; i++) {
-            let name = items[i].getElementsByTagName('h4').innerText.toLowerCase();
-            items[i].style.display = name.includes(input) ? "flex" : "none";
+        let rows = document.getElementsByClassName('clan-row');
+        for (let row of rows) {
+            let name = row.querySelector('h5').innerText.toLowerCase();
+            row.style.display = name.includes(input) ? "flex" : "none";
+        }
+    }
+
+    async function sendJoinRequest(buttonElement) {
+        const clanId = buttonElement.getAttribute('data-clan-id');
+        const studentId = buttonElement.getAttribute('data-student-id');
+
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+
+        const params = new URLSearchParams();
+        params.append('studentId', studentId);
+
+        try {
+            const response = await fetch(`/api/clans/${clanId}/request`, {
+                method: 'POST',
+                body: params,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+
+            if (response.ok) {
+                buttonElement.innerHTML = '<i class="bi bi-check-lg"></i> Request Sent';
+                buttonElement.className = "btn btn-success rounded-pill px-5 fw-bold shadow-sm";
+            } else {
+                throw new Error('Error');
+            }
+        } catch (error) {
+            alert("Please try again later.");
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = 'Request to Join';
         }
     }
 </script>
-
 </body>
 </html>

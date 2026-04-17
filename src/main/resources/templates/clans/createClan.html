@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu - Create Clan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #fce4d6; font-family: 'Segoe UI', sans-serif; }
+        .sidebar { background-color: #fce4d6; min-height: 100vh; padding: 20px; }
+        .sidebar-btn { border: none; background: transparent; padding: 10px; width: 100%; text-align: left; color: #7b61ff; font-weight: 600; margin-bottom: 10px; }
+        .sidebar-btn.active { background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .main-card { background-color: white; border-radius: 25px; min-height: 90vh; margin: 20px; padding: 40px; align-content: center }
+        .creation-container { max-width: 650px; margin: 0 auto; padding-right: 30px; padding-left: 30px; }
+
+        .profile-upload-area {
+            width: 120px;
+            height: 120px;
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .profile-upload-area:hover { border-color: #7b61ff; color: #7b61ff; }
+        .form-label { font-weight: 700; color: #495057; margin-bottom: 8px; }
+        .custom-input {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            background-color: #f8f9fa;
+            transition: 0.3s;
+        }
+        .custom-input:focus {
+            background-color: #fff;
+            border-color: #7b61ff;
+            box-shadow: 0 0 0 0.25 million rgba(123, 97, 255, 0.1);
+        }
+        .btn-create-clan {
+            background-color: #7b61ff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .btn-create-clan:hover { background-color: #5e35b1; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar d-none d-md-block">
+            <a th:href="@{/clans/my-clan(studentId=${param.studentId})}" class="sidebar-btn active d-block text-decoration-none">
+                <i class="bi bi-shield"></i> My Clan
+            </a>
+            <a th:href="@{/clans/discover(studentId=${param.studentId})}" class="sidebar-btn d-block text-decoration-none">
+                <i class="bi bi-search"></i> Discover
+            </a>
+            <a th:href="@{/leaderboard(studentId=${param.studentId})}" class="sidebar-btn d-block text-decoration-none">
+                <i class="bi bi-trophy"></i> Leaderboard
+            </a>
+        </div>
+
+        <div class="col-md-10" th:with="currentUserId=${param.studentId}">
+            <div class="main-card shadow">
+                <div class="text-center mb-2">
+                    <h1 class="text-center mb-2" style="color: #ffb74d; font-weight: 800; font-size: 2.5rem;">Create Clans</h1>
+                    <p class="text-muted">Start your journey as a Leader today.</p>
+                </div>
+
+                <div class="creation-container">
+                    <form th:action="@{/clans/create}" method="POST">
+                        <input type="hidden" name="leaderId" th:value="${currentUserId}">
+
+                        <!--<div class="profile-upload-area">
+                            <i class="bi bi-image" style="font-size: 2rem;"></i>
+                            <span style="font-size: 0.7rem;">Default Image</span>
+                        </div>-->
+
+                        <div class="mb-4">
+                            <label class="form-label">Clan Name</label>
+                            <input type="text" name="name" class="form-control custom-input"
+                                   placeholder="e.g. The Code Warriors" required maxlength="30">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea name="bio" class="form-control custom-input"
+                                      style="min-height: 120px; resize: none;"
+                                      placeholder="Describe you clan a little." required maxlength="255"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-create-clan shadow-sm">
+                            Confirm Creation
+                        </button>
+                    </form>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a th:href="@{/clans/my-clan(studentId=${currentUserId})}" class="text-muted small text-decoration-none">
+                        <i class="bi bi-arrow-left"></i> Nevermind, take me back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
