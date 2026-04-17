@@ -9,15 +9,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/clans/leaderboard")
+@RequestMapping("/api/leaderboard")
 public class LeaderboardApiController {
 
     @Autowired
     private LeaderboardService leaderboardService;
 
-    @GetMapping
+    @GetMapping("/global")
     public ResponseEntity<List<Clan>> getGlobalLeaderboard() {
         List<Clan> leaderboard = leaderboardService.getGlobalLeaderboard();
+        return ResponseEntity.ok(leaderboard);
+    }
+
+    @GetMapping("/division/{division}")
+    public ResponseEntity<List<Clan>> getDivisionLeaderboard(@PathVariable String division) {
+        List<Clan> leaderboard = leaderboardService.getDivisionLeaderboard(division);
         return ResponseEntity.ok(leaderboard);
     }
 }
