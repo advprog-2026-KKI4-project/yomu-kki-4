@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,11 +18,10 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // Ideally, value from application.properties
-    @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
+    @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}") // 1 day in ms
+    @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
 
     public String extractUsername(String token) {
@@ -33,9 +33,21 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
+    public Long extractUserId(String token) {
+        Object claim = extractClaim(token, claims -> claims.get("user_id"));
+        if (claim instanceof Integer value) {
+            return value.longValue();
+        }
+        if (claim instanceof Long value) {
+            return value;
+        }
+        return null;
+    }
+
     public String generateToken(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole());
+        extraClaims.put("user_id", user.getId());
         return buildToken(extraClaims, user.getEmail() != null ? user.getEmail() : user.getPhone(), jwtExpiration);
     }
 
@@ -50,8 +62,12 @@ public class JwtUtil {
     }
 
     public boolean isTokenValid(String token, String identity) {
-        final String username = extractUsername(token);
-        return (username.equals(identity)) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            return (username.equals(identity)) && !isTokenExpired(token);
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
@@ -71,7 +87,17 @@ public class JwtUtil {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = io.jsonwebtoken.io.Decoders.BASE64.decode(secret);
+        byte[] keyBytes;
+        try {
+            keyBytes = io.jsonwebtoken.io.Decoders.BASE64.decode(secret);
+        } catch (IllegalArgumentException ex) {
+            keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (keyBytes.length < 32) {
+            throw new IllegalStateException("JWT secret must be at least 32 bytes");
+        }
+
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

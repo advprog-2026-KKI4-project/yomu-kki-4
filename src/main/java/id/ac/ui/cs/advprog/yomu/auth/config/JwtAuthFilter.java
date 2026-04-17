@@ -46,6 +46,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (jwtUtil.isTokenValid(jwt, userIdentity)) {
                     // Get role from token
                     String role = jwtUtil.extractClaim(jwt, claims -> claims.get("role", String.class));
+                    if (role == null || role.isBlank()) {
+                        role = "STUDENT";
+                    }
                     
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userIdentity,
