@@ -161,19 +161,19 @@ public class AuthServiceImpl implements AuthService {
         String fullName = oauth2User.getAttribute("name");
         String picture = oauth2User.getAttribute("picture");
 
-        if (hasText(givenName)) {
-            user.setFirstName(givenName);
+        if (!hasText(user.getFirstName())) {
+            if (hasText(givenName)) {
+                user.setFirstName(givenName);
+            } else if (hasText(fullName)) {
+                user.setFirstName(fullName);
+            }
         }
 
-        if (hasText(familyName)) {
+        if (!hasText(user.getLastName()) && hasText(familyName)) {
             user.setLastName(familyName);
         }
 
-        if (!hasText(user.getFirstName()) && hasText(fullName)) {
-            user.setFirstName(fullName);
-        }
-
-        if (hasText(picture)) {
+        if (!hasText(user.getAvatarUrl()) && hasText(picture)) {
             user.setAvatarUrl(picture);
         }
     }
