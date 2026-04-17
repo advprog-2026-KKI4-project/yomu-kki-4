@@ -21,7 +21,7 @@ public class DailyMissionController {
     @GetMapping
     public String listMissions(Model model) {
         model.addAttribute("missions", dailyMissionService.findAll());
-        return "missionList";
+        return "mission/missionList";
     }
 
     // ===== CREATE FORM =====
@@ -29,7 +29,7 @@ public class DailyMissionController {
     public String showCreateForm(Model model) {
         model.addAttribute("mission", new DailyMission());
         model.addAttribute("types", MissionType.values());
-        return "missionCreate";
+        return "mission/missionCreate";
     }
 
     // ===== CREATE SUBMIT =====
@@ -44,7 +44,7 @@ public class DailyMissionController {
     public String showEditForm(@PathVariable UUID id, Model model) {
         model.addAttribute("mission", dailyMissionService.findById(id));
         model.addAttribute("types", MissionType.values());
-        return "missionEdit";
+        return "mission/missionEdit";
     }
 
     // ===== EDIT SUBMIT =====
