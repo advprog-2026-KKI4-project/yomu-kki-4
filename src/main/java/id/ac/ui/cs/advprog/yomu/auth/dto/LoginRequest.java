@@ -1,9 +1,11 @@
 package id.ac.ui.cs.advprog.yomu.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class LoginRequest {
 
     /** Accepts either an email address or a phone number. */

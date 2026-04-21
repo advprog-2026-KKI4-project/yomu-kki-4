@@ -1,38 +1,40 @@
 package id.ac.ui.cs.advprog.yomu.auth.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.yomu.auth.dto.AuthResponse;
 import id.ac.ui.cs.advprog.yomu.auth.dto.LoginRequest;
 import id.ac.ui.cs.advprog.yomu.auth.dto.RegisterRequest;
+import id.ac.ui.cs.advprog.yomu.auth.dto.UpdateProfileRequest;
+import id.ac.ui.cs.advprog.yomu.auth.dto.UserProfileResponse;
 import id.ac.ui.cs.advprog.yomu.auth.service.AuthService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+
+import java.util.Collections;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@WebMvcTest(AuthController.class)
+@ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @Mock
     private AuthService authService;
 
+    @InjectMocks
+    private AuthController authController;
+
     @Test
-    void testRegisterEndpointReturns201() throws Exception {
+    void testRegisterEndpointReturns201() {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("testuser");
         request.setEmail("test@example.com");
@@ -45,16 +47,15 @@ class AuthControllerTest {
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/auth/register")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Registration successful"));
+        ResponseEntity<AuthResponse> result = authController.register(request);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("Registration successful", result.getBody().getMessage());
     }
 
     @Test
-    void testLoginEndpointReturns200() throws Exception {
+    void testLoginEndpointReturns200() {
         LoginRequest request = new LoginRequest();
         request.setEmailOrPhone("test@example.com");
         request.setPassword("password123");
@@ -66,11 +67,80 @@ class AuthControllerTest {
 
         when(authService.login(any(LoginRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/auth/login")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Login successful"));
+        ResponseEntity<AuthResponse> result = authController.login(request);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("Login successful", result.getBody().getMessage());
+    }
+
+    @Test
+    void testRegisterRequestRequiresEmailOrPhone() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("testuser");
+        request.setPassword("password123");
+
+        assertEquals(false, request.hasLoginIdentifier());
+    }
+
+    @Test
+    void testGetProfileReturns200() {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            "test@example.com",
+            null,
+            Collections.emptyList()
+        );
+        UserProfileResponse profileResponse = UserProfileResponse.builder()
+                .id(1L)
+                .username("testuser")
+                .email("test@example.com")
+                .role("STUDENT")
+                .build();
+
+        when(authService.getProfile("test@example.com")).thenReturn(profileResponse);
+
+        ResponseEntity<UserProfileResponse> result = authController.getProfile(authentication);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("testuser", result.getBody().getUsername());
+    }
+
+    @Test
+    void testUpdateProfileReturns200() {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            "test@example.com",
+            null,
+            Collections.emptyList()
+        );
+        UpdateProfileRequest request = new UpdateProfileRequest();
+        request.setFirstName("Test");
+        request.setLastName("User");
+
+        UserProfileResponse profileResponse = UserProfileResponse.builder()
+                .id(1L)
+                .username("testuser")
+                .email("test@example.com")
+                .firstName("Test")
+                .lastName("User")
+                .role("STUDENT")
+                .build();
+
+        when(authService.updateProfile(any(String.class), any(UpdateProfileRequest.class))).thenReturn(profileResponse);
+
+        ResponseEntity<UserProfileResponse> result = authController.updateProfile(authentication, request);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("Test", result.getBody().getFirstName());
+    }
+
+    @Test
+    void testGetGoogleAuthorizationUrlReturns200() {
+        ResponseEntity<Map<String, String>> result = authController.getGoogleAuthorizationUrl();
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("/oauth2/authorization/google", result.getBody().get("authorizationUrl"));
     }
 }

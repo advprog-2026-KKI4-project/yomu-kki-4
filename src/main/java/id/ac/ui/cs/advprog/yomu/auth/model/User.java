@@ -5,14 +5,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,6 +27,9 @@ public class User {
     @Column(unique = true)
     @Email
     private String email;
+
+    @Column(unique = true)
+    private String googleId;
 
     @Column(unique = true)
     private String phone;
@@ -40,6 +45,23 @@ public class User {
     @Column(nullable = false)
     private String role = "STUDENT";
 
+    private String firstName;
+
+    private String lastName;
+
+    private String avatarUrl;
+
+    @Column(length = 1000)
+    private String bio;
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
