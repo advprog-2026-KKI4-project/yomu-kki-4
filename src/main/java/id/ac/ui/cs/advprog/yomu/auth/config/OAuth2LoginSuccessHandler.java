@@ -21,6 +21,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
     private final ObjectMapper objectMapper;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Override
     public void onAuthenticationSuccess(
@@ -37,8 +38,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         AuthResponse authResponse = authService.loginWithGoogle(oauth2User);
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), authResponse);
+        
+        // Clear cookies
+        httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+
+        // Set JWT cookie
+        CookieUtils.addCookie(response, "jwt", authResponse.getToken(), 86400);
+
+        // Redirect to homepage
+        response.sendRedirect("/");
     }
 }

@@ -20,6 +20,7 @@ import java.util.Map;
 public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Override
     public void onAuthenticationFailure(
@@ -28,6 +29,9 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
             AuthenticationException exception
     ) throws IOException, ServletException {
         log.warn("Google OAuth2 login failed for {}", request.getRequestURI(), exception);
+        
+        httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+        
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), Map.of("error", "Google login failed"));

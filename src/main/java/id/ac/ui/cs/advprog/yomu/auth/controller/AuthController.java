@@ -27,8 +27,9 @@ public class AuthController {
      * Register a new user with email or phone.
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request, jakarta.servlet.http.HttpServletResponse httpResponse) {
         AuthResponse response = authService.register(request);
+        id.ac.ui.cs.advprog.yomu.auth.config.CookieUtils.addCookie(httpResponse, "jwt", response.getToken(), 86400);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -37,8 +38,9 @@ public class AuthController {
      * Authenticate an existing user with email or phone + password.
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, jakarta.servlet.http.HttpServletResponse httpResponse) {
         AuthResponse response = authService.login(request);
+        id.ac.ui.cs.advprog.yomu.auth.config.CookieUtils.addCookie(httpResponse, "jwt", response.getToken(), 86400);
         return ResponseEntity.ok(response);
     }
 
