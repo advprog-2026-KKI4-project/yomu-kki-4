@@ -27,6 +27,15 @@ public class ClanApiController {
         return ResponseEntity.ok(clanService.createClan(name, bio, leaderId));
     }
 
+    @PutMapping("/{clanId}/update")
+    public ResponseEntity<Clan> updateClanApi(@PathVariable UUID clanId,
+                                              @RequestParam String leaderId,
+                                              @RequestParam String name,
+                                              @RequestParam String bio) {
+        Clan updatedClan = clanService.updateClan(clanId, leaderId, name, bio);
+        return ResponseEntity.ok(updatedClan);
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<Clan>> getAllClans() {
         return ResponseEntity.ok(clanService.findAllClans());

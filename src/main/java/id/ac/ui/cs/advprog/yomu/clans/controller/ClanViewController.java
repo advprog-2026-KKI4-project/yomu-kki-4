@@ -1,7 +1,9 @@
 package id.ac.ui.cs.advprog.yomu.clans.controller;
 
+import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
 import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
 import id.ac.ui.cs.advprog.yomu.clans.repository.ClanMemberRepository;
+import id.ac.ui.cs.advprog.yomu.clans.repository.ClanRepository;
 import id.ac.ui.cs.advprog.yomu.clans.service.ClanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,6 +22,9 @@ public class ClanViewController {
     private ClanService clanService;
 
     @Autowired
+    private ClanRepository clanRepository;
+
+    @Autowired
     private ClanMemberRepository memberRepository;
 
     @GetMapping("/create-form")
@@ -32,16 +37,33 @@ public class ClanViewController {
     public String processCreateClan(@RequestParam String name,
                                     @RequestParam String bio,
                                     @RequestParam String leaderId) {
-
         clanService.createClan(name, bio, leaderId);
-
         return "redirect:/clans/my-clan?studentId=" + leaderId;
+    }
+
+    @GetMapping("/{clanId}/edit-form")
+    public String showEditForm(@PathVariable UUID clanId,
+                               @RequestParam String studentId,
+                               Model model) {
+        Clan clan = clanRepository.findById(clanId).get();
+        model.addAttribute("clan", clan);
+        model.addAttribute("studentId", studentId);
+        return "clans/editClan";
+    }
+
+    @PostMapping("/update")
+    public String handleUpdate(@RequestParam UUID clanId,
+                               @RequestParam String studentId,
+                               @RequestParam String name,
+                               @RequestParam String bio) {
+        clanService.updateClan(clanId, studentId, name, bio);
+        return "redirect:/clans/my-clan?studentId=" + studentId;
     }
 
     @GetMapping("/my-clan")
     public String viewMyClan(@RequestParam String studentId, Model model) {
         if (studentId == null || studentId.isEmpty()) {
-            return "redirect:/clans/discover"; // Or some default
+            return "redirect:/clans/discover";
         }
 
         Optional<ClanMember> membership = memberRepository.findByStudentId(studentId)

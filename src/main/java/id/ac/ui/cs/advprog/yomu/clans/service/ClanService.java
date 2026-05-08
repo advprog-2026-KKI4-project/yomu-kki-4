@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public interface ClanService {
     Clan createClan(String clanName, String clanBio, String leaderId);
+    Clan updateClan(UUID clanId, String leaderId, String newName, String newBio);
     void requestToJoin(UUID clanId, String studentId);
     void approveMember(UUID clanId, String leaderId, String targetStudentId);
     void rejectRequest(UUID clanId, String leaderId, String targetStudentId);

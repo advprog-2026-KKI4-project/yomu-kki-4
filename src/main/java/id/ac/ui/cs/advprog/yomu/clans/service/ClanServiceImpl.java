@@ -40,6 +40,21 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
+    @Transactional
+    public Clan updateClan(UUID clanId, String leaderId, String newName, String newBio) {
+        Clan clan = clanRepository.findById(clanId)
+                .orElseThrow(() -> new RuntimeException("Clan not found"));
+
+        if (!clan.getLeaderId().equals(leaderId))
+            throw new RuntimeException("Unauthorized");
+
+        clan.setName(newName);
+        clan.setBio(newBio);
+
+        return clanRepository.save(clan);
+    }
+
+    @Override
     public void requestToJoin(UUID clanId, String studentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
