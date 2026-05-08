@@ -38,27 +38,35 @@ public class ReadingPageController {
         model.addAttribute("username", "Radithya");
         model.addAttribute("role", role);
 
-        List<ReadingMaterial> completed = service.getAll().stream()
-                .filter(m -> m.getProgress() == 100)
+        List<ReadingMaterial> inProgress = service.getAll().stream()
+                .filter(m -> m.getProgress() > 0)
                 .collect(Collectors.toList());
 
-        model.addAttribute("materials", completed);
+        model.addAttribute("materials", inProgress);
         return "reading/dashboard";
     }
 
     @GetMapping("/reading/{id}")
     public String readingPage(@PathVariable String id, Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
-        model.addAttribute("material", service.getById(id));
+        ReadingMaterial material = service.getById(id);
+
+        if (material != null && material.getProgress() == 0) {
+            material.setProgress(50);
+            service.add(material);
+        }
+
+        model.addAttribute("material", material);
         model.addAttribute("role", role);
         model.addAttribute("isReview", false);
         return "reading/reader";
     }
 
     @GetMapping("/quiz/{id}")
-    public String quizPage(@PathVariable String id, Model model) {
+    public String quizPage(@PathVariable String id, Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
         model.addAttribute("material", service.getById(id));
         model.addAttribute("userId", "user-123");
-        return "reading/session";
+        model.addAttribute("role", role);
+        return "quiz/session";
     }
 
     @GetMapping("/quiz/result")
@@ -73,11 +81,14 @@ public class ReadingPageController {
         model.addAttribute("baseScore", baseScore);
         model.addAttribute("bonus", bonus);
         model.addAttribute("remaining", remaining);
-        return "reading/result";
+        return "quiz/result";
     }
 
     @GetMapping("/review/{id}")
-    public String reviewPage(@PathVariable String id, Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
+    public String reviewPage(@PathVariable String id,
+                             Model model,
+                             @RequestParam(required = false, defaultValue = "STUDENT") String role) {
+
         ReadingMaterial material = service.getById(id);
         QuizAttempt attempt = attemptRepo.findByUserIdAndMaterialId("user-123", id);
 
@@ -86,10 +97,9 @@ public class ReadingPageController {
         model.addAttribute("score", attempt != null ? attempt.getScore() : 0);
         model.addAttribute("role", role);
         model.addAttribute("isReview", true);
+
         return "reading/reader";
     }
-
-    // --- ADMIN ---
 
     @GetMapping("/admin/create")
     public String showCreateForm(Model model) {
