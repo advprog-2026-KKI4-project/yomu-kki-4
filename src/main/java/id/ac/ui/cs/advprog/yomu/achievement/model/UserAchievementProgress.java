@@ -4,6 +4,10 @@ import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+// temp, for testing
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,12 +24,14 @@ public class UserAchievementProgress {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // Links to Adra's User entity
+    // Tell Jackson to completely ignore the User when turning this into JSON
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Links to your Achievement template
+    // Tell Jackson to ignore Hibernate's invisible lazy-loading proxy variables
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "achievement_id", nullable = false)
     private Achievement achievement;

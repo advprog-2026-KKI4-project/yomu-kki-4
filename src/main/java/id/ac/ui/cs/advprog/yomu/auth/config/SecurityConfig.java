@@ -44,7 +44,9 @@ public class SecurityConfig {
                         "/login/oauth2/**",
                         "/login",
                         "/register",
-                        "/css/**", "/js/**", "/images/**"
+                        "/css/**", "/js/**", "/images/**",
+                        "/my-achievements.html", // temporary for testing
+                        "/**/*.html"
                 ).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
