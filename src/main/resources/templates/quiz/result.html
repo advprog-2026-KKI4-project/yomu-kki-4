@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu - Results</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body class="result-body">
+<div class="result-card">
+    <div class="result-icon">🎉</div>
+
+    <h1 th:if="${score >= 80}">Excellent!</h1>
+    <h1 th:if="${score < 80 and score >= 50}">Good Effort!</h1>
+    <h1 th:if="${score < 50}">Keep Practicing!</h1>
+
+    <p class="subtitle">You have successfully completed the quiz.</p>
+
+    <div class="stats-container">
+        <div class="stat-item">
+            <span class="stat-label">Total Score</span>
+            <div class="stat-value" th:text="${#numbers.formatDecimal(score, 1, 1)}">109.0</div>
+        </div>
+        <div class="stat-divider" style="width: 1px; height: 40px; background: #eee;"></div>
+        <div class="stat-item">
+            <span class="stat-label">Time Spent</span>
+            <div class="stat-value" th:text="${duration} + 's'">3s</div>
+        </div>
+    </div>
+
+    <div class="score-breakdown">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="color: #666; font-weight: 600;">Quiz Accuracy:</span>
+            <span style="font-weight: 800; color: var(--primary-purple);"
+                  th:text="${#numbers.formatDecimal(baseScore, 1, 0)}">100</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span style="color: #666; font-weight: 600;">Speed Bonus (Max 10):</span>
+            <span style="color: var(--completed-green); font-weight: 800;"
+                  th:text="'+' + ${#numbers.formatDecimal(bonus, 1, 1)}">+9.0</span>
+        </div>
+    </div>
+
+    <div class="result-actions" style="margin-top: 30px;">
+        <a th:href="@{/dashboard}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

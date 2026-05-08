@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu - Quiz Session</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <script th:src="@{/js/quiz-timer.js}" defer></script>
+</head>
+<body class="quiz-focused-bg">
+<div class="quiz-container">
+    <input type="hidden" id="time-limit" th:value="${material.timeLimit}">
+
+    <header class="quiz-header">
+        <div class="timer-badge">
+            ⏱ <span id="timer-display" th:text="${material.timeLimit / 60} + ':' + (${material.timeLimit % 60 < 10 ? '0' : ''} + ${material.timeLimit % 60})">0:00</span>
+        </div>
+    </header>
+
+    <form id="quiz-form" th:action="@{/api/materials/{id}/submit(id=${material.id})}" method="post">
+        <input type="hidden" name="userId" th:value="${userId}">
+        <input type="hidden" id="duration-input" name="duration" value="0">
+
+        <h1 class="quiz-main-title" th:text="'Quiz of ' + ${material.title}"></h1>
+
+        <div class="question-block" th:each="question, iter : ${material.questions}">
+            <p class="question-text" th:text="(${iter.index} + 1) + '. ' + ${question.questionText}"></p>
+
+            <div class="options-stack">
+                <div th:each="option, optIter : ${question.options}" class="option-row">
+                    <label th:for="'q' + ${iter.index} + 'o' + ${optIter.index}">
+                        <input type="radio"
+                               th:name="|answers[${iter.index}]|"
+                               th:value="${optIter.index}"
+                               th:id="'q' + ${iter.index} + 'o' + ${optIter.index}"
+                               required>
+                        <span th:text="${option}"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 40px;">Submit Answers</button>
+    </form>
+</div>
+</body>
+</html>

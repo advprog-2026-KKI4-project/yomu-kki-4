@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu - Admin Panel</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <style>
+        .form-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: var(--card-shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--primary-purple); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; }
+        .question-editor { background: #fdfbff; padding: 20px; border-radius: 15px; border: 1px dashed var(--primary-purple); margin-top: 20px; }
+        .option-input { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body style="background-color: var(--bg-color); padding: 60px 20px;">
+
+<div class="form-container">
+    <div style="margin-bottom: 30px;">
+        <a th:href="@{/dashboard(role='ADMIN')}" class="back-link">← Cancel and Exit</a>
+    </div>
+
+    <h1 style="margin-bottom: 30px; color: var(--primary-purple);"
+        th:text="${material.id == null ? 'Create New Material' : 'Edit Material'}"></h1>
+
+    <form th:action="${material.id == null ? '/api/admin/materials/add' : '/api/admin/materials/edit/' + material.id}"
+          th:object="${material}" method="post">
+
+        <input type="hidden" name="role" value="ADMIN">
+
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" th:field="*{title}" placeholder="e.g., Basic Java" required>
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <input type="text" th:field="*{category}" placeholder="e.g., Code, Sport, Art" required>
+        </div>
+
+        <div class="form-group">
+            <label>Time Limit (Seconds)</label>
+            <input type="number" th:field="*{timeLimit}" min="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Reading Content</label>
+            <textarea th:field="*{content}" rows="8" placeholder="Type the learning material here..." required></textarea>
+        </div>
+
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;">
+
+        <h2 style="margin-bottom: 20px; color: var(--primary-purple);">Quiz Settings</h2>
+
+        <div class="question-editor">
+            <div class="form-group">
+                <label>Question 1 Text</label>
+                <input type="text" name="questions[0].questionText" th:value="*{questions.size() > 0 ? questions[0].questionText : ''}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Options (Check the radio for the correct answer)</label>
+                <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
+                    <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}"
+                           th:checked="${questions.size() > 0 && questions[0].correctOptionIndex == i}" required>
+                    <input type="text" th:name="'questions[0].options[' + ${i} + ']'"
+                           th:value="${questions.size() > 0 && questions[0].options.size() > i ? questions[0].options[i] : ''}"
+                           placeholder="Option text..." required>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 40px;">Save Material</button>
+    </form>
+</div>
+
+</body>
+</html>

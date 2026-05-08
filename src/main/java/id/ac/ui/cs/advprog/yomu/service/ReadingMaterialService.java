@@ -32,31 +32,33 @@ public class ReadingMaterialService {
 
     public void delete(String id) {
         materialRepo.deleteById(id);
+
+        attemptRepo.deleteByMaterialId(id);
     }
 
     public double submitQuiz(String userId, String materialId, List<Integer> studentAnswers, long duration) {
-        if (attemptRepo.existsByUserIdAndMaterialId(userId, materialId)) {
-            throw new IllegalStateException("Quiz already completed.");
-        }
-
         ReadingMaterial material = materialRepo.findById(materialId);
         if (material == null) throw new IllegalArgumentException("Material not found.");
 
         List<Question> questions = material.getQuestions();
-        if (studentAnswers.size() != questions.size()) {
-            throw new IllegalArgumentException("Invalid answer count.");
-        }
-
         int correctCount = 0;
         for (int i = 0; i < questions.size(); i++) {
             if (questions.get(i).getCorrectOptionIndex() == studentAnswers.get(i)) {
                 correctCount++;
             }
         }
+        double baseScore = ((double) correctCount / questions.size()) * 100;
 
-        double score = ((double) correctCount / questions.size()) * 100;
-        attemptRepo.save(new QuizAttempt(userId, materialId, score, duration));
+        double timeLimit = material.getTimeLimit();
+        double remaining = Math.max(0, timeLimit - duration);
+        double timeBonus = (remaining / timeLimit) * 10.0;
 
-        return score;
+        double finalScore = baseScore + timeBonus;
+
+        material.setProgress(100);
+        materialRepo.save(material);
+        attemptRepo.save(new QuizAttempt(userId, materialId, finalScore, duration, studentAnswers));
+
+        return finalScore;
     }
 }

@@ -19,18 +19,35 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
-        ReadingMaterial math = new ReadingMaterial();
-        math.setTitle("Quadratic Equations 101");
-        math.setCategory("Mathematics");
-        math.setContent("The standard form is $ax^2 + bx + c = 0$. The discriminant is $D = b^2 - 4ac$.");
+    public void run(String... args) throws Exception {
 
-        Question q1 = new Question();
-        q1.setQuestionText("What is the standard form of a quadratic equation?");
-        q1.setOptions(Arrays.asList("ax+b=0", "ax^2+bx+c=0", "x=y", "a+b=c"));
-        q1.setCorrectOptionIndex(1);
+        ReadingMaterial code = new ReadingMaterial();
+        code.setTitle("Basic Java");
+        code.setCategory("Code");
+        code.setContent("In Java, the main method signature is: public static void main(String[] args).");
+        code.setProgress(0);
+        code.setTimeLimit(30);
 
-        math.getQuestions().add(q1);
-        service.add(math);
+        Question qCode = new Question();
+        qCode.setQuestionText("What is the signature for the main method?");
+        qCode.setOptions(Arrays.asList("main()", "public void main", "public static void main(String[] args)", "static main"));
+        qCode.setCorrectOptionIndex(2);
+        code.addQuestion(qCode);
+        service.add(code);
+
+
+        ReadingMaterial sport = new ReadingMaterial();
+        sport.setTitle("Basketball Basic");
+        sport.setCategory("Sport");
+        sport.setContent("Basketball teams consist of five players on the court.");
+        sport.setProgress(0);
+        sport.setTimeLimit(30);
+
+        Question qSport = new Question();
+        qSport.setQuestionText("How many players per team on the court?");
+        qSport.setOptions(Arrays.asList("3", "5", "7", "11"));
+        qSport.setCorrectOptionIndex(1);
+        sport.addQuestion(qSport);
+        service.add(sport);
     }
 }

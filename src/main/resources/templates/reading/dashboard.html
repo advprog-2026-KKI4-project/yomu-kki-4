@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu - Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard(role=${role})}"
+               th:classappend="${currentUri == '/dashboard' ? 'active' : ''}" class="nav-item">Dashboard</a>
+            <a th:href="@{/my-learning(role=${role})}"
+               th:classappend="${currentUri == '/my-learning' ? 'active' : ''}" class="nav-item">My Learning</a>
+            <a href="#" class="nav-item">Clan</a>
+            <a href="#" class="nav-item">Rank</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h2 th:text="'Welcome, ' + ${username} + '!'">Welcome!</h2>
+            <div th:if="${role == 'ADMIN'}">
+                <a th:href="@{/admin/create}" class="btn btn-primary add-btn">+ Add New Material</a>
+            </div>
+        </header>
+
+        <div class="search-section">
+            <input type="text" id="materialSearch" class="search-input" placeholder="Search title or category...">
+        </div>
+
+        <section class="card-grid" id="cardGrid">
+            <div class="card" th:each="material : ${materials}">
+                <div class="card-header">
+                    <span class="category-tag" th:text="${material.category}">Category</span>
+                    <h3 class="material-title" th:text="${material.title}">Title</h3>
+                </div>
+
+                <div class="progress-section" th:if="${role == 'STUDENT'}">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" th:style="'width: ' + ${material.progress} + '%'"></div>
+                    </div>
+                    <span class="progress-text" th:text="${material.progress} + '%'">0%</span>
+                </div>
+
+                <div class="card-footer">
+                    <div th:if="${role == 'STUDENT'}">
+                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Start Reading !</a>
+                        <a th:if="${material.progress == 50}" th:href="@{/reading/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Continue Reading !</a>
+                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id}, role=${role})}" class="btn btn-completed">Completed !</a>
+                    </div>
+
+                    <div th:if="${role == 'ADMIN'}" class="admin-actions">
+                        <a th:href="@{/admin/edit/{id}(id=${material.id})}" class="btn btn-secondary">Edit</a>
+                        <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="flex: 1;">
+                            <input type="hidden" name="role" value="ADMIN">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this material?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    document.getElementById('materialSearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            const title = card.querySelector('.material-title').textContent.toLowerCase();
+            const category = card.querySelector('.category-tag').textContent.toLowerCase();
+            card.style.display = (title.includes(query) || category.includes(query)) ? 'flex' : 'none';
+        });
+    });
+</script>
+</body>
+</html>

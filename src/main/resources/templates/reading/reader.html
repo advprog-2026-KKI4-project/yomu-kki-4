@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu - Reader</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo">YOMU</div>
+        <nav>
+            <a th:href="@{/dashboard(role=${role})}" class="nav-item">Dashboard</a>
+            <a th:href="@{/my-learning(role=${role})}" class="nav-item">My Learning</a>
+            <a href="#" class="nav-item">Clan</a>
+            <a href="#" class="nav-item">Rank</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div style="margin-bottom: 20px;">
+            <a th:href="@{/dashboard(role=${role})}" class="back-link">← Back to Dashboard</a>
+        </div>
+
+        <section class="reader-view" th:if="${material != null}">
+            <div class="reader-header">
+                <span class="category-tag" th:text="${material.category}">Category</span>
+                <h1 th:text="${material.title}">Material Title</h1>
+            </div>
+
+            <div class="content-box">
+                <p class="reading-text" th:text="${material.content}">Content goes here...</p>
+
+                <div th:if="${isReview}">
+                    <div class="result-banner">
+                        <h3>Quiz Results</h3>
+                        <p>You completed this material with a final score of:</p>
+                        <div class="score-display">
+                            <span th:text="${#numbers.formatDecimal(score, 1, 1)}">0.0</span>
+                        </div>
+                        <p class="status-msg">Status: Finished</p>
+                    </div>
+
+                    <div class="review-list" style="margin-top: 40px;">
+                        <h2 style="margin-bottom: 20px; color: var(--primary-purple);">Review Your Answers</h2>
+
+                        <div th:each="question, qIter : ${material.questions}" class="review-item" style="margin-bottom: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                            <p class="question-text">
+                                <strong th:text="${qIter.count} + '. ' + ${question.questionText}"></strong>
+                            </p>
+
+                            <div class="options-review">
+                                <div th:each="option, oIter : ${question.options}"
+                                     class="option-review-box"
+                                     th:classappend="${oIter.index == question.correctOptionIndex ? 'is-correct' :
+                                                    (attempt != null && oIter.index == attempt.answers[qIter.index] ? 'is-incorrect' : '')}">
+
+                                    <span th:text="${option}">Option Text</span>
+
+                                    <span class="review-label" th:if="${oIter.index == question.correctOptionIndex}">✔ Correct</span>
+                                    <span class="review-label" th:if="${attempt != null && oIter.index == attempt.answers[qIter.index] && oIter.index != question.correctOptionIndex}">✖ Your Choice</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${!isReview}" class="reader-actions">
+                    <a th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

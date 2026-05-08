@@ -1,0 +1,112 @@
+:root {
+    --bg-color: #f7eff6;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #6b5b95;
+    --primary-purple: #5b4b8a;
+    --completed-green: #2e7d32;
+    --progress-peach: #ffe0b2;
+    --progress-orange: #ffab91;
+    --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+}
+
+.app-container { display: flex; min-height: 100vh; }
+
+/* SIDEBAR FIXED */
+.sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    height: 100vh;
+    position: fixed;
+    padding: 40px 20px;
+    border-right: 1px solid #eee;
+}
+
+/* MAIN CONTENT OFFSET */
+.main-content {
+    margin-left: 260px;
+    flex: 1;
+    padding: 60px 80px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* SEARCH SECTION */
+.search-section {
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 600px;
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: var(--card-shadow);
+    font-size: 16px;
+    outline: none;
+}
+
+/* CARDS GRID */
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: flex-start;
+}
+
+.card {
+    background: white;
+    width: 320px;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+.category-tag {
+    background: #ede7f6;
+    color: var(--primary-purple);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.material-title { font-size: 20px; margin-bottom: 20px; }
+
+.btn {
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary { background: var(--primary-purple); color: white; }
+.btn-completed { background: var(--completed-green); color: white; }
+
+.add-btn { width: auto; padding: 12px 25px; }
+
+/* Progress Bar */
+.progress-section { margin: 20px 0; }
+.progress-bar-bg { background: var(--progress-peach); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+.progress-bar-fill { background: var(--progress-orange); height: 100%; }
+.progress-text { font-size: 13px; color: #777; }
