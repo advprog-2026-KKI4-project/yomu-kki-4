@@ -14,13 +14,12 @@ import lombok.AllArgsConstructor;
 public class CommentRequest {
 
     @NotBlank(message = "Content must be filled")
-    @Size(max = 1000, message = "Content must not exceed 1000 characters")
     private String content;
 
     @NotBlank(message = "Material ID must be filled")
     private String materialId;
 
-    @NotBlank(message = "Author ID must be filled")
     private String authorId;
+
     private Long parentCommentId;
 }

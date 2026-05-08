@@ -56,26 +56,31 @@
             return;
         }
 
-        const topLevel = comments.filter(c => !c.parentCommentId);
-        const replies = comments.filter(c => c.parentCommentId);
-
-        let html = '';
-        for (const c of topLevel) {
-            html += renderComment(c);
-            const children = replies.filter(r => r.parentCommentId === c.id);
-            for (const r of children) {
-                html += '<blockquote>' + renderComment(r) + '</blockquote>';
-            }
-        }
-
-        section.innerHTML = html;
+        section.innerHTML = renderCommentsTree(comments, null);
     }
 
+    function renderCommentsTree(comments, currentParentId) {
+        const children = comments.filter(c =>
+            (currentParentId === null && !c.parentCommentId) || c.parentCommentId === currentParentId
+        );
 
-    function renderComment(c) {
-        return ` <p> <b>${c.authorId}</b>: ${c.content}<br>
-            <button onclick="setReply(${c.id}, '${c.authorId}')">Reply</button>
-        </p>`;
+        if (children.length === 0) return '';
+
+        let html = '';
+        for (const c of children) {
+            html += currentParentId ? '<blockquote>' : '<div>';
+            html += `
+                <p>
+                    <b>${c.authorId}</b>: <span id="text-${c.id}">${c.content}</span><br>
+                    <button onclick="setReply(${c.id}, '${c.authorId}')">Reply</button>
+                    <button onclick="promptEdit(${c.id})">Edit</button>
+                    <button onclick="deleteComment(${c.id})">Delete</button>
+                </p>
+            `;
+            html += renderCommentsTree(comments, c.id);
+            html += currentParentId ? '</blockquote>' : '</div><hr>';
+        }
+        return html;
     }
 
     async function postComment() {
@@ -108,6 +113,43 @@
         document.getElementById('comment-content').value = '';
         clearReply();
         fetchComments();
+    }
+
+    async function promptEdit(id) {
+        const currentText = document.getElementById(`text-${id}`).innerText;
+        const newContent = prompt("Edit your comment:", currentText);
+
+        if (newContent !== null && newContent.trim() !== "" && newContent !== currentText) {
+            const authorId = document.getElementById('author-id').value.trim();
+            const res = await fetch(`${BASE}/api/discussions/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: newContent.trim(), authorId: authorId })
+            });
+
+            if (res.ok) {
+                fetchComments();
+            } else {
+                const err = await res.json();
+                alert("Edit failed: " + (err.error || JSON.stringify(err)));
+            }
+        }
+    }
+
+    async function deleteComment(id) {
+        if (confirm("Are you sure you want to delete this comment?")) {
+            const authorId = document.getElementById('author-id').value.trim();
+            const res = await fetch(`${BASE}/api/discussions/${id}?authorId=${authorId}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                fetchComments();
+            } else {
+                const err = await res.json();
+                alert("Delete failed: " + (err.error || JSON.stringify(err)));
+            }
+        }
     }
 
     fetchComments();
