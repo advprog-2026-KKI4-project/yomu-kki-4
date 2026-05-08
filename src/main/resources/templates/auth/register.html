@@ -169,7 +169,25 @@
                 }, 1000);
             } else {
                 const data = await response.json();
-                errorDiv.textContent = data.message || 'Registration failed. Please check your inputs.';
+                let errorMessage = '';
+                
+                // Handle validation errors (field -> message map)
+                if (typeof data === 'object' && data !== null) {
+                    const errors = Object.entries(data)
+                        .filter(([key]) => key !== 'message')
+                        .map(([field, msg]) => `${field}: ${msg}`)
+                        .join('\n');
+                    if (errors) {
+                        errorMessage = errors;
+                    }
+                }
+                
+                // Fall back to message field or generic error
+                if (!errorMessage && data.message) {
+                    errorMessage = data.message;
+                }
+                
+                errorDiv.textContent = errorMessage || 'Registration failed. Please check your inputs.';
                 errorDiv.style.display = 'block';
             }
         } catch (error) {
