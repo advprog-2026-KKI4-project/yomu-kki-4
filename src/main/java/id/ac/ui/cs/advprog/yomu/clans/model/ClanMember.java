@@ -22,7 +22,7 @@ public class ClanMember {
     private Clan clanId;
 
     @Column(name = "member_id", nullable = false)
-    private String studentId;
+    private Long studentId;
 
     private String role;
 

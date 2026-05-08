@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface ClanRepository extends JpaRepository<Clan, UUID> {
     List<Clan> findByName(String name);
-    Optional<Clan> findByLeaderId(String leaderId);
+    Optional<Clan> findByLeaderId(Long leaderId);
     List<Clan> findAllByOrderByTotalScoreDesc();
     List<Clan> findAllByDivisionOrderByTotalScoreDesc(Division division);
 }
