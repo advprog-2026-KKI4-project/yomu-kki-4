@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - Achievements</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 2rem; background-color: #111016; color: #f7ecf4; }
+        h1 { text-align: center; color: #f7ecf4; font-weight: 800; letter-spacing: 1px; margin-bottom: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #564b8f; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8); }
+
+        /* Progress Card Styling */
+        .achievement-card {
+            background: #6b5ce0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .achievement-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+
+        /* Badges */
+        .badge-icon {
+            width: 70px;
+            height: 70px;
+            background: #a096e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+        .badge-icon.unlocked {
+            background: #f5b17f;
+            color: #111016;
+            box-shadow: 0 0 15px rgba(245, 177, 127, 0.5);
+        }
+
+        /* Text Details */
+        .details { flex-grow: 1; }
+        .title { font-weight: bold; font-size: 1.3rem; margin-bottom: 0.3rem; }
+        .desc { color: #f7ecf4; opacity: 0.8; font-size: 0.95rem; margin-bottom: 0.8rem; }
+
+        /* Custom Progress Bar */
+        .progress-container {
+            background: #111016;
+            border-radius: 10px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #f5b17f;
+            height: 100%;
+            transition: width 0.5s ease-out;
+        }
+        .status {
+            font-size: 0.85rem;
+            color: #a096e0;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>My Player Profile</h1>
+    <div id="loading" style="text-align: center; color: #a096e0;">Syncing your progress...</div>
+    <div id="achievements-container"></div>
+</div>
+
+<script>
+    // ⚠️ TEMPORARY FOR TESTING
+    // Later, the login page will save this to localStorage automatically.
+    const token = 'PASTE_YOUR_TOKEN_HERE';
+
+    async function fetchMyAchievements() {
+        try {
+            const response = await fetch('http://localhost:8080/api/achievements/tracking/mine', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Unauthorized: Please check if your token is valid and pasted correctly.');
+            }
+
+            const data = await response.json();
+            renderAchievements(data);
+        } catch (error) {
+            document.getElementById('loading').innerText = error.message;
+        }
+    }
+
+    function renderAchievements(progressList) {
+        const container = document.getElementById('achievements-container');
+        document.getElementById('loading').style.display = 'none';
+
+        if (progressList.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #a096e0;">No achievements started yet. Go take your first quiz!</p>';
+            return;
+        }
+
+        let html = '';
+        progressList.forEach(p => {
+            const a = p.achievement;
+            const percentage = Math.min((p.currentCount / a.targetCount) * 100, 100);
+            const iconClass = p.unlocked ? 'badge-icon unlocked' : 'badge-icon';
+            const iconText = p.unlocked ? '🏆' : '🔒';
+            const rewardText = p.unlocked ? `+${a.points} pts Awarded!` : `Reward: ${a.points} pts`;
+
+            html += `
+                <div class="achievement-card">
+                    <div class="${iconClass}">${iconText}</div>
+                    <div class="details">
+                        <div class="title">${a.name}</div>
+                        <div class="desc">${a.description}</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="status">${p.currentCount} / ${a.targetCount} &nbsp;|&nbsp; ${rewardText}</div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    fetchMyAchievements();
+</script>
+</body>
+</html>
