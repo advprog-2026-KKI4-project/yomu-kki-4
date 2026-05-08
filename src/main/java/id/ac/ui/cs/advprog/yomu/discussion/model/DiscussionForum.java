@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.yomu.discussion.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,7 +25,7 @@ public class DiscussionForum {
     private String materialId;
 
     @Column(name = "author_id", nullable = false)
-    private String authorId;
+    private Long authorId;
 
     @Column(name = "parent_comment_id")
     private Long parentCommentId;
