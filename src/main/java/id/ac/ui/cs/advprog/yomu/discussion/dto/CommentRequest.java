@@ -1,15 +1,9 @@
 package id.ac.ui.cs.advprog.yomu.discussion.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class CommentRequest {
 
     @NotBlank(message = "Content must be filled")
@@ -17,6 +11,10 @@ public class CommentRequest {
 
     @NotBlank(message = "Material ID must be filled")
     private String materialId;
+
+    // TODO(auth): remove this field. Resolve from Authentication.getName() in controller.
+    @NotBlank(message = "Author ID must be filled")
+    private String authorId;
 
     private Long parentCommentId;
 }

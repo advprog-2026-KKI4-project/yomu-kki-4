@@ -8,8 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,69 +21,66 @@ public class DiscussionForumController {
 
     private final DiscussionForumService service;
 
+    // TODO(auth): once auth is connected:
+    //   - add `Authentication authentication` parameter to each protected method
+    //   - replace `req.getAuthorId()` / `payload.get("authorId")` / query params
+    //     with `authentication.getName()` (or resolved User.id)
+    //   - add @PreAuthorize("hasRole('ADMIN')") to /admin/{id}
+    //   - remove the userId/authorId fields from request DTOs
+
     @PostMapping
-    public ResponseEntity<CommentResponse> postComment(
-            @Valid @RequestBody CommentRequest requestDTO,
-            Authentication authentication) {
-        CommentResponse saved = service.postComment(requestDTO, requireIdentity(authentication));
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    public ResponseEntity<CommentResponse> post(@Valid @RequestBody CommentRequest req) {
+        return new ResponseEntity<>(service.postComment(req), HttpStatus.CREATED);
     }
 
     @GetMapping("/{materialId}")
-    public ResponseEntity<List<CommentResponse>> getComments(
+    public ResponseEntity<List<CommentResponse>> list(
             @PathVariable String materialId,
-            Authentication authentication) {
-        String identity = (authentication != null && authentication.isAuthenticated())
-                ? authentication.getName() : null;
-        return ResponseEntity.ok(service.getCommentsByMaterial(materialId, identity));
+            @RequestParam(required = false) String currentUserId) {
+        // TODO(auth): get currentUserId from Authentication instead of query param
+        return ResponseEntity.ok(service.getCommentsByMaterial(materialId, currentUserId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CommentResponse> editComment(
+    public ResponseEntity<CommentResponse> edit(
             @PathVariable Long id,
-            @RequestBody Map<String, String> payload,
-            Authentication authentication) {
-        String content = payload.get("content");
-        return ResponseEntity.ok(service.editComment(id, content, requireIdentity(authentication)));
+            @RequestBody Map<String, String> payload) {
+        // TODO(auth): replace payload.get("authorId") with authentication.getName()
+        return ResponseEntity.ok(
+                service.editComment(id, payload.get("content"), payload.get("authorId")));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long id, Authentication authentication) {
-        service.deleteComment(id, requireIdentity(authentication));
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @RequestParam String authorId) {
+        // TODO(auth): replace @RequestParam authorId with authentication.getName()
+        service.deleteComment(id, authorId);
         return ResponseEntity.noContent().build();
     }
-
-    // ---- Reactions ----
 
     @PostMapping("/{id}/reactions")
     public ResponseEntity<CommentResponse> react(
             @PathVariable Long id,
-            @Valid @RequestBody ReactionRequest req,
-            Authentication authentication) {
+            @Valid @RequestBody ReactionRequest req) {
+        // TODO(auth): get userId from Authentication instead of req.getUserId()
         return ResponseEntity.ok(
-                service.reactToComment(id, req.getReactionType(), requireIdentity(authentication)));
+                service.reactToComment(id, req.getReactionType(), req.getUserId()));
     }
 
     @DeleteMapping("/{id}/reactions")
-    public ResponseEntity<Void> removeReaction(@PathVariable Long id, Authentication authentication) {
-        service.removeReaction(id, requireIdentity(authentication));
+    public ResponseEntity<Void> removeReaction(
+            @PathVariable Long id,
+            @RequestParam String userId) {
+        // TODO(auth): replace @RequestParam userId with authentication.getName()
+        service.removeReaction(id, userId);
         return ResponseEntity.noContent().build();
     }
-
-    // ---- Admin moderation ----
 
     @DeleteMapping("/admin/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> adminDelete(@PathVariable Long id) {
+        // TODO(auth): add @PreAuthorize("hasRole('ADMIN')") here
         service.deleteCommentAsAdmin(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private String requireIdentity(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
-            throw new IllegalArgumentException("Unauthorized");
-        }
-        return authentication.getName();
     }
 }

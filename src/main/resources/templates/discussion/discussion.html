@@ -1,10 +1,503 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8"/>
+    <title>Yomu — Discussion (Test)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #fce4d6;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+        }
+        .discussion-module {
+            max-width: 680px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0e6f7;
+            margin-bottom: 16px;
+        }
+        .module-header h3 {
+            margin: 0;
+            color: #4527a0;
+            font-weight: 700;
+            font-size: 1.15rem;
+        }
+        .count-pill { color: #7b61ff; font-weight: 700; }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        .icon-btn:hover { background: #f5f0ff; color: #5e35b1; }
+
+        .test-banner {
+            background: #fff3cd;
+            color: #856404;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .test-banner label { margin: 0; cursor: pointer; }
+
+        .compose-row { display: flex; gap: 12px; margin-bottom: 20px; }
+        .avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #b39ddb, #7b61ff);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+        .compose-body { flex: 1; }
+        .compose-textarea {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #d1c4e9;
+            background: transparent;
+            padding: 6px 0;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            transition: 0.15s;
+        }
+        .compose-textarea:focus {
+            border-bottom: 2px solid #7b61ff;
+            padding-bottom: 5px;
+        }
+        .compose-actions {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 8px;
+        }
+        .username-input {
+            border: 1px solid #d1c4e9;
+            border-radius: 16px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            background: #f8f5ff;
+            outline: none;
+            max-width: 160px;
+        }
+        .username-input:focus { border-color: #7b61ff; }
+        .btn-primary-pill {
+            background: #7b61ff;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 6px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .btn-primary-pill:hover { background: #5e35b1; }
+        .btn-primary-pill:disabled { background: #d1c4e9; cursor: not-allowed; }
+        .btn-text {
+            background: transparent;
+            color: #888;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 16px;
+        }
+        .btn-text:hover { color: #5e35b1; background: #f5f0ff; }
+
+        .reply-context {
+            background: #ede7f6;
+            color: #4527a0;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .comment {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f7f3fb;
+        }
+        .comment:last-child { border-bottom: none; }
+        .comment-body { flex: 1; min-width: 0; }
+        .comment-header {
+            display: flex; align-items: center; gap: 6px;
+            margin-bottom: 2px;
+            flex-wrap: wrap;
+        }
+        .comment-author { font-weight: 700; color: #1a1a1a; font-size: 0.9rem; }
+        .comment-time { color: #999; font-size: 0.75rem; }
+        .comment-text {
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.45;
+            margin-bottom: 6px;
+            word-wrap: break-word;
+        }
+
+        .comment-actions {
+            display: flex; align-items: center; gap: 2px;
+            flex-wrap: wrap;
+        }
+        .reaction-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #555;
+            line-height: 1.4;
+        }
+        .reaction-btn:hover { background: #f5f0ff; border-color: #d1c4e9; }
+        .reaction-btn.active {
+            background: #ede7f6;
+            border-color: #7b61ff;
+            color: #4527a0;
+            font-weight: 700;
+        }
+        .text-action {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            cursor: pointer;
+            border-radius: 12px;
+        }
+        .text-action:hover { background: #f5f0ff; color: #5e35b1; }
+        .text-action.danger:hover { color: #c62828; background: #ffebee; }
+        .text-action.admin {
+            color: #c62828;
+            font-size: 0.75rem;
+        }
+        .text-action.admin:hover { background: #ffcdd2; }
+
+        .replies {
+            margin-left: 50px;
+            border-left: 2px solid #f0e6f7;
+            padding-left: 14px;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .empty-state i { font-size: 2.5rem; color: #d1c4e9; }
+
+        .err-text { color: #c62828; font-size: 0.8rem; margin-top: 4px; }
+    </style>
 </head>
 <body>
+
+<div class="discussion-module">
+
+    <div class="module-header">
+        <h3>
+            <i class="bi bi-chat-dots"></i>
+            Discussion <span class="count-pill" id="total-count">0</span>
+        </h3>
+        <button class="icon-btn" onclick="fetchComments()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+    </div>
+
+    <div class="test-banner">
+        <i class="bi bi-tools"></i>
+        <span><b>Test mode:</b> auth not connected yet</span>
+        <label>
+            <input type="checkbox" id="admin-toggle" onchange="render()"/>
+            Pretend I'm admin
+        </label>
+    </div>
+
+    <div class="compose-row">
+        <div class="avatar" id="my-avatar">?</div>
+        <div class="compose-body">
+            <div id="reply-context" class="reply-context" style="display:none">
+                <i class="bi bi-reply"></i> Replying to <b id="reply-label"></b>
+                <button class="btn-text" onclick="clearReply()" style="padding:0 4px;font-size:0.75rem">×</button>
+            </div>
+            <textarea id="comment-content" class="compose-textarea" rows="2"
+                      placeholder="Add a comment..."></textarea>
+            <div class="compose-actions">
+                <input id="username-input" class="username-input"
+                       placeholder="Your username" oninput="updateAvatar()"/>
+                <div>
+                    <button class="btn-text" onclick="cancelCompose()">Clear</button>
+                    <button class="btn-primary-pill" onclick="postComment()">Comment</button>
+                </div>
+            </div>
+            <div id="post-error" class="err-text"></div>
+        </div>
+    </div>
+
+    <div id="comment-section">
+        <div class="empty-state">Loading...</div>
+    </div>
+</div>
+
+<script>
+    const BASE = 'http://localhost:8080';
+    const MATERIAL_ID = 'material-001';
+
+    const REACTION_EMOJI = {
+        UPVOTE: '👍', DOWNVOTE: '👎',
+        LIKE: '❤️', LOVE: '😍', LAUGH: '😂',
+        WOW: '😮', SAD: '😢', ANGRY: '😡'
+    };
+
+    let parentId = null;
+    let cachedComments = [];
+
+    function getCurrentUserId() {
+        return (document.getElementById('username-input').value || '').trim();
+    }
+    function isAdmin() {
+        return document.getElementById('admin-toggle').checked;
+    }
+    function authHeaders() {
+        const h = { 'Content-Type': 'application/json' };
+        return h;
+    }
+
+    function avatarLetter(name) {
+        return (name && name.trim()) ? name.trim()[0].toUpperCase() : '?';
+    }
+
+    function updateAvatar() {
+        document.getElementById('my-avatar').textContent =
+            avatarLetter(document.getElementById('username-input').value);
+    }
+
+    function timeAgo(iso) {
+        const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return Math.floor(diff/60) + 'm';
+        if (diff < 86400) return Math.floor(diff/3600) + 'h';
+        if (diff < 604800) return Math.floor(diff/86400) + 'd';
+        return new Date(iso).toLocaleDateString();
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c =>
+            ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function escapeJs(s) { return String(s).replace(/'/g, "\\'"); }
+
+    function showError(elId, msg) {
+        const el = document.getElementById(elId);
+        if (el) el.textContent = msg;
+    }
+
+    function setReply(id, username) {
+        parentId = id;
+        document.getElementById('reply-label').textContent = username;
+        document.getElementById('reply-context').style.display = 'inline-block';
+        document.getElementById('comment-content').focus();
+    }
+    function clearReply() {
+        parentId = null;
+        document.getElementById('reply-context').style.display = 'none';
+    }
+    function cancelCompose() {
+        document.getElementById('comment-content').value = '';
+        clearReply();
+        showError('post-error', '');
+    }
+
+    async function fetchComments() {
+        const section = document.getElementById('comment-section');
+        section.innerHTML = '<div class="empty-state">Loading...</div>';
+        try {
+            const userId = getCurrentUserId();
+            const url = `${BASE}/api/discussions/${MATERIAL_ID}` +
+                (userId ? `?currentUserId=${encodeURIComponent(userId)}` : '');
+            const res = await fetch(url, { headers: authHeaders() });
+            if (!res.ok) throw new Error('Failed to load (HTTP ' + res.status + ')');
+            cachedComments = await res.json();
+            render();
+        } catch (e) {
+            section.innerHTML = `<div class="empty-state err-text">${escapeHtml(e.message)}</div>`;
+        }
+    }
+
+    function render() {
+        const section = document.getElementById('comment-section');
+        document.getElementById('total-count').textContent = cachedComments.length;
+        if (!cachedComments.length) {
+            section.innerHTML = `<div class="empty-state">
+                <i class="bi bi-chat-square"></i>
+                <p>No comments yet. Be the first.</p>
+            </div>`;
+            return;
+        }
+        section.innerHTML = renderTree(cachedComments, null);
+    }
+
+    function renderTree(all, parentFilter) {
+        const children = all.filter(c =>
+            (parentFilter === null && !c.parentCommentId) ||
+            c.parentCommentId === parentFilter
+        );
+        if (!children.length) return '';
+        return children.map(c => `
+            <div class="comment">
+                <div class="avatar">${escapeHtml(avatarLetter(c.authorUsername))}</div>
+                <div class="comment-body">
+                    <div class="comment-header">
+                        <span class="comment-author">${escapeHtml(c.authorUsername)}</span>
+                        <span class="comment-time">· ${timeAgo(c.createdAt)}</span>
+                    </div>
+                    <div class="comment-text" id="text-${c.id}">${escapeHtml(c.content)}</div>
+                    <div class="comment-actions">
+                        ${renderReactions(c)}
+                        <button class="text-action" onclick="setReply(${c.id}, '${escapeJs(c.authorUsername)}')">
+                            <i class="bi bi-reply"></i> Reply
+                        </button>
+                        ${getCurrentUserId() === c.authorId ? `
+                            <button class="text-action" onclick="promptEdit(${c.id})">Edit</button>
+                            <button class="text-action danger" onclick="deleteComment(${c.id})">Delete</button>
+                        ` : ''}
+                        ${isAdmin() && getCurrentUserId() !== c.authorId ? `
+                            <button class="text-action admin" onclick="adminDelete(${c.id})">
+                                <i class="bi bi-shield-exclamation"></i> Admin Delete
+                            </button>
+                        ` : ''}
+                    </div>
+                    ${childrenExist(all, c.id) ? `<div class="replies">${renderTree(all, c.id)}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function childrenExist(all, parentId) {
+        return all.some(c => c.parentCommentId === parentId);
+    }
+
+    function renderReactions(c) {
+        return Object.entries(REACTION_EMOJI).map(([type, emoji]) => {
+            const count = (c.reactionCounts && c.reactionCounts[type]) || 0;
+            const active = c.currentUserReaction === type ? 'active' : '';
+            return `<button class="reaction-btn ${active}" onclick="react(${c.id}, '${type}')"
+                           title="${type.toLowerCase()}">
+                ${emoji}${count > 0 ? `<span> ${count}</span>` : ''}
+            </button>`;
+        }).join('');
+    }
+
+    async function postComment() {
+        showError('post-error', '');
+        const content = document.getElementById('comment-content').value.trim();
+        const userId = getCurrentUserId();
+
+        if (!userId) { showError('post-error', 'Please enter a username.'); return; }
+        if (!content) { showError('post-error', 'Comment cannot be empty.'); return; }
+
+        try {
+            const res = await fetch(`${BASE}/api/discussions`, {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    content,
+                    materialId: MATERIAL_ID,
+                    authorId: userId,
+                    parentCommentId: parentId
+                })
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || JSON.stringify(err));
+            }
+            document.getElementById('comment-content').value = '';
+            clearReply();
+            fetchComments();
+        } catch (e) { showError('post-error', e.message); }
+    }
+
+    async function promptEdit(id) {
+        const current = document.getElementById('text-' + id).innerText;
+        const next = prompt('Edit your comment:', current);
+        if (!next || next.trim() === '' || next === current) return;
+
+        const res = await fetch(`${BASE}/api/discussions/${id}`, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                content: next.trim(),
+                authorId: getCurrentUserId()
+            })
+        });
+        if (res.ok) fetchComments();
+        else alert('Edit failed: ' + (await res.text()));
+    }
+
+    async function deleteComment(id) {
+        if (!confirm('Delete this comment?')) return;
+        const userId = getCurrentUserId();
+        const res = await fetch(`${BASE}/api/discussions/${id}?authorId=${encodeURIComponent(userId)}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        if (res.ok) fetchComments();
+        else alert('Delete failed: ' + (await res.text()));
+    }
+
+    async function adminDelete(id) {
+        if (!confirm('ADMIN DELETE this comment?')) return;
+        const res = await fetch(`${BASE}/api/discussions/admin/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        if (res.ok) fetchComments();
+        else alert('Admin delete failed: ' + (await res.text()));
+    }
+
+    async function react(commentId, reactionType) {
+        const userId = getCurrentUserId();
+        if (!userId) { alert('Enter a username first to react.'); return; }
+
+        const res = await fetch(`${BASE}/api/discussions/${commentId}/reactions`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                reactionType,
+                userId
+            })
+        });
+        if (res.ok) fetchComments();
+        else alert('Reaction failed: ' + (await res.text()));
+    }
+
+    updateAvatar();
+    fetchComments();
+</script>
 
 </body>
 </html>
