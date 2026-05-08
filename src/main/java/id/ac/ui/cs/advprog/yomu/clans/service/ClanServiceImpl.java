@@ -23,7 +23,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public Clan createClan(String name, String bio, String leaderId) {
+    public Clan createClan(String name, String bio, Long leaderId) {
         Clan clan = new Clan();
         clan.setName(name);
         clan.setBio(bio);
@@ -41,7 +41,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public Clan updateClan(UUID clanId, String leaderId, String newName, String newBio) {
+    public Clan updateClan(UUID clanId, Long leaderId, String newName, String newBio) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -55,7 +55,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void requestToJoin(UUID clanId, String studentId) {
+    public void requestToJoin(UUID clanId, Long studentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -75,7 +75,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void approveMember(UUID clanId, String leaderId, String targetId) {
+    public void approveMember(UUID clanId, Long leaderId, Long targetId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -86,7 +86,7 @@ public class ClanServiceImpl implements ClanService {
                 .orElseThrow(() -> new RuntimeException("Membership request not found for this clan"));
 
         if (!"PENDING_REQUEST".equals(member.getStatus())) {
-            throw new RuntimeException("This student did not request to join; they cannot be approved.");
+            throw new RuntimeException("This student did not request to join, they cannot be approved.");
         }
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
@@ -95,7 +95,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void rejectRequest(UUID clanId, String leaderId, String targetStudentId) {
+    public void rejectRequest(UUID clanId, Long leaderId, Long targetStudentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
         if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
 
@@ -110,7 +110,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void inviteStudent(UUID clanId, String leaderId, String targetStudentId) {
+    public void inviteStudent(UUID clanId, Long leaderId, Long targetStudentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -126,7 +126,7 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void acceptInvitation(UUID clanId, String studentId) {
+    public void acceptInvitation(UUID clanId, Long studentId) {
         Clan clan = clanRepository.findById(clanId)
                 .orElseThrow(() -> new RuntimeException("Clan not found"));
 
@@ -143,7 +143,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void declineInvitation(UUID clanId, String studentId) {
+    public void declineInvitation(UUID clanId, Long studentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
 
         ClanMember member = memberRepository.findByClanIdAndStudentId(clan, studentId)
@@ -158,7 +158,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void kickMember(UUID clanId, String leaderId, String targetStudentId) {
+    public void kickMember(UUID clanId, Long leaderId, Long targetStudentId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
 
         if (!clan.getLeaderId().equals(leaderId)) throw new RuntimeException("Unauthorized");
@@ -176,7 +176,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void leaveClan(String studentId) {
+    public void leaveClan(Long studentId) {
         List<ClanMember> memberships = memberRepository.findByStudentId(studentId);
         ClanMember activeMember = memberships.stream()
                 .filter(m -> "ACCEPTED".equals(m.getStatus()))
@@ -195,7 +195,7 @@ public class ClanServiceImpl implements ClanService {
 
     @Override
     @Transactional
-    public void deleteClan(UUID clanId, String leaderId) {
+    public void deleteClan(UUID clanId, Long leaderId) {
         Clan clan = clanRepository.findById(clanId).orElseThrow();
         if (!clan.getLeaderId().equals(leaderId))
             throw new RuntimeException("Unauthorized");
@@ -210,7 +210,7 @@ public class ClanServiceImpl implements ClanService {
     // Temporary Function
     @Override
     @Transactional
-    public void updateMemberScoreMock(String studentId, int newScore) {
+    public void updateMemberScoreMock(Long studentId, int newScore) {
         ClanMember member = memberRepository.findByStudentId(studentId)
                 .stream()
                 .filter(m -> "ACCEPTED".equals(m.getStatus()))

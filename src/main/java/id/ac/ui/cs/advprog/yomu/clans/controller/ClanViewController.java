@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.clans.controller;
 
+import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
 import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
 import id.ac.ui.cs.advprog.yomu.clans.repository.ClanMemberRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,44 +27,57 @@ public class ClanViewController {
     private ClanRepository clanRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ClanMemberRepository memberRepository;
 
+    private Long getAuthId(Principal principal) {
+        Long id = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getId();
+        return id;
+    }
+
     @GetMapping("/create-form")
-    public String showCreateForm(@RequestParam String studentId, Model model) {
-        model.addAttribute("studentId", studentId);
+    public String showCreateForm(Principal principal,
+                                 Model model) {
+        model.addAttribute("studentId", getAuthId(principal));
         return "clans/createClan";
     }
 
     @PostMapping("/create")
     public String processCreateClan(@RequestParam String name,
                                     @RequestParam String bio,
-                                    @RequestParam String leaderId) {
-        clanService.createClan(name, bio, leaderId);
-        return "redirect:/clans/my-clan?studentId=" + leaderId;
+                                    Principal principal) {
+        clanService.createClan(name, bio, getAuthId(principal));
+        return "redirect:/clans/my-clan";
     }
 
     @GetMapping("/{clanId}/edit-form")
     public String showEditForm(@PathVariable UUID clanId,
-                               @RequestParam String studentId,
+                               Principal principal,
                                Model model) {
-        Clan clan = clanRepository.findById(clanId).get();
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
         model.addAttribute("clan", clan);
-        model.addAttribute("studentId", studentId);
+        model.addAttribute("studentId", getAuthId(principal));
         return "clans/editClan";
     }
 
     @PostMapping("/update")
     public String handleUpdate(@RequestParam UUID clanId,
-                               @RequestParam String studentId,
+                               Principal principal,
                                @RequestParam String name,
                                @RequestParam String bio) {
-        clanService.updateClan(clanId, studentId, name, bio);
-        return "redirect:/clans/my-clan?studentId=" + studentId;
+        clanService.updateClan(clanId, getAuthId(principal), name, bio);
+        return "redirect:/clans/my-clan";
     }
 
     @GetMapping("/my-clan")
-    public String viewMyClan(@RequestParam String studentId, Model model) {
-        if (studentId == null || studentId.isEmpty()) {
+    public String viewMyClan(Principal principal,
+                             Model model) {
+        Long studentId = getAuthId(principal);
+        if (studentId == null) {
             return "redirect:/clans/discover";
         }
 
@@ -83,7 +98,9 @@ public class ClanViewController {
     }
 
     @GetMapping("/discover")
-    public String showClanListPage(@RequestParam String studentId, Model model) {
+    public String showClanListPage(Principal principal,
+                                   Model model) {
+        Long studentId = getAuthId(principal);
         model.addAttribute("clans", clanService.findAllClans());
 
         boolean inClan = memberRepository.findByStudentId(studentId)
@@ -101,20 +118,22 @@ public class ClanViewController {
     }
 
     @PostMapping("/leave")
-    public String leaveClan(@RequestParam String studentId) {
-        clanService.leaveClan(studentId);
-        return "redirect:/clans/my-clan?studentId=" + studentId;
+    public String leaveClan(Principal principal) {
+        clanService.leaveClan(getAuthId(principal));
+        return "redirect:/clans/my-clan";
     }
 
     @PostMapping("/delete")
-    public String deleteClan(@RequestParam UUID clanId, @RequestParam String studentId) {
-        clanService.deleteClan(clanId, studentId);
-        return "redirect:/clans/my-clan?studentId=" + studentId;
+    public String deleteClan(@RequestParam UUID clanId,
+                             Principal principal) {
+        clanService.deleteClan(clanId, getAuthId(principal));
+        return "redirect:/clans/my-clan";
     }
 
     @PostMapping("/join")
-    public String requestToJoin(@RequestParam UUID clanId, @RequestParam String studentId) {
-        clanService.requestToJoin(clanId, studentId);
-        return "redirect:/clans/discover?studentId=" + studentId;
+    public String requestToJoin(@RequestParam UUID clanId,
+                                Principal principal) {
+        clanService.requestToJoin(clanId, getAuthId(principal));
+        return "redirect:/clans/discover";
     }
 }
