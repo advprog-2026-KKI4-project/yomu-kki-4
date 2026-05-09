@@ -37,6 +37,7 @@ public class SecurityConfig {
             .exceptionHandling(e -> e.authenticationEntryPoint(new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint("/login")))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                        "/",
                         "/api/auth/register",
                         "/api/auth/login",
                         "/api/auth/oauth2/google",

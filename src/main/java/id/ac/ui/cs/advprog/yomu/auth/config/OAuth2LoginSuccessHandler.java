@@ -45,7 +45,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         // Set JWT cookie
         CookieUtils.addCookie(response, "jwt", authResponse.getToken(), 86400);
 
-        // Redirect to homepage
-        response.sendRedirect("/");
+        // Redirect to dashboard
+        response.sendRedirect("/dashboard");
     }
 }
