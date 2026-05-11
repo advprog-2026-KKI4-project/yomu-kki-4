@@ -1,11 +1,9 @@
 package id.ac.ui.cs.advprog.yomu.clans.model;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +20,7 @@ public class Clan {
     private String name;
 
     @Column(name = "clan_leader", nullable = false)
-    private String leaderId;
+    private Long leaderId;
 
     @Column(name= "clan_bio")
     private String bio;

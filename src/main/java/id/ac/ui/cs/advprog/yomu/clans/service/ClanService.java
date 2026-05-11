@@ -5,17 +5,18 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ClanService {
-    Clan createClan(String clanName, String clanBio, String leaderId);
-    void requestToJoin(UUID clanId, String studentId);
-    void approveMember(UUID clanId, String leaderId, String targetStudentId);
-    void rejectRequest(UUID clanId, String leaderId, String targetStudentId);
-    void inviteStudent(UUID clanId, String leaderId, String targetStudentId);
-    void acceptInvitation(UUID clanId, String studentId);
-    void declineInvitation(UUID clanId, String studentId);
-    void kickMember(UUID clanId, String leaderId, String targetStudentId);
-    void leaveClan(String studentId);
-    void deleteClan(UUID clanId, String leaderId);
+    Clan createClan(String clanName, String clanBio, Long leaderId);
+    Clan updateClan(UUID clanId, Long leaderId, String newName, String newBio);
+    void requestToJoin(UUID clanId, Long userId);
+    void approveMember(UUID clanId, Long leaderId, Long targetUserId);
+    void rejectRequest(UUID clanId, Long leaderId, Long targetUserId);
+    void inviteStudent(UUID clanId, Long leaderId, Long targetUserId);
+    void acceptInvitation(UUID clanId, Long userId);
+    void declineInvitation(UUID clanId, Long userId);
+    void kickMember(UUID clanId, Long leaderId, Long targetUserId);
+    void leaveClan(Long userId);
+    void deleteClan(UUID clanId, Long leaderId);
     List<Clan> findAllClans();
 
-    void updateMemberScoreMock(String studentId, int newScore); // Temporary use
+    void updateMemberScoreMock(Long studentId, int newScore); // Temporary use
 }
