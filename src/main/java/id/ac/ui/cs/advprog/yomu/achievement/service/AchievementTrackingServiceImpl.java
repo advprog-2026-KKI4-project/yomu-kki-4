@@ -60,9 +60,6 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
 
     @Override
     public List<UserAchievementProgress> getUserAchievements(User user) {
-        // Returns all their tracked achievements to display on a profile page later
-        return progressRepository.findAll().stream()
-                .filter(p -> p.getUser().getId().equals(user.getId()))
-                .toList();
+        return progressRepository.findByUser(user);
     }
 }
