@@ -75,9 +75,14 @@
 </div>
 
 <script>
-    // ⚠️ TEMPORARY FOR TESTING
-    // Later, the login page will save this to localStorage automatically.
-    const token = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiU1RVREVOVCIsInVzZXJfaWQiOjIsInN1YiI6InZlZ2FyZEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODI0Nzc2NywiZXhwIjoxNzc4MzM0MTY3fQ.1nhjjQXwf7r0HrC4nwXLbWGk7Xw0jggOsj_LWislneg';
+    // Fetch the token dynamically from the browser's local storage
+    const token = localStorage.getItem('token'); // or 'jwt', depending on what your login page saves it as
+    
+    // Security check: If there is no token, kick the user back to the login page!
+    if (!token) {
+        console.error("No authorization token found. Redirecting to login...");
+        window.location.href = '/login'; 
+    }
 
     async function fetchMyAchievements() {
         try {
