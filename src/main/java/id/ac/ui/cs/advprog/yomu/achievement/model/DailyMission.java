@@ -17,6 +17,7 @@ public class DailyMission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Setter(AccessLevel.NONE) // Prevent client-bound requests from setting the ID
     private UUID id;
 
     // e.g., "Daily Reader"

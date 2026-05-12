@@ -41,6 +41,8 @@ public class AchievementController {
     // POST /achievements/create
     @PostMapping("/create")
     public String createAchievement(@ModelAttribute Achievement achievement) {
+        // Clear any client-supplied ID to prevent primary-key tampering during creation
+        achievement.setId(null);
         achievementService.create(achievement);
         return "redirect:/achievements";  // redirect to list page after saving
     }

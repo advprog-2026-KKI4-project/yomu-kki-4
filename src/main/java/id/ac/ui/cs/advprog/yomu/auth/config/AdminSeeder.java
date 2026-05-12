@@ -16,11 +16,19 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        String adminPassword = System.getenv("ADMIN_PASSWORD");
+        if (adminPassword == null || adminPassword.isBlank()) {
+            throw new IllegalStateException(
+                    "ADMIN_PASSWORD environment variable is not set. " +
+                    "Admin seeder requires a secure password to be provided via the ADMIN_PASSWORD environment variable."
+            );
+        }
+
         if (!userRepository.existsByEmail("admin@yomu.id")) {
             User admin = User.builder()
                     .email("admin@yomu.id")
                     .username("superadmin")
-                    .password(passwordEncoder.encode("adminpassword"))
+                    .password(passwordEncoder.encode(adminPassword))
                     .role("ADMIN")
                     .firstName("Super")
                     .lastName("Admin")

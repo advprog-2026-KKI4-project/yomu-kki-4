@@ -22,10 +22,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
     public DiscussionForum postComment(CommentRequest requestDTO) {
         // Validate parent comment exists if parentCommentId is provided
         if (requestDTO.getParentCommentId() != null) {
-            boolean parentExists = repository.existsById(requestDTO.getParentCommentId());
-            if (!parentExists) {
+            DiscussionForum parentComment = repository.findById(requestDTO.getParentCommentId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Parent comment with ID " + requestDTO.getParentCommentId() + " does not exist"
+                    ));
+            // Verify the parent comment belongs to the same materialId
+            if (!parentComment.getMaterialId().equals(requestDTO.getMaterialId())) {
                 throw new IllegalArgumentException(
-                        "Parent comment with ID " + requestDTO.getParentCommentId() + " does not exist"
+                        "Parent comment does not belong to the same material"
                 );
             }
         }
@@ -52,6 +56,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
 
         if (!comment.getAuthorId().equals(authorId)) {
             throw new IllegalArgumentException("You can only edit your own comments");
+        }
+
+        // Validate newContent before saving
+        if (newContent == null || newContent.isBlank()) {
+            throw new IllegalArgumentException("Comment content cannot be empty");
         }
 
         comment.setContent(newContent);

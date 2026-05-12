@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.yomu.achievement.service;
 import id.ac.ui.cs.advprog.yomu.achievement.enums.MissionType;
 import id.ac.ui.cs.advprog.yomu.achievement.model.DailyMission;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class DailyMissionServiceImpl implements DailyMissionService {
     @Override
     public DailyMission findById(UUID id) {
         return dailyMissionRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Daily Mission not found with id: " + id));
     }
 

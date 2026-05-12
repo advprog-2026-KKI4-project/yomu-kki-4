@@ -36,12 +36,29 @@ public class Achievement {
     // How many "things" the user needs to reach to unlock this
     // e.g., 10 for "Read 10 articles"
     @Column(nullable = false)
-    private int targetCount;
+    @Builder.Default
+    private int targetCount = 0;
 
     // Points awarded when the achievement is unlocked
     @Column(nullable = false)
-    private int points;
+    @Builder.Default
+    private int points = 0;
 
     // URL or name of the badge icon
     private String badgeIcon;
+
+    // Non-negative validation helpers
+    public void setTargetCount(int targetCount) {
+        if (targetCount < 0) {
+            throw new IllegalArgumentException("targetCount must be non-negative");
+        }
+        this.targetCount = targetCount;
+    }
+
+    public void setPoints(int points) {
+        if (points < 0) {
+            throw new IllegalArgumentException("points must be non-negative");
+        }
+        this.points = points;
+    }
 }

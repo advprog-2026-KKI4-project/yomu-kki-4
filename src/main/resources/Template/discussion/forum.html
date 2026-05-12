@@ -30,12 +30,13 @@
 
 <script>
     const MATERIAL_ID = 'material-001';
-    const BASE = 'http://localhost:8080';
+    // Use relative path instead of hardcoded base URL
+    const BASE = '';
     let parentId = null;
 
     function setReply(id, authorId) {
         parentId = id;
-        document.getElementById('reply-label').textContent = authorId + ' (#' + id + ')';
+        document.getElementById('reply-label').textContent = '#' + id;
         document.getElementById('reply-badge').style.display = 'inline';
         document.getElementById('comment-content').focus();
     }
@@ -59,6 +60,12 @@
         section.innerHTML = renderCommentsTree(comments, null);
     }
 
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+
     function renderCommentsTree(comments, currentParentId) {
         const children = comments.filter(c =>
             (currentParentId === null && !c.parentCommentId) || c.parentCommentId === currentParentId
@@ -71,8 +78,8 @@
             html += currentParentId ? '<blockquote>' : '<div>';
             html += `
                 <p>
-                    <b>${c.authorId}</b>: <span id="text-${c.id}">${c.content}</span><br>
-                    <button onclick="setReply(${c.id}, '${c.authorId}')">Reply</button>
+                    <b>${escapeHtml(c.authorId)}</b>: <span id="text-${c.id}">${escapeHtml(c.content)}</span><br>
+                    <button onclick="setReply(${c.id}, '${escapeHtml(c.authorId)}')">Reply</button>
                     <button onclick="promptEdit(${c.id})">Edit</button>
                     <button onclick="deleteComment(${c.id})">Delete</button>
                 </p>

@@ -42,8 +42,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         // Clear cookies
         httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
 
-        // Set JWT cookie
-        CookieUtils.addCookie(response, "jwt", authResponse.getToken(), 86400);
+        // Set JWT cookie with Secure and SameSite=Strict flags
+        // Secure prevents interception over HTTP; SameSite=Strict prevents CSRF via cookie auto-attach
+        CookieUtils.addCookie(response, "jwt", authResponse.getToken(), 86400, true, "Strict");
 
         // Redirect to dashboard
         response.sendRedirect("/dashboard");

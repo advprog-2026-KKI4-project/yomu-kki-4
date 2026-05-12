@@ -53,6 +53,10 @@ public class DiscussionForumController {
             Principal principal) {
 
         String content = payload.get("content");
+        // Validate content is not blank
+        if (content == null || content.isBlank()) {
+            return ResponseEntity.badRequest().body(null);
+        }
         //use a dummy string so the service doesn't crash (for testing, before auth finished)
         String currentAuthor = (principal != null) ? principal.getName() : "Anonymous_Tester";
 
