@@ -4,29 +4,30 @@
     <meta charset="UTF-8">
     <title>Register - Yomu Auth</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #111016; 
-            color: #fdfaf6; 
-            margin: 0; 
-            padding: 20px; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #111016;
+            color: #f7ecf4;
+            margin: 0;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
         }
-        .container { 
+        .container {
             width: 100%;
-            max-width: 400px; 
-            background: #201e2b; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
+            max-width: 400px;
+            background: #564b8f;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             text-align: center;
         }
         .container h1 {
             margin-top: 0;
             margin-bottom: 24px;
+            font-size: 1.5rem;
         }
         .form-group {
             margin-bottom: 16px;
@@ -36,15 +37,15 @@
             display: block;
             margin-bottom: 6px;
             font-size: 14px;
-            color: #ccc;
+            color: #a096e0;
         }
         .form-control {
             width: 100%;
             padding: 12px;
-            background: #2a2836;
-            border: 1px solid #3c3a4a;
+            background: #3d3770;
+            border: 1px solid #6b5ce0;
             border-radius: 6px;
-            color: #fff;
+            color: #f7ecf4;
             box-sizing: border-box;
             transition: border-color 0.2s;
         }
@@ -52,31 +53,31 @@
             outline: none;
             border-color: #f5b17f;
         }
-        .btn { 
+        .btn {
             width: 100%;
-            padding: 12px 15px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            text-decoration: none; 
-            display: inline-block; 
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
             box-sizing: border-box;
             transition: background 0.2s;
             font-size: 16px;
         }
-        .btn-primary { 
-            background: #f5b17f; 
-            color: #111016; 
+        .btn-primary {
+            background: #6b5ce0;
+            color: #f7ecf4;
             margin-top: 10px;
         }
-        .btn-primary:hover { 
-            background: #e39d6b; 
+        .btn-primary:hover {
+            background: #564b8f;
         }
         .footer-text {
             margin-top: 20px;
             font-size: 14px;
-            color: #aaa;
+            color: #a096e0;
         }
         .footer-text a {
             color: #f5b17f;
@@ -103,7 +104,7 @@
 
 <div class="container">
     <h1>Create an Account</h1>
-    
+
     <div id="errorMessage" class="error-message"></div>
     <div id="successMessage" class="success-message">Registration successful! Redirecting...</div>
 
@@ -135,34 +136,33 @@
 <script>
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
         const phone = document.getElementById('phone').value;
         const password = document.getElementById('password').value;
-        
+
         const errorDiv = document.getElementById('errorMessage');
         const successDiv = document.getElementById('successMessage');
-        
+
         errorDiv.style.display = 'none';
         successDiv.style.display = 'none';
-        
+
         try {
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    username, 
-                    email: email || null, 
-                    phone: phone || null, 
-                    password 
+                body: JSON.stringify({
+                    username,
+                    email: email || null,
+                    phone: phone || null,
+                    password
                 })
             });
-            
+
             if (response.ok) {
-                // The API now sets the HttpOnly cookie for us.
                 successDiv.style.display = 'block';
                 setTimeout(() => {
                     window.location.href = '/dashboard';
@@ -170,8 +170,7 @@
             } else {
                 const data = await response.json();
                 let errorMessage = '';
-                
-                // Handle validation errors (field -> message map)
+
                 if (typeof data === 'object' && data !== null) {
                     const errors = Object.entries(data)
                         .filter(([key]) => key !== 'message')
@@ -181,12 +180,11 @@
                         errorMessage = errors;
                     }
                 }
-                
-                // Fall back to message field or generic error
+
                 if (!errorMessage && data.message) {
                     errorMessage = data.message;
                 }
-                
+
                 errorDiv.textContent = errorMessage || 'Registration failed. Please check your inputs.';
                 errorDiv.style.display = 'block';
             }
