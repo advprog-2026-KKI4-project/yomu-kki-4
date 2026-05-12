@@ -23,6 +23,7 @@ public class UserMissionProgress {
     // Direct relationship to Adra's User entity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
