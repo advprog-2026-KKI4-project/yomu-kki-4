@@ -21,6 +21,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
     private final ObjectMapper objectMapper;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Override
     public void onAuthenticationSuccess(
@@ -37,8 +38,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         AuthResponse authResponse = authService.loginWithGoogle(oauth2User);
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), authResponse);
+        
+        // Clear cookies
+        httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+
+        // Set JWT cookie with Secure and SameSite=Strict flags
+        // Secure prevents interception over HTTP; SameSite=Strict prevents CSRF via cookie auto-attach
+        CookieUtils.addCookie(response, "jwt", authResponse.getToken(), 86400, true, "Strict");
+
+        // Redirect to dashboard
+        response.sendRedirect("/dashboard");
     }
 }

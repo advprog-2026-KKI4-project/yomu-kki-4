@@ -90,7 +90,8 @@ public class JwtUtil {
         byte[] keyBytes;
         try {
             keyBytes = io.jsonwebtoken.io.Decoders.BASE64.decode(secret);
-        } catch (IllegalArgumentException ex) {
+        } catch (io.jsonwebtoken.io.DecodingException ex) {
+            // If base64 decoding fails (e.g., invalid characters), use raw bytes
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         }
 

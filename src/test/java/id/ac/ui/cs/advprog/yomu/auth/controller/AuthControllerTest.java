@@ -47,7 +47,8 @@ class AuthControllerTest {
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(response);
 
-        ResponseEntity<AuthResponse> result = authController.register(request);
+        org.springframework.mock.web.MockHttpServletResponse mockResponse = new org.springframework.mock.web.MockHttpServletResponse();
+        ResponseEntity<AuthResponse> result = authController.register(request, mockResponse);
 
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
         assertNotNull(result.getBody());
@@ -67,7 +68,8 @@ class AuthControllerTest {
 
         when(authService.login(any(LoginRequest.class))).thenReturn(response);
 
-        ResponseEntity<AuthResponse> result = authController.login(request);
+        org.springframework.mock.web.MockHttpServletResponse mockResponse = new org.springframework.mock.web.MockHttpServletResponse();
+        ResponseEntity<AuthResponse> result = authController.login(request, mockResponse);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertNotNull(result.getBody());
