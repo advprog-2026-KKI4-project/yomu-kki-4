@@ -184,7 +184,7 @@
             if (response.ok) {
                 // The API now sets the HttpOnly cookie for us.
                 // We just need to redirect to the dashboard or home.
-                window.location.href = '/'; 
+                window.location.href = '/dashboard';
             } else {
                 const data = await response.json();
                 errorDiv.textContent = data.message || 'Login failed. Please check your credentials.';
