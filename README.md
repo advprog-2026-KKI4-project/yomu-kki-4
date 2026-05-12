@@ -84,3 +84,21 @@ This project uses a Monorepo structure. The Individual backend modules, are cont
 
 Repository URL: https://github.com/advprog-2026-KKI4-project/yomu-kki-4.git
 
+---
+
+## Module 9
+
+### Current Group Architecture Diagram
+![Yomu System Context Diagram](./src/main/resources/assets)
+![Yomu Container Diagram](./src/main/resources/assets)
+![Yomu Deployment Diagram](./src/main/resources/assets)
+
+### Risk Analyzing
+>
+
+### Modified Group Architecture Diagram
+![Yomu System Context Diagram](./src/main/resources/assets)
+![Yomu Container Diagram](./src/main/resources/assets)
+
+### Future Software Architecture
+>
