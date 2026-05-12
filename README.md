@@ -102,3 +102,14 @@ Repository URL: https://github.com/advprog-2026-KKI4-project/yomu-kki-4.git
 
 ### Future Software Architecture
 >
+
+### Social Interaction, Clan, and League
+1. Component Diagram
+![Social Interaction, Clan, and League Component Diagram](./src/main/resources/assets/clans/YOMUcomponent.png)
+
+2. Code Diagram
+![Leaderboard API Controller Code Diagram](./src/main/resources/assets/clans/YOMUcodeLeaderboardApiControl.png)
+![Leaderboard View Controller Code Diagram](./src/main/resources/assets/clans/YOMUcodeLeaderboardViewControl.png)
+![Leaderboard Service Code Diagram](./src/main/resources/assets/clans/YOMUcodeLeaderboardService.png)
+![Clan Repository Code Diagram](./src/main/resources/assets/clans/YOMUcodeClanRepo.png)
+![ClanMember Repository Code Diagram](./src/main/resources/assets/clans/YOMUcodeClanMemberRepo.png)
