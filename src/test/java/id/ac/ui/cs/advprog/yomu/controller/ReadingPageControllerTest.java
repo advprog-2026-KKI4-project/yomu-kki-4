@@ -202,7 +202,7 @@ class ReadingPageControllerTest {
         String view = controller.reviewPage("rev-id", model);
 
         assertEquals("reading/reader", view);
-        assertEquals(0.0, model.getAttribute("score"));
+        assertEquals(0, model.getAttribute("score"));
         assertNull(model.getAttribute("attempt"));
         assertEquals(true, model.getAttribute("isReview"));
     }
