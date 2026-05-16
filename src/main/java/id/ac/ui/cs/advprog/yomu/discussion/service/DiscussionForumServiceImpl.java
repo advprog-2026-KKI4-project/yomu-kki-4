@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.yomu.discussion.service;
 
+import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentRequest;
 import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentResponse;
 import id.ac.ui.cs.advprog.yomu.discussion.model.CommentReaction;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,13 +22,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
 
     private final DiscussionForumRepository commentRepository;
     private final CommentReactionRepository reactionRepository;
-
-    // TODO(auth): inject UserRepository here, then for each comment look up
-    //             username from authorId (which will be a User.id)
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
-    public CommentResponse postComment(CommentRequest req) {
+    public CommentResponse postComment(CommentRequest req, Long authorId) {
         if (req.getParentCommentId() != null
                 && !commentRepository.existsById(req.getParentCommentId())) {
             throw new IllegalArgumentException(
@@ -35,34 +36,39 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
         DiscussionForum saved = commentRepository.save(DiscussionForum.builder()
                 .content(req.getContent())
                 .materialId(req.getMaterialId())
-                .authorId(req.getAuthorId())
+                .authorId(authorId)
                 .parentCommentId(req.getParentCommentId())
                 .build());
 
-        return toResponse(saved, Collections.emptyList(), req.getAuthorId());
+        Map<Long, String> usernames = resolveUsernames(List.of(authorId));
+        return toResponse(saved, Collections.emptyList(), authorId, usernames);
     }
 
     @Override
-    public List<CommentResponse> getCommentsByMaterial(String materialId, String currentUserId) {
+    public List<CommentResponse> getCommentsByMaterial(String materialId, Long currentUserId) {
         List<DiscussionForum> comments = commentRepository.findByMaterialIdOrderByCreatedAtAsc(materialId);
         if (comments.isEmpty()) return Collections.emptyList();
 
-        List<Long> ids = comments.stream().map(DiscussionForum::getId).toList();
+        List<Long> commentIds = comments.stream().map(DiscussionForum::getId).toList();
         Map<Long, List<CommentReaction>> reactionsByComment = new HashMap<>();
-        for (CommentReaction r : reactionRepository.findByCommentIdIn(ids)) {
+        for (CommentReaction r : reactionRepository.findByCommentIdIn(commentIds)) {
             reactionsByComment.computeIfAbsent(r.getCommentId(), k -> new ArrayList<>()).add(r);
         }
+
+        List<Long> authorIds = comments.stream().map(DiscussionForum::getAuthorId).distinct().toList();
+        Map<Long, String> usernames = resolveUsernames(authorIds);
 
         return comments.stream()
                 .map(c -> toResponse(c,
                         reactionsByComment.getOrDefault(c.getId(), Collections.emptyList()),
-                        currentUserId))
+                        currentUserId,
+                        usernames))
                 .toList();
     }
 
     @Override
     @Transactional
-    public CommentResponse editComment(Long id, String newContent, String authorId) {
+    public CommentResponse editComment(Long id, String newContent, Long authorId) {
         DiscussionForum c = commentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
         if (!c.getAuthorId().equals(authorId)) {
@@ -70,12 +76,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
         }
         c.setContent(newContent);
         DiscussionForum saved = commentRepository.save(c);
-        return toResponse(saved, reactionRepository.findByCommentId(id), authorId);
+        Map<Long, String> usernames = resolveUsernames(List.of(saved.getAuthorId()));
+        return toResponse(saved, reactionRepository.findByCommentId(id), authorId, usernames);
     }
 
     @Override
     @Transactional
-    public void deleteComment(Long id, String authorId) {
+    public void deleteComment(Long id, Long authorId) {
         DiscussionForum c = commentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
         if (!c.getAuthorId().equals(authorId)) {
@@ -96,7 +103,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
 
     @Override
     @Transactional
-    public CommentResponse reactToComment(Long commentId, ReactionType type, String userId) {
+    public CommentResponse reactToComment(Long commentId, ReactionType type, Long userId) {
         DiscussionForum c = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
 
@@ -116,17 +123,24 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
                     .commentId(commentId).userId(userId).reactionType(type).build());
         }
 
-        return toResponse(c, reactionRepository.findByCommentId(commentId), userId);
+        Map<Long, String> usernames = resolveUsernames(List.of(c.getAuthorId()));
+        return toResponse(c, reactionRepository.findByCommentId(commentId), userId, usernames);
     }
 
     @Override
     @Transactional
-    public void removeReaction(Long commentId, String userId) {
+    public void removeReaction(Long commentId, Long userId) {
         reactionRepository.deleteByCommentIdAndUserId(commentId, userId);
     }
 
+    private Map<Long, String> resolveUsernames(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) return Collections.emptyMap();
+        return userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+    }
+
     private CommentResponse toResponse(DiscussionForum c, List<CommentReaction> reactions,
-                                       String currentUserId) {
+                                       Long currentUserId, Map<Long, String> usernames) {
         Map<ReactionType, Long> counts = new EnumMap<>(ReactionType.class);
         for (ReactionType t : ReactionType.values()) counts.put(t, 0L);
         ReactionType mine = null;
@@ -137,16 +151,19 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
             }
         }
 
+        String username = usernames.getOrDefault(c.getAuthorId(), "Unknown user");
+
         return CommentResponse.builder()
                 .id(c.getId())
                 .content(c.getContent())
                 .materialId(c.getMaterialId())
                 .authorId(c.getAuthorId())
-                .authorUsername(c.getAuthorId()) // TODO(auth): replace with username from UserRepository
+                .authorUsername(username)
                 .parentCommentId(c.getParentCommentId())
                 .createdAt(c.getCreatedAt())
                 .reactionCounts(counts)
                 .currentUserReaction(mine)
+                .ownedByCurrentUser(currentUserId != null && currentUserId.equals(c.getAuthorId()))
                 .build();
     }
 }

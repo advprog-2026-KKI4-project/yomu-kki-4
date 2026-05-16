@@ -22,9 +22,8 @@ public class CommentReaction {
     @Column(name = "comment_id", nullable = false)
     private Long commentId;
 
-    // TODO(auth): change type to Long and store User.id when auth is integrated
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

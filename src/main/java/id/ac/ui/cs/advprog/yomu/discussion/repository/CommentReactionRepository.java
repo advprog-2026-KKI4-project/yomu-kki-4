@@ -10,13 +10,13 @@ import java.util.Optional;
 @Repository
 public interface CommentReactionRepository extends JpaRepository<CommentReaction, Long> {
 
-    Optional<CommentReaction> findByCommentIdAndUserId(Long commentId, String userId);
+    Optional<CommentReaction> findByCommentIdAndUserId(Long commentId, Long userId);
 
     List<CommentReaction> findByCommentIdIn(List<Long> commentIds);
 
     List<CommentReaction> findByCommentId(Long commentId);
 
-    void deleteByCommentIdAndUserId(Long commentId, String userId);
+    void deleteByCommentIdAndUserId(Long commentId, Long userId);
 
     void deleteByCommentId(Long commentId);
 }

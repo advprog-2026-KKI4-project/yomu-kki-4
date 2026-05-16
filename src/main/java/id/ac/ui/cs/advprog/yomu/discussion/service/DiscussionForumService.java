@@ -7,17 +7,18 @@ import id.ac.ui.cs.advprog.yomu.discussion.model.ReactionType;
 import java.util.List;
 
 public interface DiscussionForumService {
-    CommentResponse postComment(CommentRequest req);
 
-    List<CommentResponse> getCommentsByMaterial(String materialId, String currentUserId);
+    CommentResponse postComment(CommentRequest req, Long authorId);
 
-    CommentResponse editComment(Long id, String newContent, String authorId);
+    List<CommentResponse> getCommentsByMaterial(String materialId, Long currentUserId);
 
-    void deleteComment(Long id, String authorId);
+    CommentResponse editComment(Long id, String newContent, Long authorId);
+
+    void deleteComment(Long id, Long authorId);
 
     void deleteCommentAsAdmin(Long id);
 
-    CommentResponse reactToComment(Long commentId, ReactionType reactionType, String userId);
+    CommentResponse reactToComment(Long commentId, ReactionType reactionType, Long userId);
 
-    void removeReaction(Long commentId, String userId);
+    void removeReaction(Long commentId, Long userId);
 }

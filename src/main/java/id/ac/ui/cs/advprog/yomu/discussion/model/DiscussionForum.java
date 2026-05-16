@@ -19,9 +19,8 @@ public class DiscussionForum {
     @Column(name = "material_id", nullable = false)
     private String materialId;
 
-    // TODO(auth): change type to Long and store User.id when auth is integrated
     @Column(name = "author_id", nullable = false)
-    private String authorId;
+    private Long authorId;
 
     @Column(name = "parent_comment_id")
     private Long parentCommentId;

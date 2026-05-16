@@ -12,9 +12,5 @@ public class CommentRequest {
     @NotBlank(message = "Material ID must be filled")
     private String materialId;
 
-    // TODO(auth): remove this field. Resolve from Authentication.getName() in controller.
-    @NotBlank(message = "Author ID must be filled")
-    private String authorId;
-
     private Long parentCommentId;
 }
