@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - Achievements</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 2rem; background-color: #111016; color: #f7ecf4; }
+        h1 { text-align: center; color: #f7ecf4; font-weight: 800; letter-spacing: 1px; margin-bottom: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #564b8f; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8); }
+
+        /* Progress Card Styling */
+        .achievement-card {
+            background: #6b5ce0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        .achievement-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+        .achievement-card.unlocked-card { border-color: #f5b17f; }
+
+        /* Badges */
+        .badge-icon {
+            width: 70px;
+            height: 70px;
+            background: #a096e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .badge-icon.unlocked {
+            background: #f5b17f;
+            color: #111016;
+            box-shadow: 0 0 15px rgba(245, 177, 127, 0.5);
+        }
+
+        /* Text Details */
+        .details { flex-grow: 1; }
+        .title { font-weight: bold; font-size: 1.3rem; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+        .unlocked-badge { font-size: 0.8rem; background: #f5b17f; color: #111016; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+        .desc { color: #f7ecf4; opacity: 0.8; font-size: 0.95rem; margin-bottom: 0.8rem; }
+
+        /* Custom Progress Bar */
+        .progress-container {
+            background: #111016;
+            border-radius: 10px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #f5b17f;
+            height: 100%;
+            transition: width 0.5s ease-out;
+        }
+        .status {
+            font-size: 0.85rem;
+            color: #a096e0;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>My Player Profile</h1>
+    <div id="loading" style="text-align: center; color: #a096e0;">Syncing your progress...</div>
+    <div id="achievements-container"></div>
+</div>
+
+<script>
+    // 1. Safe HTML Escaper for XSS protection
+    function escapeHtml(unsafe) {
+        return (unsafe || "").toString()
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    // 2. Dynamic JWT Fetch
+    const token = localStorage.getItem('token'); 
+    
+    // 3. Conditional Execution (Prevents API Race Condition)
+    if (!token) {
+        console.error("No authorization token found. Redirecting to login...");
+        // Use replace() so they can't hit the back button into a broken page
+        window.location.replace('/login'); 
+    } else {
+        // Only run the fetch if we actually have a token
+        fetchMyAchievements();
+    }
+
+    async function fetchMyAchievements() {
+        try {
+            const response = await fetch('/api/achievements/tracking/mine', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Unauthorized: Your session may have expired. Please log in again.');
+            }
+
+            const data = await response.json();
+            
+            // Hide the loading text once data arrives
+            document.getElementById('loading').style.display = 'none';
+            renderAchievements(data);
+            
+        } catch (error) {
+            document.getElementById('loading').innerText = error.message;
+        }
+    }
+
+    function renderAchievements(achievements) {
+        const container = document.getElementById('achievements-container');
+        if (!achievements || achievements.length === 0) {
+            container.innerHTML = '<p style="text-align: center; opacity: 0.7; padding: 2rem;">No achievements yet. Keep reading!</p>';
+            return;
+        }
+    
+        let html = '';
+        achievements.forEach(ach => {
+            const isUnlocked = ach.unlocked;
+            const progress = Math.min((ach.currentCount / ach.achievement.targetCount) * 100, 100);
+            
+            // Neutralize API data to prevent XSS
+            const safeIcon = escapeHtml(ach.achievement.badgeIcon);
+            const safeName = escapeHtml(ach.achievement.name);
+            const safeDescription = escapeHtml(ach.achievement.description);
+            
+            // Use your custom CSS classes from the <style> block!
+            html += `
+                <div class="achievement-card ${isUnlocked ? 'unlocked-card' : ''}">
+                    <div class="badge-icon ${isUnlocked ? 'unlocked' : ''}">
+                        ${safeIcon}
+                    </div>
+                    <div class="details">
+                        <div class="title">
+                            <span>${safeName}</span>
+                            ${isUnlocked ? '<span class="unlocked-badge">UNLOCKED</span>' : ''}
+                        </div>
+                        <div class="desc">${safeDescription}</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="status">${ach.currentCount} / ${ach.achievement.targetCount}</div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+</script>
+</body>
+</html>
