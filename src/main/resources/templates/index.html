@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yomu — Information Literacy Gamification</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #111016;
+            color: #f7ecf4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .brand {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #f5b17f;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline {
+            font-size: 1.25rem;
+            color: #a096e0;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            padding: 14px 36px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.15s, background 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: #6b5ce0;
+            color: #f7ecf4;
+        }
+        .btn-primary:hover {
+            background: #564b8f;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #a096e0;
+            border: 2px solid #a096e0;
+        }
+        .btn-outline:hover {
+            background: #a096e0;
+            color: #111016;
+        }
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            font-size: 0.85rem;
+            color: #564b8f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand">Yomu</div>
+    <div class="tagline">
+        Level up your information literacy through gamified learning, quizzes, and community challenges.
+    </div>
+
+    <div class="btn-group">
+        <a th:href="@{/login}" class="btn btn-primary">Log In</a>
+        <a th:href="@{/register}" class="btn btn-outline">Register</a>
+    </div>
+
+    <div class="footer">YOMU KKI4 — AdvProg 2026</div>
+
+</body>
+</html>

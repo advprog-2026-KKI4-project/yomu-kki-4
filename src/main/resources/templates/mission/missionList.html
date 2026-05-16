@@ -4,60 +4,143 @@
     <meta charset="UTF-8">
     <title>Daily Missions - Yomu</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }
-        h1 { color: #333; }
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; color: white; font-size: 14px; }
-        .btn-primary { background: #4a90d9; }
-        .btn-warning { background: #e6a23c; }
-        .btn-danger { background: #f56c6c; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #4a90d9; color: white; }
-        .actions { display: flex; gap: 8px; }
-        .badge-active { background: #67c23a; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
-        .badge-inactive { background: #909399; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
-        .empty { text-align: center; padding: 2rem; color: #999; }
+        /* Base Theme Application */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background-color: #111016; /* Deepest background */
+            color: #f7ecf4; /* Light text */
+        }
+
+        h1 {
+            text-align: center;
+            color: #f7ecf4;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+
+        /* Main Container Card */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #564b8f; /* Dark purple card */
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8);
+        }
+
+        /* Pill Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px; /* Fully rounded like the image */
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+        .btn-primary { background: #f5b17f; color: #111016; } /* Peach accent */
+        .btn-warning { background: #a096e0; color: #111016; } /* Light purple */
+        .btn-danger { background: #111016; color: #f7ecf4; border: 1px solid #6b5ce0; }
+
+        /* Gamified Table Layout */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px; /* Spacing between rows for card effect */
+            margin-top: 1rem;
+        }
+        th, td { padding: 16px 20px; text-align: left; }
+
+        th {
+            background: transparent;
+            color: #a096e0;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border-bottom: none;
+        }
+
+        /* Individual Row Cards */
+        tr td { background: #6b5ce0; border-bottom: none; } /* Main purple */
+        tr td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; font-weight: bold; font-size: 1.1em;}
+        tr td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+
+        .actions { display: flex; gap: 10px; }
+
+        /* Badges */
+        .badge-active {
+            background: #f5b17f;
+            color: #111016;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .badge-inactive {
+            background: #111016;
+            color: #a096e0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .empty { text-align: center; padding: 3rem; color: #a096e0; background: transparent !important; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
     </style>
 </head>
 <body>
-<h1>Daily Missions</h1>
-<a th:href="@{/daily-missions/create}" class="btn btn-primary">+ New Mission</a>
-<br/><br/>
 
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Target</th>
-        <th>Reward</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="mission : ${missions}">
-        <td th:text="${mission.name}"></td>
-        <td th:text="${mission.description}"></td>
-        <td th:text="${mission.type}"></td>
-        <td th:text="${mission.targetCount}"></td>
-        <td th:text="${mission.rewardPoints}"></td>
-        <td>
-            <span th:if="${mission.active}" class="badge-active">Active</span>
-            <span th:unless="${mission.active}" class="badge-inactive">Inactive</span>
-        </td>
-        <td class="actions">
-            <a th:href="@{/daily-missions/edit/{id}(id=${mission.id})}" class="btn btn-warning">Edit</a>
-            <form th:action="@{/daily-missions/delete/{id}(id=${mission.id})}" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this mission?')">Delete</button>
-            </form>
-        </td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(missions)}">
-        <td colspan="7" class="empty">No daily missions yet. Create one!</td>
-    </tr>
-    </tbody>
-</table>
+<div class="container">
+    <div class="header-actions">
+        <h1 style="margin: 0;">Daily Missions</h1>
+        <a th:href="@{/daily-missions/create}" class="btn btn-primary">+ New Mission</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Target</th>
+            <th>Reward</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="mission : ${missions}">
+            <td th:text="${mission.name}"></td>
+            <td th:text="${mission.description}"></td>
+            <td th:text="${mission.type}" style="color: #f5b17f; font-weight: bold;"></td>
+            <td th:text="${mission.targetCount}"></td>
+            <td style="font-weight: bold; color: #a096e0;">⭐ <span th:text="${mission.rewardPoints}"></span> pts</td>
+            <td>
+                <span th:if="${mission.active}" class="badge-active">Active</span>
+                <span th:unless="${mission.active}" class="badge-inactive">Inactive</span>
+            </td>
+            <td class="actions">
+                <a th:href="@{/daily-missions/edit/{id}(id=${mission.id})}" class="btn btn-warning">Edit</a>
+                <form th:action="@{/daily-missions/delete/{id}(id=${mission.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this mission?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(missions)}">
+            <td colspan="7" class="empty">No daily missions yet. Create one!</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
 </body>
 </html>
