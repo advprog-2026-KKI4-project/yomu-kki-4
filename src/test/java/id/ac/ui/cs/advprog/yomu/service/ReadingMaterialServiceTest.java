@@ -37,7 +37,6 @@ class ReadingMaterialServiceTest {
     void setUp() {
         mathMaterial = new ReadingMaterial();
         mathMaterial.setId(materialId);
-        mathMaterial.setTimeLimit(Integer.MAX_VALUE); // make time bonus negligible
 
         Question q1 = new Question();
         q1.setCorrectOptionIndex(1); // Answer B
@@ -59,8 +58,8 @@ class ReadingMaterialServiceTest {
         // Act
         double score = readingMaterialService.submitQuiz(userId, materialId, studentAnswers, 120);
 
-        // Assert
-        assertEquals(100.0, score);
+        // Assert: 2/2 correct = 100 base + (180/300)*10 = 6.0 time bonus = 106.0
+        assertEquals(106.0, score);
         verify(attemptRepo, times(1)).save(any());
     }
 
@@ -74,8 +73,8 @@ class ReadingMaterialServiceTest {
         // Act
         double score = readingMaterialService.submitQuiz(userId, materialId, studentAnswers, 150);
 
-        // Assert
-        assertEquals(50.0, score);
+        // Assert: 1/2 correct = 50 base + (150/300)*10 = 5.0 time bonus = 55.0
+        assertEquals(55.0, score);
     }
 
     @Test
