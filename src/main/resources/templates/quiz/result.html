@@ -11,8 +11,8 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/dashboard(role=${role})}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a th:href="@{/my-learning(role=${role})}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
+            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
             <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Rank</a>
         </nav>
@@ -49,7 +49,7 @@
             </div>
 
             <div style="margin-top: 30px;">
-                <a th:href="@{/dashboard(role=${role})}" class="btn btn-primary">Back to Dashboard</a>
+                <a th:href="@{/reading}" class="btn btn-primary">Back to Dashboard</a>
             </div>
         </div>
     </main>

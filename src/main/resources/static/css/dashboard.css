@@ -72,8 +72,11 @@ body { background-color: var(--bg-lavender); }
     border-radius: 15px;
     border: 1px solid #e0e0e0;
     font-size: 16px;
-    outline: none;
+    outline: 2px solid transparent;
     box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+.search-input:focus-visible {
+    outline: 2px solid var(--primary-purple);
 }
 
 /* --- CARD GRID --- */
@@ -199,4 +202,27 @@ body { background-color: var(--bg-lavender); }
 
 .pulse-active {
     animation: pulse-purple 2s infinite;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 15px 0;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+    .card {
+        width: 100%;
+    }
+    .card-grid {
+        flex-direction: column;
+    }
+    .app-container {
+        flex-direction: column;
+    }
 }

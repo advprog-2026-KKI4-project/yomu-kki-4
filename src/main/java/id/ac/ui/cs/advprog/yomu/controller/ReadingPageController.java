@@ -4,6 +4,10 @@ import id.ac.ui.cs.advprog.yomu.model.*;
 import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import id.ac.ui.cs.advprog.yomu.repository.QuizAttemptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,20 +27,35 @@ public class ReadingPageController {
         this.attemptRepo = attemptRepo;
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
-        model.addAttribute("currentUri", "/dashboard");
-        model.addAttribute("username", "Radithya");
-        model.addAttribute("role", role);
+    private String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getName() : "anonymous";
+    }
+
+    private String getCurrentUserRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return "STUDENT";
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(a -> a.startsWith("ROLE_"))
+                .map(a -> a.substring(5))
+                .findFirst().orElse("STUDENT");
+    }
+
+    @GetMapping("/reading")
+    public String dashboard(Model model) {
+        model.addAttribute("currentUri", "/reading");
+        model.addAttribute("username", getCurrentUserId());
+        model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("materials", service.getAll());
         return "reading/dashboard";
     }
 
     @GetMapping("/my-learning")
-    public String myLearning(Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
+    public String myLearning(Model model) {
         model.addAttribute("currentUri", "/my-learning");
-        model.addAttribute("username", "Radithya");
-        model.addAttribute("role", role);
+        model.addAttribute("username", getCurrentUserId());
+        model.addAttribute("role", getCurrentUserRole());
 
         List<ReadingMaterial> inProgress = service.getAll().stream()
                 .filter(m -> m.getProgress() > 0)
@@ -47,25 +66,19 @@ public class ReadingPageController {
     }
 
     @GetMapping("/reading/{id}")
-    public String readingPage(@PathVariable String id, Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
+    public String readingPage(@PathVariable String id, Model model) {
         ReadingMaterial material = service.getById(id);
 
-        if (material != null && material.getProgress() == 0) {
-            material.setProgress(50);
-            service.add(material);
-        }
-
         model.addAttribute("material", material);
-        model.addAttribute("role", role);
+        model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", false);
         return "reading/reader";
     }
 
     @GetMapping("/quiz/{id}")
-    public String quizPage(@PathVariable String id, Model model, @RequestParam(required = false, defaultValue = "STUDENT") String role) {
+    public String quizPage(@PathVariable String id, Model model) {
         model.addAttribute("material", service.getById(id));
-        model.addAttribute("userId", "user-123");
-        model.addAttribute("role", role);
+        model.addAttribute("role", getCurrentUserRole());
         return "quiz/session";
     }
 
@@ -81,26 +94,27 @@ public class ReadingPageController {
         model.addAttribute("baseScore", baseScore);
         model.addAttribute("bonus", bonus);
         model.addAttribute("remaining", remaining);
+        model.addAttribute("role", getCurrentUserRole());
         return "quiz/result";
     }
 
     @GetMapping("/review/{id}")
-    public String reviewPage(@PathVariable String id,
-                             Model model,
-                             @RequestParam(required = false, defaultValue = "STUDENT") String role) {
+    public String reviewPage(@PathVariable String id, Model model) {
 
         ReadingMaterial material = service.getById(id);
-        QuizAttempt attempt = attemptRepo.findByUserIdAndMaterialId("user-123", id);
+        String userId = getCurrentUserId();
+        QuizAttempt attempt = attemptRepo.findByUserIdAndMaterialId(userId, id);
 
         model.addAttribute("material", material);
         model.addAttribute("attempt", attempt);
         model.addAttribute("score", attempt != null ? attempt.getScore() : 0);
-        model.addAttribute("role", role);
+        model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", true);
 
         return "reading/reader";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/create")
     public String showCreateForm(Model model) {
         model.addAttribute("material", new ReadingMaterial());
@@ -108,6 +122,7 @@ public class ReadingPageController {
         return "admin/material-form";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
         model.addAttribute("material", service.getById(id));

@@ -2,12 +2,12 @@ package id.ac.ui.cs.advprog.yomu.repository;
 
 import id.ac.ui.cs.advprog.yomu.model.QuizAttempt;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Repository
 public class QuizAttemptRepository {
-    private final List<QuizAttempt> attemptData = new ArrayList<>();
+    private final List<QuizAttempt> attemptData = new CopyOnWriteArrayList<>();
 
     public QuizAttempt save(QuizAttempt attempt) {
         attemptData.removeIf(a -> a.getId().equals(attempt.getId()));

@@ -39,12 +39,12 @@ public class ModelUsageTest {
 
     @Test
     public void testQuizAttemptUsage() {
-        QuizAttempt attempt = new QuizAttempt("user1", "mat1", 100.0, 300);
+        QuizAttempt attempt = new QuizAttempt("user1", "mat1", 100.0, 300, Arrays.asList(0));
 
         assertEquals("user1", attempt.getUserId());
         assertEquals("mat1", attempt.getMaterialId());
         assertEquals(100.0, attempt.getScore());
-        assertEquals(300, attempt.getDuration());
+        assertEquals(300, attempt.getDurationInSeconds());
         assertNotNull(attempt.getId());
         assertNotNull(attempt.getCompletedAt());
     }

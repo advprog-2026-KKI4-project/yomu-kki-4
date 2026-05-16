@@ -37,6 +37,7 @@ class ReadingMaterialServiceTest {
     void setUp() {
         mathMaterial = new ReadingMaterial();
         mathMaterial.setId(materialId);
+        mathMaterial.setTimeLimit(Integer.MAX_VALUE); // make time bonus negligible
 
         Question q1 = new Question();
         q1.setCorrectOptionIndex(1); // Answer B

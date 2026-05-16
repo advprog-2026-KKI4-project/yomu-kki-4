@@ -11,8 +11,8 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/dashboard(role=${role})}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a th:href="@{/my-learning(role=${role})}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
+            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
             <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Rank</a>
         </nav>
@@ -20,10 +20,17 @@
 
     <main class="main-content">
         <div style="margin-bottom: 30px;">
-            <a th:href="@{/dashboard(role=${role})}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            <a th:href="@{/reading}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
         </div>
 
-        <section class="reader-view">
+        <div th:if="${material == null}">
+            <div class="content-box" style="text-align: center; padding: 60px;">
+                <h2 style="color: var(--primary-purple);">Material not found.</h2>
+                <a th:href="@{/reading}" class="btn btn-primary" style="margin-top: 20px;">Back to Dashboard</a>
+            </div>
+        </div>
+
+        <section th:if="${material != null}" class="reader-view">
             <div class="reader-header">
                 <span class="category-tag" th:text="${material.category}">Category</span>
                 <h1 class="reader-title" th:text="${material.title}">Material Title</h1>
@@ -62,7 +69,7 @@
                 </div>
 
                 <div th:if="${!isReview}" class="reader-actions">
-                    <a th:href="@{/quiz/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Start Quiz !</a>
+                    <a th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
                 </div>
             </div>
         </section>

@@ -78,6 +78,6 @@ public class ReadingMaterial {
     }
 
     public void setTimeLimit(int timeLimit) {
-        this.timeLimit = timeLimit;
+        this.timeLimit = (timeLimit <= 0) ? 300 : timeLimit;
     }
 }

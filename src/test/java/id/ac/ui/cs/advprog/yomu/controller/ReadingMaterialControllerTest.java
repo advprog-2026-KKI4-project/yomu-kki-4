@@ -4,60 +4,63 @@ import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
+@WebMvcTest(ReadingMaterialController.class)
 class ReadingMaterialControllerTest {
 
     @Autowired
-    private ReadingMaterialController controller;
+    private MockMvc mockMvc;
 
-    @Autowired
+    @MockitoBean
     private ReadingMaterialService service;
 
     @Test
-    void testGetAllMaterials() {
-        // 1. Add real data via the real service
-        ReadingMaterial mat = new ReadingMaterial();
-        mat.setTitle("Integration Test Material");
-        service.add(mat);
+    @WithMockUser(roles = "ADMIN")
+    void testAddMaterialAsAdmin() throws Exception {
+        mockMvc.perform(post("/api/admin/materials/add")
+                        .flashAttr("material", new ReadingMaterial()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/reading"));
 
-        // 2. Call the controller
-        ResponseEntity<List<ReadingMaterial>> response = controller.getAll();
-
-        // 3. Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().stream()
-                .anyMatch(m -> m.getTitle().equals("Integration Test Material")));
+        verify(service, times(1)).add(any(ReadingMaterial.class));
     }
 
     @Test
-    void testGetById() {
-        ReadingMaterial mat = new ReadingMaterial();
-        mat.setTitle("Specific Math Material");
-        ReadingMaterial saved = service.add(mat);
+    @WithMockUser(roles = "STUDENT")
+    void testAddMaterialAsStudentIsForbidden() throws Exception {
+        mockMvc.perform(post("/api/admin/materials/add")
+                        .flashAttr("material", new ReadingMaterial()))
+                .andExpect(status().isForbidden());
 
-        ResponseEntity<ReadingMaterial> response = controller.getById(saved.getId());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Specific Math Material", response.getBody().getTitle());
+        verify(service, never()).add(any());
     }
 
     @Test
-    void testDeleteMaterial() {
-        ReadingMaterial mat = new ReadingMaterial();
-        ReadingMaterial saved = service.add(mat);
+    @WithMockUser(roles = "ADMIN")
+    void testDeleteMaterialAsAdmin() throws Exception {
+        mockMvc.perform(post("/api/admin/materials/delete/test-id"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/reading"));
 
-        ResponseEntity<Void> response = controller.delete(saved.getId());
+        verify(service, times(1)).delete("test-id");
+    }
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(service.getById(saved.getId()));
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    void testDeleteMaterialAsStudentIsForbidden() throws Exception {
+        mockMvc.perform(post("/api/admin/materials/delete/test-id"))
+                .andExpect(status().isForbidden());
+
+        verify(service, never()).delete(any());
     }
 }

@@ -37,10 +37,27 @@ public class ReadingMaterialService {
     }
 
     public double submitQuiz(String userId, String materialId, List<Integer> studentAnswers, long duration) {
+        if (attemptRepo.existsByUserIdAndMaterialId(userId, materialId)) {
+            throw new IllegalStateException("User has already attempted this quiz.");
+        }
+
         ReadingMaterial material = materialRepo.findById(materialId);
         if (material == null) throw new IllegalArgumentException("Material not found.");
 
         List<Question> questions = material.getQuestions();
+        if (questions.isEmpty()) {
+            throw new IllegalStateException("Material has no questions.");
+        }
+
+        if (studentAnswers.size() != questions.size()) {
+            throw new IllegalArgumentException("Answer count does not match question count.");
+        }
+
+        int timeLimit = material.getTimeLimit();
+        if (timeLimit <= 0) {
+            throw new IllegalStateException("Invalid time limit.");
+        }
+
         int correctCount = 0;
         for (int i = 0; i < questions.size(); i++) {
             if (questions.get(i).getCorrectOptionIndex() == studentAnswers.get(i)) {
@@ -49,7 +66,6 @@ public class ReadingMaterialService {
         }
         double baseScore = ((double) correctCount / questions.size()) * 100;
 
-        double timeLimit = material.getTimeLimit();
         double remaining = Math.max(0, timeLimit - duration);
         double timeBonus = (remaining / timeLimit) * 10.0;
 

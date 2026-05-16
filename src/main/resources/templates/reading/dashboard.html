@@ -12,10 +12,10 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/dashboard(role=${role})}" class="nav-item" th:classappend="${currentUri == '/dashboard' ? 'active' : ''}">
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
-            <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
                 <i class="fas fa-book-open"></i> My Learning
             </a>
             <a href="#" class="nav-item">
@@ -58,15 +58,14 @@
 
                 <div class="card-footer">
                     <div th:if="${role == 'STUDENT'}">
-                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Start Reading !</a>
-                        <a th:if="${material.progress == 50}" th:href="@{/reading/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Start Quiz !</a>
-                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id}, role=${role})}" class="btn btn-completed">Completed !</a>
+                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id})}" class="btn btn-primary">Start Reading !</a>
+                        <a th:if="${material.progress == 50}" th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
+                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id})}" class="btn btn-completed">Completed !</a>
                     </div>
 
                     <div th:if="${role == 'ADMIN'}" class="admin-actions">
                         <a th:href="@{/admin/edit/{id}(id=${material.id})}" class="btn btn-secondary">Edit</a>
                         <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="flex:1">
-                            <input type="hidden" name="role" value="ADMIN">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Delete?')">Delete</button>
                         </form>
                     </div>

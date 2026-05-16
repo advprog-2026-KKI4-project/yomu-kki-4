@@ -17,7 +17,6 @@
     <div class="content-box">
         <form id="quiz-form" th:action="@{/api/materials/{id}/submit(id=${material.id})}" method="post">
             <input type="hidden" id="time-limit" th:value="${material.timeLimit}">
-            <input type="hidden" name="userId" th:value="${userId}">
             <input type="hidden" id="duration-input" name="duration" value="0">
 
             <h1 class="material-title" style="font-size: 28px; text-align: center; margin-bottom: 40px;"

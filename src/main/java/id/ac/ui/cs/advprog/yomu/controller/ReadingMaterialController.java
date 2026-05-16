@@ -4,8 +4,12 @@ import id.ac.ui.cs.advprog.yomu.model.Question;
 import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,13 +27,16 @@ public class ReadingMaterialController {
 
     @PostMapping("/materials/{id}/submit")
     public String submitQuiz(@PathVariable String id,
-                             @RequestParam String userId,
                              @RequestParam long duration,
                              @RequestParam Map<String, String> allParams) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth != null ? auth.getName() : "anonymous";
+
         try {
             List<Integer> answers = allParams.entrySet().stream()
                     .filter(entry -> entry.getKey().startsWith("answers["))
-                    .sorted(Map.Entry.comparingByKey())
+                    .sorted(Comparator.comparingInt(e ->
+                        Integer.parseInt(e.getKey().replaceAll("\\D+", ""))))
                     .map(entry -> Integer.parseInt(entry.getValue()))
                     .collect(Collectors.toList());
 
@@ -52,39 +59,39 @@ public class ReadingMaterialController {
 
             return String.format("redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d",
                     finalScore, duration, baseScore, bonus, (long)remaining);
-        } catch (Exception e) {
-            return "redirect:/dashboard?error=" + e.getMessage();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return "redirect:/reading?error=" + e.getMessage();
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/materials/add")
-    public String add(@ModelAttribute ReadingMaterial material, @RequestParam String role) {
-        if ("ADMIN".equals(role)) {
-            service.add(material);
-        }
-        return "redirect:/dashboard?role=" + role;
+    public String add(@ModelAttribute ReadingMaterial material) {
+        service.add(material);
+        return "redirect:/reading";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/materials/edit/{id}")
-    public String update(@PathVariable String id, @ModelAttribute ReadingMaterial material, @RequestParam String role) {
-        if ("ADMIN".equals(role)) {
-            ReadingMaterial existing = service.getById(id);
-            if (existing != null) {
-                existing.setTitle(material.getTitle());
-                existing.setCategory(material.getCategory());
-                existing.setContent(material.getContent());
-                existing.setTimeLimit(material.getTimeLimit());
-                service.add(existing);
+    public String update(@PathVariable String id, @ModelAttribute ReadingMaterial material) {
+        ReadingMaterial existing = service.getById(id);
+        if (existing != null) {
+            existing.setTitle(material.getTitle());
+            existing.setCategory(material.getCategory());
+            existing.setContent(material.getContent());
+            existing.setTimeLimit(material.getTimeLimit());
+            if (material.getQuestions() != null && !material.getQuestions().isEmpty()) {
+                existing.setQuestions(material.getQuestions());
             }
+            service.add(existing);
         }
-        return "redirect:/dashboard?role=" + role;
+        return "redirect:/reading";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/materials/delete/{id}")
-    public String delete(@PathVariable String id, @RequestParam String role) {
-        if ("ADMIN".equals(role)) {
-            service.delete(id);
-        }
-        return "redirect:/dashboard?role=" + role;
+    public String delete(@PathVariable String id) {
+        service.delete(id);
+        return "redirect:/reading";
     }
 }

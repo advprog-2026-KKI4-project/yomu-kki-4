@@ -17,7 +17,7 @@
 
 <div class="form-container">
     <div style="margin-bottom: 30px;">
-        <a th:href="@{/dashboard(role='ADMIN')}" class="back-link">← Cancel and Exit</a>
+        <a th:href="@{/reading}" class="back-link">← Cancel and Exit</a>
     </div>
 
     <h1 style="margin-bottom: 30px; color: var(--primary-purple);"
@@ -25,8 +25,6 @@
 
     <form th:action="${material.id == null ? '/api/admin/materials/add' : '/api/admin/materials/edit/' + material.id}"
           th:object="${material}" method="post">
-
-        <input type="hidden" name="role" value="ADMIN">
 
         <div class="form-group">
             <label>Title</label>
