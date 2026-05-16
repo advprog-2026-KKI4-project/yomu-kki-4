@@ -44,7 +44,6 @@ public class DiscussionForumController {
                 User user = authUserResolver.requireUser(authentication);
                 currentUserId = user.getId();
             } catch (Exception ignored) {
-                // viewing without valid auth is acceptable
             }
         }
         return ResponseEntity.ok(service.getCommentsByMaterial(materialId, currentUserId));

@@ -28,7 +28,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleIllegalArgument(
             IllegalArgumentException ex) {
 
-        // Ownership violations → 403
         if (ex.getMessage() != null && ex.getMessage().startsWith("You can only")) {
             return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.FORBIDDEN);
         }
