@@ -81,6 +81,10 @@
         <div class="username" sec:authentication="name">User</div>
         <div class="role-badge" sec:authentication="principal.authorities[0]">ROLE_STUDENT</div>
 
+        <div style="margin-bottom: 16px;">
+            <a th:href="@{/reading}" class="btn" style="background: #5b4b8a; color: #fff;">Go to Learning</a>
+        </div>
+
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="btn btn-danger">Log Out</button>
         </form>
