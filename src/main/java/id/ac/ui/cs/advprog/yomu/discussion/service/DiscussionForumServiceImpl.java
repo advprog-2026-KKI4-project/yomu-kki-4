@@ -9,6 +9,7 @@ import id.ac.ui.cs.advprog.yomu.discussion.model.DiscussionForum;
 import id.ac.ui.cs.advprog.yomu.discussion.model.ReactionType;
 import id.ac.ui.cs.advprog.yomu.discussion.repository.CommentReactionRepository;
 import id.ac.ui.cs.advprog.yomu.discussion.repository.DiscussionForumRepository;
+import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
     private final DiscussionForumRepository commentRepository;
     private final CommentReactionRepository reactionRepository;
     private final UserRepository userRepository;
+    private final ReadingMaterialService readingMaterialService;
 
     @Override
     @Transactional
     public CommentResponse postComment(CommentRequest req, Long authorId) {
+        if (readingMaterialService.getById(req.getMaterialId()) == null) {
+            throw new IllegalArgumentException(
+                    "Material with ID " + req.getMaterialId() + " does not exist");
+        }
+
         if (req.getParentCommentId() != null
                 && !commentRepository.existsById(req.getParentCommentId())) {
             throw new IllegalArgumentException(
@@ -113,7 +120,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
         if (existing.isPresent()) {
             CommentReaction r = existing.get();
             if (r.getReactionType() == type) {
-                reactionRepository.delete(r); // toggle off
+                reactionRepository.delete(r);
             } else {
                 r.setReactionType(type);
                 reactionRepository.save(r);

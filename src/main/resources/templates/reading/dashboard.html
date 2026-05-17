@@ -57,10 +57,11 @@
                 </div>
 
                 <div class="card-footer">
-                    <div th:if="${role == 'STUDENT'}">
+                    <div th:if="${role == 'STUDENT'}" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                         <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id})}" class="btn btn-primary">Start Reading !</a>
                         <a th:if="${material.progress == 50}" th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
                         <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id})}" class="btn btn-completed">Completed !</a>
+                        <a th:href="@{/discussion/{id}(id=${material.id})}" class="btn btn-secondary"><i class="fas fa-comments"></i> Discuss</a>
                     </div>
 
                     <div th:if="${role == 'ADMIN'}" class="admin-actions">

@@ -36,7 +36,7 @@ public class ReadingMaterialController {
             List<Integer> answers = allParams.entrySet().stream()
                     .filter(entry -> entry.getKey().startsWith("answers["))
                     .sorted(Comparator.comparingInt(e ->
-                        Integer.parseInt(e.getKey().replaceAll("\\D+", ""))))
+                            Integer.parseInt(e.getKey().replaceAll("\\D+", ""))))
                     .map(entry -> Integer.parseInt(entry.getValue()))
                     .collect(Collectors.toList());
 
@@ -57,8 +57,8 @@ public class ReadingMaterialController {
             double remaining = Math.max(0, timeLimit - duration);
             double bonus = (remaining / timeLimit) * 10.0;
 
-            return String.format("redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d",
-                    finalScore, duration, baseScore, bonus, (long)remaining);
+            return String.format("redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d&materialId=%s",
+                    finalScore, duration, baseScore, bonus, (long)remaining, id);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return "redirect:/reading?error=" + e.getMessage();
         }
