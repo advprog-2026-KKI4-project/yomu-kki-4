@@ -43,7 +43,7 @@ public class DiscussionForumController {
             try {
                 User user = authUserResolver.requireUser(authentication);
                 currentUserId = user.getId();
-            } catch (Exception ignored) {
+            } catch (org.springframework.security.access.AccessDeniedException ignored) {
             }
         }
         return ResponseEntity.ok(service.getCommentsByMaterial(materialId, currentUserId));
