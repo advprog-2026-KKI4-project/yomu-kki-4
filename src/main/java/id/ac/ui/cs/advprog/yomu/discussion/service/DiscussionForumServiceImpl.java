@@ -34,10 +34,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
                     "Material with ID " + req.getMaterialId() + " does not exist");
         }
 
-        if (req.getParentCommentId() != null
-                && !commentRepository.existsById(req.getParentCommentId())) {
-            throw new IllegalArgumentException(
-                    "Parent comment with ID " + req.getParentCommentId() + " does not exist");
+        if (req.getParentCommentId() != null) {
+            DiscussionForum parent = commentRepository.findById(req.getParentCommentId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Parent comment with ID " + req.getParentCommentId() + " does not exist"));
+            if (!Objects.equals(parent.getMaterialId(), req.getMaterialId())) {
+                throw new IllegalArgumentException("Parent comment must belong to the same material");
+            }
         }
 
         DiscussionForum saved = commentRepository.save(DiscussionForum.builder()
