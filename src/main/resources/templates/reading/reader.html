@@ -19,8 +19,9 @@
     </aside>
 
     <main class="main-content">
-        <div style="margin-bottom: 30px;">
+        <div style="margin-bottom: 30px; display:flex; justify-content:space-between; align-items:center;">
             <a th:href="@{/reading}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            <a th:if="${material != null}" th:href="@{/discussion/{id}(id=${material.id})}" class="btn btn-secondary"><i class="fas fa-comments"></i> Discuss this material</a>
         </div>
 
         <div th:if="${material == null}">

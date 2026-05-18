@@ -67,6 +67,15 @@
             background: #a096e0;
             color: #111016;
         }
+        .btn-accent {
+            background: transparent;
+            color: #f5b17f;
+            border: 2px solid #f5b17f;
+        }
+        .btn-accent:hover {
+            background: #f5b17f;
+            color: #111016;
+        }
         .footer {
             position: absolute;
             bottom: 24px;
@@ -77,17 +86,18 @@
 </head>
 <body>
 
-    <div class="brand">Yomu</div>
-    <div class="tagline">
-        Level up your information literacy through gamified learning, quizzes, and community challenges.
-    </div>
+<div class="brand">Yomu</div>
+<div class="tagline">
+    Level up your information literacy through gamified learning, quizzes, and community challenges.
+</div>
 
-    <div class="btn-group">
-        <a th:href="@{/login}" class="btn btn-primary">Log In</a>
-        <a th:href="@{/register}" class="btn btn-outline">Register</a>
-    </div>
+<div class="btn-group">
+    <a th:href="@{/login}" class="btn btn-primary">Log In</a>
+    <a th:href="@{/register}" class="btn btn-outline">Register</a>
+    <a th:href="@{/discussion}" class="btn btn-accent">Try Discussion 💬</a>
+</div>
 
-    <div class="footer">YOMU KKI4 — AdvProg 2026</div>
+<div class="footer">YOMU KKI4 — AdvProg 2026</div>
 
 </body>
 </html>

@@ -1,15 +1,24 @@
 package id.ac.ui.cs.advprog.yomu.discussion.service;
 
-import java.util.List;
-
 import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentRequest;
-import id.ac.ui.cs.advprog.yomu.discussion.model.DiscussionForum;
+import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentResponse;
+import id.ac.ui.cs.advprog.yomu.discussion.model.ReactionType;
+
+import java.util.List;
 
 public interface DiscussionForumService {
 
-    DiscussionForum postComment(CommentRequest requestDTO);
-    List<DiscussionForum> getCommentsByMaterial(String materialId);
+    CommentResponse postComment(CommentRequest req, Long authorId);
 
-    DiscussionForum editComment(Long id, String newContent, String authorId);
-    void deleteComment(Long id, String authorId);
+    List<CommentResponse> getCommentsByMaterial(String materialId, Long currentUserId);
+
+    CommentResponse editComment(Long id, String newContent, Long authorId);
+
+    void deleteComment(Long id, Long authorId);
+
+    void deleteCommentAsAdmin(Long id);
+
+    CommentResponse reactToComment(Long commentId, ReactionType reactionType, Long userId);
+
+    void removeReaction(Long commentId, Long userId);
 }

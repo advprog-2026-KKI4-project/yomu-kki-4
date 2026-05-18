@@ -88,12 +88,14 @@ public class ReadingPageController {
                              @RequestParam double baseScore,
                              @RequestParam double bonus,
                              @RequestParam long remaining,
+                             @RequestParam(required = false) String materialId,
                              Model model) {
         model.addAttribute("score", score);
         model.addAttribute("duration", duration);
         model.addAttribute("baseScore", baseScore);
         model.addAttribute("bonus", bonus);
         model.addAttribute("remaining", remaining);
+        model.addAttribute("materialId", materialId);
         model.addAttribute("role", getCurrentUserRole());
         return "quiz/result";
     }
