@@ -22,16 +22,49 @@ public class AchievementEventListener {
 
     @EventListener
     public void onQuizCompleted(QuizCompletedEvent event) {
-        User user = userRepository.findByEmail(event.getUserIdentifier())
-                .or(() -> userRepository.findByPhone(event.getUserIdentifier()))
-                .orElse(null);
-
+        User user = resolveUser(event.getUserIdentifier());
         if (user == null) {
             log.warn("Achievement trigger skipped: no user found for identifier '{}'", event.getUserIdentifier());
             return;
         }
-
         achievementTrackingService.incrementProgress(user, AchievementType.QUIZ);
         missionTrackingService.incrementProgress(user, MissionType.QUIZ);
+    }
+
+    @EventListener
+    public void onReadingCompleted(ReadingCompletedEvent event) {
+        User user = resolveUser(event.getUserIdentifier());
+        if (user == null) {
+            log.warn("Achievement trigger skipped: no user found for identifier '{}'", event.getUserIdentifier());
+            return;
+        }
+        achievementTrackingService.incrementProgress(user, AchievementType.READING);
+        missionTrackingService.incrementProgress(user, MissionType.READING);
+    }
+
+    @EventListener
+    public void onDiscussionPost(DiscussionPostEvent event) {
+        User user = resolveUser(event.getUserIdentifier());
+        if (user == null) {
+            log.warn("Achievement trigger skipped: no user found for identifier '{}'", event.getUserIdentifier());
+            return;
+        }
+        missionTrackingService.incrementProgress(user, MissionType.DISCUSSION);
+    }
+
+    @EventListener
+    public void onLogin(LoginEvent event) {
+        User user = resolveUser(event.getUserIdentifier());
+        if (user == null) {
+            log.warn("Achievement trigger skipped: no user found for identifier '{}'", event.getUserIdentifier());
+            return;
+        }
+        missionTrackingService.incrementProgress(user, MissionType.LOGIN);
+    }
+
+    private User resolveUser(String identifier) {
+        return userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByPhone(identifier))
+                .orElse(null);
     }
 }

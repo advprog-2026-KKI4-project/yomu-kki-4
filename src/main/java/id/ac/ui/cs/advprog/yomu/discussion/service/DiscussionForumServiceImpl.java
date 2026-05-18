@@ -1,9 +1,11 @@
 package id.ac.ui.cs.advprog.yomu.discussion.service;
 
+import id.ac.ui.cs.advprog.yomu.achievement.event.DiscussionPostEvent;
 import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentRequest;
 import id.ac.ui.cs.advprog.yomu.discussion.model.DiscussionForum;
 import id.ac.ui.cs.advprog.yomu.discussion.repository.DiscussionForumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,10 +14,13 @@ import java.util.List;
 public class DiscussionForumServiceImpl implements DiscussionForumService {
 
     private final DiscussionForumRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public DiscussionForumServiceImpl(DiscussionForumRepository repository) {
+    public DiscussionForumServiceImpl(DiscussionForumRepository repository,
+                                      ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -37,7 +42,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
                 .parentCommentId(requestDTO.getParentCommentId())
                 .build();
 
-        return repository.save(comment);
+        DiscussionForum saved = repository.save(comment);
+        eventPublisher.publishEvent(new DiscussionPostEvent(requestDTO.getAuthorId()));
+        return saved;
     }
 
     @Override
