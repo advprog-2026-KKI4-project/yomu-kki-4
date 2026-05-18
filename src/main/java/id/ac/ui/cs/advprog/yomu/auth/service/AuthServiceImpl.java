@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.auth.service;
 
+import id.ac.ui.cs.advprog.yomu.achievement.event.LoginEvent;
 import id.ac.ui.cs.advprog.yomu.auth.config.JwtUtil;
 import id.ac.ui.cs.advprog.yomu.auth.dto.AuthResponse;
 import id.ac.ui.cs.advprog.yomu.auth.dto.LoginRequest;
@@ -10,6 +11,7 @@ import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -55,6 +58,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        eventPublisher.publishEvent(new LoginEvent(request.getEmailOrPhone()));
         return buildAuthResponse("Login successful", user);
     }
 
@@ -79,6 +83,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         user = userRepository.save(user);
+        eventPublisher.publishEvent(new LoginEvent(user.getEmail()));
         return buildAuthResponse("Google login successful", user);
     }
 
