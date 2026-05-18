@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         if (ex.getMessage() != null && ex.getMessage().startsWith("You can only")) {
             return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Map.of("error", ex.getMessage() == null ? "Invalid argument" : ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
