@@ -1,8 +1,10 @@
-package id.ac.ui.cs.advprog.yomu.controller;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.*;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
-import id.ac.ui.cs.advprog.yomu.repository.QuizAttemptRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.*;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -105,6 +107,7 @@ public class ReadingPageController {
         String userId = getCurrentUserId();
         QuizAttempt attempt = attemptRepo.findByUserIdAndMaterialId(userId, id);
 
+        model.addAttribute("currentUri", "/my-learning");
         model.addAttribute("material", material);
         model.addAttribute("attempt", attempt);
         model.addAttribute("score", attempt != null ? attempt.getScore() : 0);

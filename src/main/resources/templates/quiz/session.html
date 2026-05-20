@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <script th:src="@{/js/quiz-timer.js}" defer></script>
+    <script th:src="@{/js/quiz-session.js}" defer></script>
 </head>
 <body class="focused-view"> <main class="quiz-focus-container">
     <header class="quiz-header">
@@ -37,8 +38,10 @@
                 </div>
             </div>
 
-            <div class="quiz-footer">
-                <button type="submit" class="btn btn-primary">Submit Answers</button>
+            <div class="quiz-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 30px;">
+                <button type="button" id="prev-btn" class="btn btn-secondary" style="padding: 12px 24px; border-radius: 10px; font-weight: 600;">Previous</button>
+                <button type="button" id="next-btn" class="btn btn-primary" style="padding: 12px 24px; border-radius: 10px; font-weight: 600;">Next</button>
+                <button type="submit" id="submit-btn" class="btn btn-success" style="padding: 12px 24px; border-radius: 10px; font-weight: 700;">Submit Quiz</button>
             </div>
         </form>
     </div>

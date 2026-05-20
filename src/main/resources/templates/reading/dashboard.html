@@ -5,16 +5,17 @@
     <title>Yomu - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <script th:src="@{/js/dashboard.js}" defer></script>
 </head>
 <body>
 <div class="app-container">
-
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
             <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
+<<<<<<< HEAD
             <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
                 <i class="fas fa-book-open"></i> My Learning
             </a>
@@ -23,39 +24,37 @@
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-trophy"></i> Rank
+=======
+            <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
+                <i class="fas fa-book-open"></i> Course
+>>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
             </a>
+            <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a href="#" class="nav-item"><i class="fas fa-search"></i> Discover</a>
+            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a href="#" class="nav-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
 
     <main class="main-content">
-        <header class="header">
-            <div class="user-profile">
-                <i class="fas fa-user-circle"></i>
-                <h2 th:text="'Welcome, ' + ${username} + '!'">Welcome, Username!</h2>
-            </div>
-            <div th:if="${role == 'ADMIN'}">
-                <a th:href="@{/admin/create}" class="btn btn-primary add-btn">+ Add Material</a>
-            </div>
-        </header>
-
-        <div class="search-bar-container">
-            <input type="text" id="materialSearch" placeholder="Search title or category..." class="search-input">
-        </div>
-
-        <section class="card-grid" id="cardGrid">
-            <div class="card" th:each="material : ${materials}">
-                <div class="card-top">
-                    <span class="category-tag" th:text="${material.category}">Code</span>
-                    <h3 class="material-title" th:text="${material.title}">Programming Foundation 1</h3>
+        <div class="canvas-container">
+            <header class="header">
+                <div class="welcome-msg">
+                    <h2 th:text="'Welcome, ' + ${username} + '!'"></h2>
+                    <span th:if="${role == 'ADMIN'}" class="admin-role">Admin Workspace</span>
                 </div>
-
-                <div class="progress-area">
-                    <span class="progress-percent" th:text="${material.progress} + '%'">0%</span>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" th:style="'width: ' + ${material.progress} + '%'"></div>
+                <div class="header-right">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <div class="user-profile">
+                        <div class="profile-pic" style="background-image: url('https://via.placeholder.com/45')"></div>
+                    </div>
+                    <div th:if="${role == 'ADMIN'}" style="margin-left: 10px;">
+                        <a th:href="@{/admin/create}" class="btn btn-primary">+ Create New Module</a>
                     </div>
                 </div>
+            </header>
 
+<<<<<<< HEAD
                 <div class="card-footer">
                     <div th:if="${role == 'STUDENT'}">
                         <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id})}" class="btn btn-primary">Start Reading !</a>
@@ -67,23 +66,50 @@
                         <a th:href="@{/admin/edit/{id}(id=${material.id})}" class="btn btn-secondary">Edit</a>
                         <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="flex:1">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Delete?')">Delete</button>
+=======
+            <div class="search-bar-container">
+                <input type="text" id="materialSearch" placeholder="Search module name or category..." class="search-input">
+            </div>
+
+            <section class="module-list">
+                <div class="module-item" th:each="material : ${materials}">
+                    <div style="display: flex; align-items: center; gap: 20px; flex: 1;">
+                        <div class="cat-icon-container">
+                            <i th:if="${material.category == 'Code'}" class="fas fa-code"></i>
+                            <i th:if="${material.category == 'Basketball' || material.category == 'Sport'}" class="fas fa-basketball-ball"></i>
+                            <i th:if="${material.category != 'Code' && material.category != 'Basketball' && material.category != 'Sport'}" class="fas fa-book"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3 class="module-title" th:text="${material.title}"></h3>
+                            <div th:if="${role == 'STUDENT'}" class="status-row">
+                                <span>Progress</span>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" th:style="'width: ' + ${material.progress} + '%'"></div>
+                                </div>
+                                <span class="percentage-text" th:text="${material.progress} + '%'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-actions" th:if="${role == 'STUDENT'}">
+                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Start Reading</a>
+                        <a th:if="${material.progress == 50}" th:href="@{/reading/{id}(id=${material.id}, role=${role})}" class="btn btn-primary">Start Quiz</a>
+                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id}, role=${role})}" class="btn btn-completed">Completed</a>
+                    </div>
+
+                    <div class="module-actions" th:if="${role == 'ADMIN'}">
+                        <a th:href="@{/reading/{id}(id=${material.id}, role='ADMIN')}" class="btn-icon-only"><i class="fas fa-eye"></i></a>
+                        <a th:href="@{/admin/edit/{id}(id=${material.id})}" class="btn-icon-only"><i class="fas fa-pencil-alt"></i></a>
+                        <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="display:inline">
+                            <input type="hidden" name="role" value="ADMIN">
+                            <button type="submit" class="btn-icon-only btn-danger" onclick="return confirm('Delete this module?')"><i class="fas fa-trash-alt"></i></button>
+>>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
                         </form>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 </div>
-
-<script>
-    document.getElementById('materialSearch').addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        document.querySelectorAll('.card').forEach(card => {
-            const title = card.querySelector('.material-title').innerText.toLowerCase();
-            const cat = card.querySelector('.category-tag').innerText.toLowerCase();
-            card.style.display = (title.includes(query) || cat.includes(query)) ? 'flex' : 'none';
-        });
-    });
-</script>
 </body>
 </html>

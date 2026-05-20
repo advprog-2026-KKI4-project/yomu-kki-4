@@ -1,9 +1,10 @@
 package id.ac.ui.cs.advprog.yomu.service;
 
-import id.ac.ui.cs.advprog.yomu.model.Question;
-import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.repository.QuizAttemptRepository;
-import id.ac.ui.cs.advprog.yomu.repository.ReadingMaterialRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.ReadingMaterialRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

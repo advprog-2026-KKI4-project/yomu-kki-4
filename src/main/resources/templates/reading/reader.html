@@ -11,14 +11,26 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
+<<<<<<< HEAD
             <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
             <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
+=======
+            <a th:href="@{/dashboard(role=${role})}" class="nav-item" th:classappend="${currentUri == '/dashboard' ? 'active' : ''}">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
+                <i class="fas fa-book-open"></i> Course
+            </a>
+>>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
             <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
-            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Rank</a>
+            <a href="#" class="nav-item"><i class="fas fa-search"></i> Discover</a>
+            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a href="#" class="nav-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
 
     <main class="main-content">
+<<<<<<< HEAD
         <div style="margin-bottom: 30px;">
             <a th:href="@{/reading}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
         </div>
@@ -34,45 +46,55 @@
             <div class="reader-header">
                 <span class="category-tag" th:text="${material.category}">Category</span>
                 <h1 class="reader-title" th:text="${material.title}">Material Title</h1>
+=======
+        <div class="canvas-container">
+            <div style="margin-bottom: 35px;">
+                <a th:href="@{/dashboard(role=${role})}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+>>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
             </div>
 
-            <div class="content-box">
-                <p class="reading-text" th:text="${material.content}">Content goes here...</p>
+            <div th:if="${material == null}" style="text-align: center; padding: 50px 0;">
+                <h2 style="color: #564b8f;">Module not found.</h2>
+            </div>
 
-                <div th:if="${isReview}" class="review-section" style="margin-top: 50px; border-top: 2px dashed #eee; padding-top: 40px;">
-                    <div class="result-banner" style="text-align: center; margin-bottom: 40px;">
-                        <h2 style="color: var(--primary-purple);">Quiz Results</h2>
-                        <div class="score-display">
-                            <span th:text="${#numbers.formatDecimal(score, 1, 1)}">0.0</span>
-                        </div>
+            <section th:if="${material != null}">
+                <div style="margin-bottom: 35px;">
+                    <span class="category-tag" th:text="${material.category}"></span>
+                    <h1 style="color: #111016; font-size: 36px; font-weight: 800; margin-top: 12px;" th:text="${material.title}"></h1>
+                </div>
+
+                <div style="font-size: 16px; line-height: 1.8; color: #333; white-space: pre-wrap; margin-bottom: 50px;" th:text="${material.content}"></div>
+
+                <div th:if="${isReview || role == 'ADMIN'}" style="border-top: 2px dashed #ede6ec; padding-top: 40px; margin-top: 40px;">
+                    <div th:if="${isReview}" style="text-align: center; margin-bottom: 45px;">
+                        <h2 style="color: #564b8f; font-weight: 800; font-size: 24px;">Quiz Performance Metrics</h2>
+                        <div style="font-size: 56px; font-weight: 800; color: #6b5ce0; margin-top: 10px;" th:text="${#numbers.formatDecimal(score, 1, 1)}"></div>
                     </div>
 
-                    <h3 style="margin-bottom: 20px;">Review Answers</h3>
-                    <div th:each="question, qIter : ${material.questions}" class="review-item"
-                         style="margin-bottom: 25px; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
-
-                        <p style="font-weight: 700; margin-bottom: 15px;" th:text="${qIter.count} + '. ' + ${question.questionText}"></p>
-
-                        <div class="options-review">
-                            <div th:each="option, oIter : ${question.options}"
-                                 class="option-review-box"
-                                 style="padding: 10px 15px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between;"
-                                 th:styleappend="${oIter.index == question.correctOptionIndex ? 'background: #e8f5e9; border: 1px solid #4caf50; color: #1b5e20;' :
-                                               (attempt != null && oIter.index == attempt.answers[qIter.index] ? 'background: #ffebee; border: 1px solid #f44336; color: #b71c1c;' : 'background: #f9f9f9; color: #666;')}">
-
-                                <span th:text="${option}">Option</span>
-                                <span th:if="${oIter.index == question.correctOptionIndex}" style="font-weight: 800;">✔ Correct</span>
-                                <span th:if="${attempt != null && oIter.index == attempt.answers[qIter.index] && oIter.index != question.correctOptionIndex}" style="font-weight: 800;">✖ Your Choice</span>
+                    <h3 style="color: #111016; font-weight: 700; margin-bottom: 25px; font-size: 18px;" th:text="${role == 'ADMIN' ? 'Quiz Configurations Overview' : 'Evaluation Review'}"></h3>
+                    <div th:each="question, qIter : ${material.questions}" style="background: #faf6fa; border: 1px solid #f2edf1; padding: 25px; border-radius: 20px; margin-bottom: 20px;">
+                        <p style="font-weight: 700; font-size: 16px; margin-bottom: 15px; color: #111016;" th:text="${qIter.count} + '. ' + ${question.questionText}"></p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div th:each="option, oIter : ${question.options}" style="padding: 14px 20px; border-radius: 12px; display: flex; justify-content: space-between; font-weight: 600; font-size: 14px;"
+                                 th:styleappend="${oIter.index == question.correctOptionIndex ? 'background: #e8f5e9; border: 1px solid #27ae60; color: #1b5e20;' : (attempt != null && attempt.answers != null && attempt.answers.size() > qIter.index && oIter.index == attempt.answers[qIter.index] ? 'background: #ffebee; border: 1px solid #ff5252; color: #b71c1c;' : 'background: #ffffff; border: 1px solid #ede6ec; color: #7f8fa4;')}">
+                                <span th:text="${option}"></span>
+                                <span th:if="${oIter.index == question.correctOptionIndex}">✔ Correct answer key</span>
+                                <span th:if="${attempt != null && attempt.answers != null && attempt.answers.size() > qIter.index && oIter.index == attempt.answers[qIter.index] && oIter.index != question.correctOptionIndex}">✖ Your selection input</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
+<<<<<<< HEAD
                 <div th:if="${!isReview}" class="reader-actions">
                     <a th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
+=======
+                <div th:if="${!isReview && role == 'STUDENT'}" style="display: flex; justify-content: center; margin-top: 40px; border-top: 1px solid #ede6ec; padding-top: 30px;">
+                    <a th:href="@{/quiz/{id}(id=${material.id}, role=${role})}" class="btn btn-primary" style="padding: 16px 80px; font-size: 16px; border-radius: 14px;">Start Quiz !</a>
+>>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 </div>
 </body>

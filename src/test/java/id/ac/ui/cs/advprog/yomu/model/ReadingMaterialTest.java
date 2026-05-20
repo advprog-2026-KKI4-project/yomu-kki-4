@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.yomu.model;
 
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

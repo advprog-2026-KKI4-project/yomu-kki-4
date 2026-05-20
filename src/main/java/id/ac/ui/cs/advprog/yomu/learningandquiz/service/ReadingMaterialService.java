@@ -1,7 +1,12 @@
-package id.ac.ui.cs.advprog.yomu.service;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.service;
 
-import id.ac.ui.cs.advprog.yomu.model.*;
-import id.ac.ui.cs.advprog.yomu.repository.*;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.ReadingMaterialRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.*;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

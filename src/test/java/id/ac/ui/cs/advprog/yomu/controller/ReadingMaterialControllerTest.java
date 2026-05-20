@@ -1,9 +1,15 @@
 package id.ac.ui.cs.advprog.yomu.controller;
 
+<<<<<<< HEAD
 import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+=======
+import id.ac.ui.cs.advprog.yomu.learningandquiz.controller.ReadingMaterialController;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
+>>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -3,17 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Yomu - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
-    <style>
-        .form-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: var(--card-shadow); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--primary-purple); }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; }
-        .question-editor { background: #fdfbff; padding: 20px; border-radius: 15px; border: 1px dashed var(--primary-purple); margin-top: 20px; }
-        .option-input { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    </style>
+    <script th:src="@{/js/material-form.js}" defer></script>
 </head>
-<body style="background-color: var(--bg-color); padding: 60px 20px;">
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard(role='ADMIN')}" class="nav-item" th:classappend="${currentUri == '/dashboard' ? 'active' : ''}">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a th:href="@{/my-learning(role='ADMIN')}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
+                <i class="fas fa-book-open"></i> Course
+            </a>
+            <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a href="#" class="nav-item"><i class="fas fa-search"></i> Discover</a>
+            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a href="#" class="nav-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
 
 <div class="form-container">
     <div style="margin-bottom: 30px;">
@@ -50,25 +60,37 @@
 
         <h2 style="margin-bottom: 20px; color: var(--primary-purple);">Quiz Settings</h2>
 
-        <div class="question-editor">
-            <div class="form-group">
-                <label>Question 1 Text</label>
-                <input type="text" name="questions[0].questionText" th:value="*{questions.size() > 0 ? questions[0].questionText : ''}" required>
+        <div id="questions-container">
+            <div th:each="question, qIter : ${material.questions}" class="question-box" th:data-index="${qIter.index}" style="background: #faf6fa; padding: 30px; border-radius: 20px; border: 1px dashed #a096e0; margin-bottom: 25px;">
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-weight: 700; color: #111016; margin-bottom: 10px; font-size: 14px;" th:text="'Question ' + (${qIter.index} + 1) + ' Text'"></label>
+                    <input type="text" th:name="'questions[' + ${qIter.index} + '].questionText'" th:value="${question.questionText}" placeholder="Type question core string..." style="width: 100%; padding: 14px; border: 1px solid #e0d5dd; border-radius: 10px; font-size: 15px; outline: none;" required>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; color: #111016; margin-bottom: 12px; font-size: 14px;">Option Slots Matrix</label>
+                    <div th:each="i : ${#numbers.sequence(0, 3)}" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                        <input type="radio" th:name="'questions[' + ${qIter.index} + '].correctOptionIndex'" th:value="${i}" th:checked="${question.correctOptionIndex == i}" style="transform: scale(1.3); accent-color: #6b5ce0;" required>
+                        <input type="text" th:name="'questions[' + ${qIter.index} + '].options[' + ${i} + ']'" th:value="${question.options.size() > i ? question.options[i] : ''}" placeholder="Option string payload..." style="flex: 1; padding: 12px; border: 1px solid #e0d5dd; border-radius: 10px; font-size: 14px; outline: none;" required>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Options (Check the radio for the correct answer)</label>
-                <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
-                    <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}"
-                           th:checked="${questions.size() > 0 && questions[0].correctOptionIndex == i}" required>
-                    <input type="text" th:name="'questions[0].options[' + ${i} + ']'"
-                           th:value="${questions.size() > 0 && questions[0].options.size() > i ? questions[0].options[i] : ''}"
-                           placeholder="Option text..." required>
+            <div th:if="${material.questions == null || material.questions.isEmpty()}" class="question-box" data-index="0" style="background: #faf6fa; padding: 30px; border-radius: 20px; border: 1px dashed #a096e0; margin-bottom: 25px;">
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-weight: 700; color: #111016; margin-bottom: 10px; font-size: 14px;">Question 1 Text</label>
+                    <input type="text" name="questions[0].questionText" placeholder="Type question core string..." style="width: 100%; padding: 14px; border: 1px solid #e0d5dd; border-radius: 10px; font-size: 15px; outline: none;" required>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; color: #111016; margin-bottom: 12px; font-size: 14px;">Option Slots Matrix</label>
+                    <div th:each="i : ${#numbers.sequence(0, 3)}" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                        <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}" style="transform: scale(1.3); accent-color: #6b5ce0;" required>
+                        <input type="text" th:name="'questions[0].options[' + ${i} + ']'" placeholder="Option string payload..." style="flex: 1; padding: 12px; border: 1px solid #e0d5dd; border-radius: 10px; font-size: 14px; outline: none;" required>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 40px;">Save Material</button>
+        <button type="submit" class="btn btn-primary" style="margin-top: 45px; width: 100%; padding: 16px; font-size: 16px; border-radius: 14px; font-weight: 700;">Publish New Material</button>
     </form>
 </div>
 

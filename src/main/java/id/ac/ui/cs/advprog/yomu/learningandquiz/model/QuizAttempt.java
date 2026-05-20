@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.yomu.model;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.model;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -27,8 +27,6 @@ public class QuizAttempt {
         this.durationInSeconds = duration;
         this.answers = answers;
     }
-
-
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
