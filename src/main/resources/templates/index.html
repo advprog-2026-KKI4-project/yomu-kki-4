@@ -3,101 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <title>Yomu — Information Literacy Gamification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #111016;
-            color: #f7ecf4;
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .landing-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 56px 48px;
+            max-width: 560px;
+            width: 100%;
             text-align: center;
-            padding: 20px;
+            box-shadow: var(--hero-shadow);
+            border: 1px solid var(--border-soft);
+        }
+        .landing-logo {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-purple);
+            border-radius: 18px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-on-dark);
+            font-size: 28px;
+            font-weight: 900;
         }
         .brand {
-            font-size: 4rem;
-            font-weight: 800;
-            color: #f5b17f;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--text-heading);
             margin-bottom: 0.5rem;
-            letter-spacing: -1px;
+            letter-spacing: -2px;
         }
         .tagline {
-            font-size: 1.25rem;
-            color: #a096e0;
-            margin-bottom: 2.5rem;
-            max-width: 500px;
-            line-height: 1.5;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
         .btn-group {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
         }
-        .btn {
-            padding: 14px 36px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
+        .landing-btn {
+            padding: 13px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
             text-decoration: none;
-            display: inline-block;
-            transition: transform 0.15s, background 0.2s;
+            transition: background 0.15s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        .btn-primary {
-            background: #6b5ce0;
-            color: #f7ecf4;
-        }
-        .btn-primary:hover {
-            background: #564b8f;
-        }
-        .btn-outline {
-            background: transparent;
-            color: #a096e0;
-            border: 2px solid #a096e0;
-        }
-        .btn-outline:hover {
-            background: #a096e0;
-            color: #111016;
-        }
-        .btn-accent {
-            background: transparent;
-            color: #f5b17f;
-            border: 2px solid #f5b17f;
-        }
-        .btn-accent:hover {
-            background: #f5b17f;
-            color: #111016;
-        }
-        .footer {
-            position: absolute;
-            bottom: 24px;
-            font-size: 0.85rem;
-            color: #564b8f;
+        .landing-btn:hover { transform: translateY(-1px); }
+        .landing-btn.primary { background: var(--primary-purple); color: var(--text-on-dark); }
+        .landing-btn.primary:hover { background: var(--primary-purple-hover); }
+        .landing-btn.outline { background: transparent; color: var(--primary-purple); border: 1.5px solid var(--primary-purple); }
+        .landing-btn.outline:hover { background: var(--primary-purple-light); }
+        .landing-btn.accent { background: var(--accent-peach); color: var(--text-heading); }
+        .landing-btn.accent:hover { background: var(--accent-peach-hover); }
+        .page-footer {
+            position: fixed;
+            bottom: 20px;
+            left: 0; right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
 
-<div class="brand">Yomu</div>
-<div class="tagline">
-    Level up your information literacy through gamified learning, quizzes, and community challenges.
+<div class="landing-card">
+    <div class="landing-logo">Y</div>
+    <div class="brand">Yomu</div>
+    <div class="tagline">
+        Level up your information literacy through gamified learning, quizzes, and community challenges.
+    </div>
+
+    <div class="btn-group">
+        <a th:href="@{/login}" class="landing-btn primary">Log In</a>
+        <a th:href="@{/register}" class="landing-btn outline">Register</a>
+        <a th:href="@{/discussion}" class="landing-btn accent"><i class="fas fa-comments"></i> Try Discussion</a>
+    </div>
 </div>
 
-<div class="btn-group">
-    <a th:href="@{/login}" class="btn btn-primary">Log In</a>
-    <a th:href="@{/register}" class="btn btn-outline">Register</a>
-    <a th:href="@{/discussion}" class="btn btn-accent">Try Discussion 💬</a>
-</div>
-
-<div class="footer">YOMU KKI4 — AdvProg 2026</div>
+<div class="page-footer">YOMU KKI4 — AdvProg 2026</div>
 
 </body>
 </html>

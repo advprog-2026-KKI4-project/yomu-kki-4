@@ -1,120 +1,541 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Yomu - Discussion</title>
+    <title>Discussion - Yomu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        .discussion-card { background: white; border-radius: 20px; padding: 30px; box-shadow: var(--card-shadow); max-width: 900px; margin: 0 auto; }
+        /* ── PAGE LAYOUT ── */
+        .discussion-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
 
-        .discussion-header { padding-bottom: 20px; border-bottom: 1px solid #eee; margin-bottom: 24px; }
-        .discussion-header h1 { color: var(--primary-purple); font-weight: 800; margin: 8px 0 6px; }
-        .discussion-header .meta { color: #888; font-size: 0.9rem; }
-        .discussion-header .category-pill { display: inline-block; background: #ede7f6; color: var(--primary-purple); padding: 2px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 700; margin-left: 6px; }
+        /* ── TOP BAR ── */
+        .disc-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
 
-        .auth-bar { background: #f3effb; border-radius: 14px; padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        .auth-bar .user-info { color: var(--primary-purple); font-weight: 600; }
-        .auth-bar .role-badge { background: var(--primary-purple); color: white; border-radius: 50px; padding: 2px 10px; font-size: 0.75rem; margin-left: 6px; }
-        .auth-bar .role-badge.admin { background: #e65100; }
+        /* ── MATERIAL HERO ── */
+        .disc-hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--card-shadow);
+        }
+        .disc-hero-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--text-heading);
+            margin: 10px 0 6px;
+            letter-spacing: -0.4px;
+            line-height: 1.25;
+        }
+        .disc-hero-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .disc-count-pill {
+            background: var(--primary-purple-light);
+            color: var(--primary-purple);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 50px;
+        }
 
-        .comment-box { background-color: #ede7f6; border-radius: 16px; margin-bottom: 14px; padding: 16px 18px; border-left: 6px solid #b39ddb; }
-        .comment-box.is-reply { margin-left: 40px; background-color: #f3effb; border-left-color: #d1c4e9; }
-        .comment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-        .comment-avatar { width: 34px; height: 34px; border-radius: 50%; background: white; border: 2px solid var(--primary-purple); display: flex; align-items: center; justify-content: center; color: var(--primary-purple); font-weight: bold; }
-        .comment-author { font-weight: 700; color: #311b92; }
-        .comment-time { color: #888; font-size: 0.8rem; }
-        .comment-content { color: #2c2c2c; margin: 4px 0 10px; white-space: pre-wrap; word-break: break-word; }
-        .comment-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+        /* ── USER STATUS BAR ── */
+        .disc-userbar {
+            background: var(--bg-subtle);
+            border-radius: 14px;
+            padding: 11px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-purple);
+            flex-wrap: wrap;
+        }
+        .disc-userbar .role-badge {
+            background: var(--primary-purple);
+            color: white;
+            border-radius: 50px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 6px;
+            letter-spacing: 0.3px;
+        }
+        .disc-userbar .role-badge.admin { background: #e65100; }
 
-        .action-btn { background: white; border: 1.5px solid #b39ddb; color: var(--primary-purple); border-radius: 50px; padding: 4px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; display: inline-block; }
-        .action-btn:hover { background: var(--primary-purple); color: white; }
-        .action-btn.danger { border-color: #ef9a9a; color: #c62828; }
-        .action-btn.danger:hover { background: #c62828; color: white; }
-        .action-btn.admin { border-color: #ffb74d; color: #e65100; }
-        .action-btn.admin:hover { background: #e65100; color: white; }
+        /* ── NOT LOGGED IN BANNER ── */
+        .disc-login-banner {
+            background: #fff8e7;
+            border: 1px solid #ffe082;
+            border-radius: 14px;
+            padding: 13px 18px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #7a5c00;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        .disc-login-banner a {
+            color: var(--primary-purple);
+            font-weight: 700;
+            text-decoration: none;
+        }
 
-        .reaction-btn { background: white; border: 1.5px solid #d1c4e9; color: var(--primary-purple); border-radius: 50px; padding: 3px 10px; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; }
-        .reaction-btn:hover { background: #ede7f6; }
-        .reaction-btn.active { background: var(--primary-purple); color: white; border-color: var(--primary-purple); }
-        .reaction-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .reaction-count { font-weight: 700; margin-left: 4px; }
+        /* ── COMPOSER (post new comment) ── */
+        .disc-composer {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-soft);
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--card-shadow);
+            display: none;
+            transition: border-color 0.15s;
+        }
+        .disc-composer:focus-within {
+            border-color: var(--accent-lavender);
+            box-shadow: 0 0 0 3px rgba(160,150,224,0.10);
+        }
+        .disc-composer-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .disc-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary-purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .disc-avatar.small {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+        .disc-composer textarea,
+        .disc-reply-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: var(--bg-subtle);
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            resize: none;
+            width: 100%;
+            transition: background 0.15s;
+            line-height: 1.5;
+        }
+        .disc-composer textarea:focus,
+        .disc-reply-input:focus {
+            background: var(--primary-purple-light);
+        }
+        .disc-composer-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-soft);
+        }
+        .disc-post-btn {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .disc-post-btn:hover { background: var(--primary-purple-hover); transform: translateY(-1px); }
+        .disc-post-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .composer { background-color: #f3effb; border-radius: 16px; padding: 16px 18px; margin-bottom: 20px; border: 2px dashed #b39ddb; }
-        .composer textarea { border: 1.5px solid #d1c4e9; border-radius: 12px; padding: 10px; width: 100%; resize: vertical; outline: none; font-family: inherit; box-sizing: border-box; }
-        .composer textarea:focus { border-color: var(--primary-purple); }
+        /* ── COMMENTS LIST ── */
+        .disc-comments { display: flex; flex-direction: column; gap: 0; }
 
-        .btn-ghost { background: transparent; color: var(--primary-purple); border: none; font-weight: 600; padding: 8px 14px; cursor: pointer; }
+        /* ── SINGLE COMMENT ── */
+        .disc-comment {
+            display: flex;
+            gap: 12px;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border-soft);
+            animation: fadeSlideIn 0.2s ease;
+        }
+        .disc-comment:last-child { border-bottom: none; }
 
-        .auth-warning { background: #fff3cd; color: #856404; padding: 14px 20px; border-radius: 14px; margin-bottom: 20px; }
-        .auth-warning a { color: var(--primary-purple); font-weight: 700; }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
-        .material-missing { background: #ffebee; color: #c62828; padding: 14px 20px; border-radius: 14px; margin-bottom: 20px; }
+        .disc-comment-body { flex: 1; min-width: 0; }
 
-        .empty-state { text-align: center; padding: 50px 20px; color: #999; }
-        .reply-area { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #d1c4e9; display: none; }
-        .reply-area.open { display: block; }
-        .reply-area textarea { border: 1.5px solid #d1c4e9; border-radius: 12px; padding: 8px; width: 100%; resize: vertical; outline: none; font-family: inherit; box-sizing: border-box; }
-        .reply-area textarea:focus { border-color: var(--primary-purple); }
+        .disc-comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+        .disc-comment-author {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text-heading);
+        }
+        .disc-comment-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .disc-you-badge {
+            background: var(--primary-purple-light);
+            color: var(--primary-purple);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .disc-admin-badge {
+            background: #fff0e6;
+            color: #e65100;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 50px;
+            letter-spacing: 0.3px;
+        }
 
-        .reactions-popover { display: flex; gap: 4px; flex-wrap: wrap; }
+        .disc-comment-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 10px;
+        }
+
+        /* ── COMMENT ACTIONS ROW ── */
+        .disc-comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        /* Reactions */
+        .disc-reaction {
+            background: none;
+            border: 1px solid transparent;
+            border-radius: 50px;
+            padding: 4px 9px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.12s, border-color 0.12s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .disc-reaction:hover {
+            background: var(--bg-subtle);
+            border-color: var(--border-soft);
+            transform: scale(1.05);
+        }
+        .disc-reaction.active {
+            background: var(--primary-purple-light);
+            border-color: var(--accent-lavender);
+            color: var(--primary-purple);
+        }
+        .disc-reaction:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .disc-reaction-count { font-size: 12px; font-weight: 700; }
+
+        /* Text action buttons (Reply, Edit, Delete) */
+        .disc-action-link {
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: background 0.12s, color 0.12s;
+        }
+        .disc-action-link:hover { background: var(--bg-subtle); color: var(--primary-purple); }
+        .disc-action-link.danger:hover { background: #ffebee; color: var(--danger); }
+
+        /* divider dot */
+        .disc-dot {
+            color: var(--border-input);
+            font-size: 12px;
+            user-select: none;
+        }
+
+        /* ── REPLIES ── */
+        .disc-replies {
+            margin-top: 12px;
+            padding-left: 20px;
+            border-left: 2px solid var(--border-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .disc-reply {
+            display: flex;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .disc-reply:last-child { border-bottom: none; }
+
+        /* ── REPLY COMPOSER ── */
+        .disc-reply-composer {
+            margin-top: 10px;
+            display: none;
+            padding-left: 20px;
+        }
+        .disc-reply-composer.open { display: block; }
+        .disc-reply-inner {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: var(--bg-subtle);
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1.5px solid transparent;
+            transition: border-color 0.15s;
+        }
+        .disc-reply-inner:focus-within {
+            border-color: var(--accent-lavender);
+            background: var(--primary-purple-light);
+        }
+        .disc-reply-inner textarea {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--text-primary);
+            resize: none;
+            line-height: 1.5;
+        }
+        .disc-reply-send {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: background 0.15s;
+            align-self: flex-end;
+        }
+        .disc-reply-send:hover { background: var(--primary-purple-hover); }
+
+        /* ── EDIT IN-PLACE ── */
+        .disc-edit-area {
+            display: none;
+            margin-top: 6px;
+        }
+        .disc-edit-area.open { display: block; }
+        .disc-edit-area textarea {
+            width: 100%;
+            border: 1.5px solid var(--accent-lavender);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            resize: none;
+            line-height: 1.5;
+            background: var(--primary-purple-light);
+            box-sizing: border-box;
+        }
+        .disc-edit-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .disc-edit-cancel {
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background 0.12s;
+        }
+        .disc-edit-cancel:hover { background: var(--bg-subtle); }
+        .disc-edit-save {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .disc-edit-save:hover { background: var(--primary-purple-hover); }
+
+        /* ── EMPTY STATE ── */
+        .disc-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .disc-empty i {
+            font-size: 2.5rem;
+            color: var(--accent-lavender);
+            margin-bottom: 14px;
+            display: block;
+        }
+        .disc-empty p { font-size: 15px; font-weight: 600; }
+        .disc-empty span { font-size: 13px; display: block; margin-top: 4px; }
+
+        /* ── MISSING MATERIAL ── */
+        .disc-missing {
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 12px;
+            padding: 13px 18px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
+
 <div class="app-container">
+
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/reading}" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
-            <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
-            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Rank</a>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item active"><i class="fas fa-comments"></i> Discussions</a>
+            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${role == 'ADMIN'}"><i class="fas fa-shield-alt"></i> Moderation</a>
         </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" style="margin-top:auto;padding:12px 18px;color:var(--danger);background:none;border:none;cursor:pointer;font-weight:600;font-size:14px;display:flex;align-items:center;gap:12px;border-radius:12px;transition:background 0.15s;width:100%;font-family:inherit;" onmouseover="this.style.background='#ffebee'" onmouseout="this.style.background='none'">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+        </form>
     </aside>
 
     <main class="main-content">
-        <div class="discussion-card">
+        <div class="discussion-wrap">
 
-            <div class="discussion-header">
-                <a th:href="@{|/reading/${materialId}|}" class="back-link">← Back to material</a>
-                <h1>
-                    <i class="fas fa-comments"></i>
-                    <span th:text="${materialTitle}">Material Title</span>
-                    <span class="category-pill" th:if="${materialCategory != null and materialCategory != ''}" th:text="${materialCategory}">Category</span>
-                </h1>
-                <p class="meta">Share your thoughts and learn from others.</p>
+            <!-- Top bar -->
+            <div class="disc-topbar">
+                <a th:href="@{/discussions}" class="back-link"><i class="fas fa-arrow-left"></i> All Discussions</a>
+                <a th:if="${material != null}" th:href="@{/reading/{id}(id=${materialId})}" class="btn btn-secondary btn-icon" style="width:auto; font-size:13px;">
+                    <i class="fas fa-book-open"></i> Read Material
+                </a>
             </div>
 
-            <div th:if="${!materialExists}" class="material-missing">
-                <i class="fas fa-exclamation-triangle"></i>
-                This material does not exist or has been removed. New comments cannot be posted.
-            </div>
-
-            <div class="auth-bar">
-                <div id="authInfo" class="user-info">
-                    <i class="fas fa-spinner fa-spin"></i> Loading...
+            <!-- Material hero -->
+            <div class="disc-hero">
+                <span class="category-tag"
+                      th:if="${materialCategory != null and materialCategory != ''}"
+                      th:text="${materialCategory}">Category</span>
+                <div class="disc-hero-title" th:text="${materialTitle}">Material Title</div>
+                <div class="disc-hero-meta">
+                    <i class="fas fa-comments" style="color:var(--accent-lavender);"></i>
+                    <span id="heroCommentCount" class="disc-count-pill">— comments</span>
+                    <span>Share your thoughts and learn from others</span>
                 </div>
+            </div>
+
+            <!-- Missing material warning -->
+            <div th:if="${!materialExists}" class="disc-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                This material has been removed. Existing comments are shown below but new ones cannot be posted.
+            </div>
+
+            <!-- User status bar -->
+            <div class="disc-userbar">
+                <div id="authInfo"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>
                 <div id="authActions"></div>
             </div>
 
-            <div id="authWarning" class="auth-warning" style="display:none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                You're not logged in. <a th:href="@{/login}">Sign in</a> to post, reply, and react.
+            <!-- Not-logged-in banner -->
+            <div id="authWarning" class="disc-login-banner">
+                <i class="fas fa-lock"></i>
+                <span><a th:href="@{/login}">Sign in</a> to post comments, reply, and react.</span>
             </div>
 
-            <div id="composer" class="composer" style="display:none;">
-                <label class="fw-bold mb-2" style="color:var(--primary-purple); font-weight: 700;">
-                    <i class="fas fa-comment-dots"></i> Share your thoughts
-                </label>
-                <textarea id="newCommentText" rows="3" placeholder="Write a comment..."></textarea>
-                <div style="text-align: right; margin-top: 10px;">
-                    <button class="btn btn-primary" onclick="postRootComment()">
-                        <i class="fas fa-paper-plane"></i> Post Comment
+            <!-- Composer -->
+            <div id="composer" class="disc-composer">
+                <div class="disc-composer-top">
+                    <div class="disc-avatar" id="composerAvatar">?</div>
+                    <textarea id="newCommentText" rows="3" placeholder="What do you think about this material?"></textarea>
+                </div>
+                <div class="disc-composer-footer">
+                    <button class="disc-post-btn" onclick="postRootComment()">
+                        <i class="fas fa-paper-plane"></i> Post
                     </button>
                 </div>
             </div>
 
-            <div id="commentsList"></div>
+            <!-- Comments -->
+            <div class="disc-comments" id="commentsList"></div>
+
         </div>
     </main>
 </div>
@@ -136,43 +557,41 @@
 
     let currentUser = null;
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', async function() {
         await loadCurrentUser();
         await loadComments();
     });
 
     async function loadCurrentUser() {
-        const info = document.getElementById('authInfo');
-        const actions = document.getElementById('authActions');
         try {
             const res = await fetch('/api/auth/profile', { credentials: 'same-origin' });
             if (res.ok) {
                 const p = await res.json();
                 currentUser = { id: p.id, username: p.username, role: p.role };
+
+                const initial = p.username.charAt(0).toUpperCase();
                 const badgeClass = p.role === 'ADMIN' ? 'role-badge admin' : 'role-badge';
-                info.innerHTML = `<i class="fas fa-user-check"></i> Logged in as <strong>${escapeHtml(p.username)}</strong> <span class="${badgeClass}">${p.role}</span>`;
-                actions.innerHTML = `<button class="action-btn danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
-                if (MATERIAL_EXISTS) {
-                    document.getElementById('composer').style.display = 'block';
-                }
+                document.getElementById('authInfo').innerHTML =
+                    `<i class="fas fa-user-check"></i> ${escHtml(p.username)} <span class="${badgeClass}">${p.role}</span>`;
+                document.getElementById('authActions').innerHTML =
+                    `<a href="/login" class="disc-action-link" onclick="logout(); return false;">Sign out</a>`;
+                document.getElementById('composerAvatar').textContent = initial;
+
+                if (MATERIAL_EXISTS) document.getElementById('composer').style.display = 'block';
                 document.getElementById('authWarning').style.display = 'none';
             } else {
                 showLoggedOut();
             }
-        } catch {
-            showLoggedOut();
-        }
+        } catch { showLoggedOut(); }
     }
 
     function showLoggedOut() {
         currentUser = null;
-        document.getElementById('authInfo').innerHTML = `<i class="fas fa-user-times"></i> Not logged in`;
-        document.getElementById('authActions').innerHTML = `
-            <a href="/login" class="action-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
-            <a href="/register" class="action-btn"><i class="fas fa-user-plus"></i> Register</a>
-        `;
+        document.getElementById('authInfo').innerHTML = `<i class="fas fa-user-slash"></i> Not signed in`;
+        document.getElementById('authActions').innerHTML =
+            `<a href="/login" style="font-weight:700; color:var(--primary-purple); font-size:13px; text-decoration:none;">Sign in</a>`;
+        document.getElementById('authWarning').style.display = 'flex';
         document.getElementById('composer').style.display = 'none';
-        document.getElementById('authWarning').style.display = 'block';
     }
 
     function logout() {
@@ -180,186 +599,232 @@
         window.location.reload();
     }
 
-    function isAdmin() { return currentUser && currentUser.role === 'ADMIN'; }
-    function isLoggedIn() { return currentUser !== null; }
+    const isAdmin  = () => currentUser?.role === 'ADMIN';
+    const isLoggedIn = () => currentUser !== null;
 
     async function loadComments() {
         const container = document.getElementById('commentsList');
         try {
-            const res = await fetch(`/api/discussions/${encodeURIComponent(MATERIAL_ID)}`, {
-                credentials: 'same-origin'
-            });
-            if (!res.ok) {
-                container.innerHTML = `<div class="empty-state">Failed to load comments (HTTP ${res.status}).</div>`;
-                return;
-            }
+            const res = await fetch(`/api/discussions/${encodeURIComponent(MATERIAL_ID)}`, { credentials: 'same-origin' });
+            if (!res.ok) { container.innerHTML = emptyState('Failed to load comments.'); return; }
             const comments = await res.json();
             renderComments(comments);
-        } catch (e) {
-            container.innerHTML = `<div class="empty-state">Network error loading comments.</div>`;
-        }
+        } catch { container.innerHTML = emptyState('Network error.'); }
     }
 
     function renderComments(comments) {
         const container = document.getElementById('commentsList');
+        const countEl = document.getElementById('heroCommentCount');
+
         if (!comments || comments.length === 0) {
+            countEl.textContent = '0 comments';
             container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-comment-slash" style="font-size:3rem; color:#d1c4e9;"></i>
-                    <p style="margin-top:12px;">No comments yet. Be the first to start the discussion!</p>
+                <div class="disc-empty">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>No comments yet</p>
+                    <span>Be the first to start the discussion!</span>
                 </div>`;
             return;
         }
 
+        countEl.textContent = `${comments.length} comment${comments.length !== 1 ? 's' : ''}`;
+
         const roots = comments.filter(c => !c.parentCommentId);
-        const repliesByParent = {};
+        const byParent = {};
         comments.forEach(c => {
             if (c.parentCommentId) {
-                (repliesByParent[c.parentCommentId] = repliesByParent[c.parentCommentId] || []).push(c);
+                (byParent[c.parentCommentId] = byParent[c.parentCommentId] || []).push(c);
             }
         });
 
-        container.innerHTML = '';
-        roots.forEach(root => {
-            container.insertAdjacentHTML('beforeend', renderCommentHtml(root, false));
-            (repliesByParent[root.id] || []).forEach(reply => {
-                container.insertAdjacentHTML('beforeend', renderCommentHtml(reply, true));
-            });
-        });
+        container.innerHTML = roots.map(root => commentHtml(root, byParent)).join('');
     }
 
-    function renderCommentHtml(c, isReply) {
-        const initial = (c.authorUsername || '?').charAt(0).toUpperCase();
-        const ts = c.createdAt ? new Date(c.createdAt).toLocaleString() : '';
+    function commentHtml(c, byParent) {
+        const initial  = (c.authorUsername || '?').charAt(0).toUpperCase();
+        const time     = c.createdAt ? timeAgo(new Date(c.createdAt)) : '';
+        const isOwn    = currentUser && c.ownedByCurrentUser;
+        const isAdminC = isAdmin() && !c.ownedByCurrentUser;
 
-        const reactionButtons = REACTIONS.map(r => {
-            const count = (c.reactionCounts && c.reactionCounts[r.type]) || 0;
+        const reactionBtns = REACTIONS.map(r => {
+            const count  = c.reactionCounts?.[r.type] || 0;
             const active = c.currentUserReaction === r.type ? 'active' : '';
-            const disabled = !isLoggedIn() ? 'disabled' : '';
-            return `<button class="reaction-btn ${active}" onclick="toggleReaction(${c.id}, '${r.type}')" ${disabled}>
-                ${r.label}${count > 0 ? `<span class="reaction-count">${count}</span>` : ''}
-            </button>`;
+            const dis    = !isLoggedIn() ? 'disabled' : '';
+            return `<button class="disc-reaction ${active}" onclick="toggleReaction(${c.id},'${r.type}')" ${dis}>${r.label}${count > 0 ? `<span class="disc-reaction-count">${count}</span>` : ''}</button>`;
         }).join('');
 
-        const ownerActions = c.ownedByCurrentUser ? `
-            <button class="action-btn" onclick="startEdit(${c.id})"><i class="fas fa-pen"></i> Edit</button>
-            <button class="action-btn danger" onclick="deleteOwn(${c.id})"><i class="fas fa-trash"></i> Delete</button>
-        ` : '';
+        const replyBtn = (!c.parentCommentId && isLoggedIn() && MATERIAL_EXISTS)
+            ? `<span class="disc-dot">·</span><button class="disc-action-link" onclick="toggleReply(${c.id})">Reply</button>` : '';
 
-        const adminAction = (isAdmin() && !c.ownedByCurrentUser) ? `
-            <button class="action-btn admin" onclick="adminDelete(${c.id})"><i class="fas fa-shield-alt"></i> Admin Delete</button>
-        ` : '';
+        const editBtn = isOwn
+            ? `<span class="disc-dot">·</span><button class="disc-action-link" onclick="startEdit(${c.id})">Edit</button>` : '';
 
-        const replyAction = (!isReply && isLoggedIn() && MATERIAL_EXISTS) ? `
-            <button class="action-btn" onclick="toggleReplyArea(${c.id})"><i class="fas fa-reply"></i> Reply</button>
-        ` : '';
+        const deleteBtn = isOwn
+            ? `<span class="disc-dot">·</span><button class="disc-action-link danger" onclick="deleteOwn(${c.id})">Delete</button>` : '';
 
-        const replyArea = !isReply ? `
-            <div class="reply-area" id="replyArea-${c.id}">
-                <textarea id="replyText-${c.id}" rows="2" placeholder="Write a reply..."></textarea>
-                <div style="text-align: right; margin-top: 8px;">
-                    <button class="btn-ghost" onclick="toggleReplyArea(${c.id})">Cancel</button>
-                    <button class="btn btn-primary" onclick="postReply(${c.id})">Post Reply</button>
+        const adminDeleteBtn = isAdminC
+            ? `<span class="disc-dot">·</span><button class="disc-action-link danger" onclick="adminDelete(${c.id})">Delete</button>` : '';
+
+        const youBadge    = isOwn ? `<span class="disc-you-badge">You</span>` : '';
+
+        const replies = (byParent[c.id] || []).map(r => replyHtml(r)).join('');
+        const repliesBlock = replies ? `<div class="disc-replies">${replies}</div>` : '';
+
+        const replyComposer = (!c.parentCommentId && isLoggedIn() && MATERIAL_EXISTS) ? `
+            <div class="disc-reply-composer" id="replyComposer-${c.id}">
+                <div class="disc-reply-inner">
+                    <div class="disc-avatar small">${(currentUser?.username || '?').charAt(0).toUpperCase()}</div>
+                    <textarea id="replyText-${c.id}" rows="2" placeholder="Write a reply…"></textarea>
+                    <button class="disc-reply-send" onclick="postReply(${c.id})">Reply</button>
                 </div>
-            </div>
-        ` : '';
+            </div>` : '';
+
+        const editArea = `
+            <div class="disc-edit-area" id="editArea-${c.id}">
+                <textarea id="editText-${c.id}" rows="3">${escHtml(c.content)}</textarea>
+                <div class="disc-edit-actions">
+                    <button class="disc-edit-cancel" onclick="cancelEdit(${c.id})">Cancel</button>
+                    <button class="disc-edit-save" onclick="saveEdit(${c.id})">Save</button>
+                </div>
+            </div>`;
 
         return `
-            <div class="comment-box ${isReply ? 'is-reply' : ''}" id="comment-${c.id}">
-                <div class="comment-header">
-                    <div class="comment-avatar">${initial}</div>
-                    <div>
-                        <div class="comment-author">${escapeHtml(c.authorUsername || 'Unknown')}</div>
-                        <div class="comment-time">${ts}</div>
+            <div class="disc-comment" id="comment-${c.id}">
+                <div class="disc-avatar">${initial}</div>
+                <div class="disc-comment-body">
+                    <div class="disc-comment-header">
+                        <span class="disc-comment-author">${escHtml(c.authorUsername || 'Unknown')}</span>
+                        ${youBadge}
+                        <span class="disc-comment-time">${time}</span>
                     </div>
+                    <div class="disc-comment-text" id="content-${c.id}">${escHtml(c.content)}</div>
+                    ${editArea}
+                    <div class="disc-comment-actions">
+                        ${reactionBtns}
+                        ${replyBtn}
+                        ${editBtn}
+                        ${deleteBtn}
+                        ${adminDeleteBtn}
+                    </div>
+                    ${repliesBlock}
+                    ${replyComposer}
                 </div>
-                <div class="comment-content" id="content-${c.id}">${escapeHtml(c.content)}</div>
-                <div class="comment-actions">
-                    <div class="reactions-popover">${reactionButtons}</div>
-                    ${replyAction}
-                    ${ownerActions}
-                    ${adminAction}
-                </div>
-                ${replyArea}
-            </div>
-        `;
+            </div>`;
     }
 
-    function escapeHtml(s) {
-        if (s == null) return '';
-        return String(s)
-            .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+    function replyHtml(c) {
+        const initial  = (c.authorUsername || '?').charAt(0).toUpperCase();
+        const time     = c.createdAt ? timeAgo(new Date(c.createdAt)) : '';
+        const isOwn    = currentUser && c.ownedByCurrentUser;
+        const isAdminC = isAdmin() && !c.ownedByCurrentUser;
+
+        const reactionBtns = REACTIONS.map(r => {
+            const count  = c.reactionCounts?.[r.type] || 0;
+            const active = c.currentUserReaction === r.type ? 'active' : '';
+            const dis    = !isLoggedIn() ? 'disabled' : '';
+            return `<button class="disc-reaction ${active}" onclick="toggleReaction(${c.id},'${r.type}')" ${dis} style="font-size:12px; padding:3px 7px;">${r.label}${count > 0 ? `<span class="disc-reaction-count">${count}</span>` : ''}</button>`;
+        }).join('');
+
+        const editBtn   = isOwn ? `<span class="disc-dot">·</span><button class="disc-action-link" onclick="startEdit(${c.id})">Edit</button>` : '';
+        const deleteBtn = isOwn ? `<span class="disc-dot">·</span><button class="disc-action-link danger" onclick="deleteOwn(${c.id})">Delete</button>` : '';
+        const adminDeleteBtn = isAdminC ? `<span class="disc-dot">·</span><button class="disc-action-link danger" onclick="adminDelete(${c.id})">Delete</button>` : '';
+        const youBadge  = isOwn ? `<span class="disc-you-badge">You</span>` : '';
+
+        const editArea = `
+            <div class="disc-edit-area" id="editArea-${c.id}">
+                <textarea id="editText-${c.id}" rows="2">${escHtml(c.content)}</textarea>
+                <div class="disc-edit-actions">
+                    <button class="disc-edit-cancel" onclick="cancelEdit(${c.id})">Cancel</button>
+                    <button class="disc-edit-save" onclick="saveEdit(${c.id})">Save</button>
+                </div>
+            </div>`;
+
+        return `
+            <div class="disc-reply" id="comment-${c.id}">
+                <div class="disc-avatar small">${initial}</div>
+                <div class="disc-comment-body">
+                    <div class="disc-comment-header">
+                        <span class="disc-comment-author" style="font-size:13px;">${escHtml(c.authorUsername || 'Unknown')}</span>
+                        ${youBadge}
+                        <span class="disc-comment-time">${time}</span>
+                    </div>
+                    <div class="disc-comment-text" id="content-${c.id}" style="font-size:13px;">${escHtml(c.content)}</div>
+                    ${editArea}
+                    <div class="disc-comment-actions">
+                        ${reactionBtns}
+                        ${editBtn}
+                        ${deleteBtn}
+                        ${adminDeleteBtn}
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function emptyState(msg) {
+        return `<div class="disc-empty"><i class="fas fa-comment-slash"></i><p>${msg}</p></div>`;
+    }
+
+    function toggleReply(commentId) {
+        const el = document.getElementById(`replyComposer-${commentId}`);
+        if (!el) return;
+        el.classList.toggle('open');
+        if (el.classList.contains('open')) el.querySelector('textarea').focus();
+    }
+
+    function startEdit(commentId) {
+        document.getElementById(`content-${commentId}`).style.display = 'none';
+        const area = document.getElementById(`editArea-${commentId}`);
+        area.classList.add('open');
+        area.querySelector('textarea').focus();
+    }
+
+    function cancelEdit(commentId) {
+        document.getElementById(`content-${commentId}`).style.display = '';
+        document.getElementById(`editArea-${commentId}`).classList.remove('open');
     }
 
     async function postRootComment() {
-        const text = document.getElementById('newCommentText').value.trim();
+        const ta = document.getElementById('newCommentText');
+        const text = ta.value.trim();
         if (!text) return;
-        const ok = await postCommentRequest({ content: text, materialId: MATERIAL_ID, parentCommentId: null });
-        if (ok) document.getElementById('newCommentText').value = '';
+        const btn = document.querySelector('#composer .disc-post-btn');
+        btn.disabled = true;
+        const ok = await postRequest({ content: text, materialId: MATERIAL_ID, parentCommentId: null });
+        btn.disabled = false;
+        if (ok) ta.value = '';
     }
 
     async function postReply(parentId) {
-        const text = document.getElementById(`replyText-${parentId}`).value.trim();
+        const ta = document.getElementById(`replyText-${parentId}`);
+        const text = ta.value.trim();
         if (!text) return;
-        await postCommentRequest({ content: text, materialId: MATERIAL_ID, parentCommentId: parentId });
+        const ok = await postRequest({ content: text, materialId: MATERIAL_ID, parentCommentId: parentId });
+        if (ok) { ta.value = ''; document.getElementById(`replyComposer-${parentId}`).classList.remove('open'); }
     }
 
-    async function postCommentRequest(body) {
+    async function postRequest(body) {
         try {
             const res = await fetch('/api/discussions', {
-                method: 'POST',
-                credentials: 'same-origin',
+                method: 'POST', credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                alert(err.error || err.message || 'Failed to post comment');
-                return false;
-            }
-            await loadComments();
-            return true;
-        } catch {
-            alert('Network error while posting comment.');
-            return false;
-        }
-    }
-
-    function toggleReplyArea(commentId) {
-        document.getElementById(`replyArea-${commentId}`).classList.toggle('open');
+            if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || 'Failed to post'); return false; }
+            await loadComments(); return true;
+        } catch { alert('Network error.'); return false; }
     }
 
     async function toggleReaction(commentId, type) {
         if (!isLoggedIn()) return;
         try {
             const res = await fetch(`/api/discussions/${commentId}/reactions`, {
-                method: 'POST',
-                credentials: 'same-origin',
+                method: 'POST', credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reactionType: type })
             });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to react');
-                return;
-            }
+            if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || 'Failed to react'); return; }
             await loadComments();
-        } catch {
-            alert('Network error while reacting.');
-        }
-    }
-
-    function startEdit(commentId) {
-        const contentDiv = document.getElementById(`content-${commentId}`);
-        const original = contentDiv.textContent;
-        contentDiv.innerHTML = `
-            <textarea id="editText-${commentId}" rows="3" style="border:1.5px solid #d1c4e9; border-radius:12px; padding:8px; width:100%; box-sizing:border-box;">${escapeHtml(original)}</textarea>
-            <div style="margin-top: 8px; text-align: right;">
-                <button class="btn-ghost" onclick="loadComments()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEdit(${commentId})">Save</button>
-            </div>
-        `;
+        } catch { alert('Network error.'); }
     }
 
     async function saveEdit(commentId) {
@@ -367,57 +832,47 @@
         if (!newContent) return;
         try {
             const res = await fetch(`/api/discussions/${commentId}`, {
-                method: 'PUT',
-                credentials: 'same-origin',
+                method: 'PUT', credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: newContent })
             });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to edit');
-                return;
-            }
+            if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || 'Failed to edit'); return; }
             await loadComments();
-        } catch {
-            alert('Network error while editing.');
-        }
+        } catch { alert('Network error.'); }
     }
 
     async function deleteOwn(commentId) {
         if (!confirm('Delete this comment?')) return;
         try {
-            const res = await fetch(`/api/discussions/${commentId}`, {
-                method: 'DELETE',
-                credentials: 'same-origin'
-            });
-            if (!res.ok && res.status !== 204) {
-                const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to delete');
-                return;
-            }
+            const res = await fetch(`/api/discussions/${commentId}`, { method: 'DELETE', credentials: 'same-origin' });
+            if (!res.ok && res.status !== 204) { const d = await res.json().catch(() => ({})); alert(d.error || 'Failed to delete'); return; }
             await loadComments();
-        } catch {
-            alert('Network error while deleting.');
-        }
+        } catch { alert('Network error.'); }
     }
 
     async function adminDelete(commentId) {
-        if (!confirm('Admin delete this comment? This cannot be undone.')) return;
+        if (!confirm('Delete this comment as admin?')) return;
         try {
-            const res = await fetch(`/api/discussions/admin/${commentId}`, {
-                method: 'DELETE',
-                credentials: 'same-origin'
-            });
-            if (!res.ok && res.status !== 204) {
-                const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to admin-delete');
-                return;
-            }
+            const res = await fetch(`/api/discussions/admin/${commentId}`, { method: 'DELETE', credentials: 'same-origin' });
+            if (!res.ok && res.status !== 204) { const d = await res.json().catch(() => ({})); alert(d.error || 'Failed to delete'); return; }
             await loadComments();
-        } catch {
-            alert('Network error while admin-deleting.');
-        }
+        } catch { alert('Network error.'); }
+    }
+
+    function timeAgo(date) {
+        const s = Math.floor((Date.now() - date) / 1000);
+        if (s < 60) return 'just now';
+        if (s < 3600) return `${Math.floor(s/60)}m ago`;
+        if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+        if (s < 604800) return `${Math.floor(s/86400)}d ago`;
+        return date.toLocaleDateString();
+    }
+
+    function escHtml(s) {
+        if (s == null) return '';
+        return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
     }
 </script>
+
 </body>
 </html>
