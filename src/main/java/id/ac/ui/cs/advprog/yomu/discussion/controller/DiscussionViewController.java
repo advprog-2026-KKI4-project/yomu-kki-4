@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.yomu.discussion.controller;
 import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,5 +31,11 @@ public class DiscussionViewController {
     @GetMapping("/discussion")
     public String discussionIndex() {
         return "redirect:/reading";
+    }
+
+    @GetMapping("/admin/discussions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String adminModeration() {
+        return "discussion/adminModeration";
     }
 }

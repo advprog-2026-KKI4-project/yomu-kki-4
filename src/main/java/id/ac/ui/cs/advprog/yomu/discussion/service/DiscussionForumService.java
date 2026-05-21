@@ -12,6 +12,8 @@ public interface DiscussionForumService {
 
     List<CommentResponse> getCommentsByMaterial(String materialId, Long currentUserId);
 
+    List<CommentResponse> getAllComments(Long currentUserId);
+
     CommentResponse editComment(Long id, String newContent, Long authorId);
 
     void deleteComment(Long id, Long authorId);

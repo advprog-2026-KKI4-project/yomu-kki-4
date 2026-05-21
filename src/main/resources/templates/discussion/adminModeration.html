@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Yomu - Admin Moderation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+  <style>
+    .mod-card { background: white; border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--card-shadow); border-left: 6px solid var(--primary-purple); }
+    .mod-card.reply { border-left-color: #b39ddb; background: #fdfbff; }
+
+    .mod-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .mod-author-line { display: flex; align-items: center; gap: 10px; }
+    .mod-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .mod-author { font-weight: 700; color: #311b92; }
+    .mod-author-id { color: #999; font-size: 0.75rem; }
+    .mod-time { color: #999; font-size: 0.78rem; }
+
+    .mod-content { color: #333; margin: 6px 0 10px; white-space: pre-wrap; word-break: break-word; line-height: 1.5; }
+
+    .mod-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.78rem; color: #666; align-items: center; }
+    .mod-pill { background: #ede7f6; color: var(--primary-purple); padding: 2px 10px; border-radius: 50px; font-weight: 600; }
+    .mod-pill.reply-pill { background: #fff3cd; color: #856404; }
+    .mod-pill.reaction-pill { background: #f3effb; }
+    .mod-material-id { font-family: monospace; background: #f5f5f5; color: #555; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+    .mod-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .btn-view { background: white; color: var(--primary-purple); border: 1.5px solid var(--primary-purple); padding: 5px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.15s; }
+    .btn-view:hover { background: var(--primary-purple); color: white; }
+    .btn-delete { background: white; color: #c62828; border: 1.5px solid #ef9a9a; padding: 5px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .btn-delete:hover { background: #c62828; color: white; border-color: #c62828; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .empty-state i { font-size: 3rem; color: #d1c4e9; }
+
+    .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .stats-summary { color: #666; font-size: 0.88rem; }
+    .stats-summary strong { color: var(--primary-purple); font-weight: 700; }
+
+    .access-denied { background: #ffebee; color: #c62828; padding: 20px; border-radius: 14px; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+
+  <aside class="sidebar">
+    <h1 class="logo">YOMU</h1>
+    <nav>
+      <a th:href="@{/reading}" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
+      <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+      <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Rank</a>
+      <a th:href="@{/admin/discussions}" class="nav-item active"><i class="fas fa-shield-alt"></i> Moderation</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="user-profile">
+        <i class="fas fa-shield-alt" style="color: var(--primary-purple);"></i>
+        <h2>Discussion Moderation</h2>
+      </div>
+      <a th:href="@{/reading}" class="back-link">← Back to Dashboard</a>
+    </header>
+
+    <div id="accessDenied" class="access-denied" style="display:none;">
+      <i class="fas fa-lock"></i> You must be logged in as an admin to view this page.
+      <a th:href="@{/login}" style="color:var(--primary-purple); font-weight:700;">Login</a>
+    </div>
+
+    <div id="moderationArea">
+      <div class="filter-bar">
+        <input type="text" id="modSearch" placeholder="Search by content, author, or material ID..." class="search-input" style="flex-grow:1; max-width:600px;">
+        <div class="stats-summary">
+          Total: <strong id="totalCount">0</strong> comments
+        </div>
+      </div>
+
+      <div id="commentsList"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let allComments = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+      await loadAllComments();
+      document.getElementById('modSearch').addEventListener('input', filterAndRender);
+  });
+
+  async function loadAllComments() {
+      try {
+          const res = await fetch('/api/discussions/admin/all', { credentials: 'same-origin' });
+          if (res.status === 401 || res.status === 403) {
+              document.getElementById('accessDenied').style.display = 'block';
+              document.getElementById('moderationArea').style.display = 'none';
+              return;
+          }
+          if (!res.ok) {
+              document.getElementById('commentsList').innerHTML =
+                  `<div class="empty-state">Failed to load comments (HTTP ${res.status}).</div>`;
+              return;
+          }
+          allComments = await res.json();
+          filterAndRender();
+      } catch (e) {
+          document.getElementById('commentsList').innerHTML =
+              `<div class="empty-state">Network error loading comments.</div>`;
+      }
+  }
+
+  function filterAndRender() {
+      const query = document.getElementById('modSearch').value.trim().toLowerCase();
+      const filtered = !query ? allComments : allComments.filter(c =>
+          (c.content || '').toLowerCase().includes(query) ||
+          (c.authorUsername || '').toLowerCase().includes(query) ||
+          String(c.authorId || '').includes(query) ||
+          (c.materialId || '').toLowerCase().includes(query)
+      );
+
+      document.getElementById('totalCount').textContent = filtered.length;
+
+      const container = document.getElementById('commentsList');
+      if (filtered.length === 0) {
+          container.innerHTML = `
+              <div class="empty-state">
+                  <i class="fas fa-comment-slash"></i>
+                  <p style="margin-top:14px;">${query ? 'No comments match your search.' : 'No comments in the system yet.'}</p>
+              </div>`;
+          return;
+      }
+
+      container.innerHTML = filtered.map(renderModCard).join('');
+  }
+
+  function renderModCard(c) {
+      const initial = (c.authorUsername || '?').charAt(0).toUpperCase();
+      const ts = c.createdAt ? new Date(c.createdAt).toLocaleString() : '';
+      const isReply = c.parentCommentId != null;
+
+      let totalReactions = 0;
+      if (c.reactionCounts) {
+          for (const k in c.reactionCounts) totalReactions += c.reactionCounts[k];
+      }
+
+      return `
+          <div class="mod-card ${isReply ? 'reply' : ''}">
+              <div class="mod-header">
+                  <div class="mod-author-line">
+                      <div class="mod-avatar">${initial}</div>
+                      <div>
+                          <div class="mod-author">${escapeHtml(c.authorUsername || 'Unknown')}
+                              <span class="mod-author-id">(user #${c.authorId})</span>
+                          </div>
+                          <div class="mod-time">${ts}</div>
+                      </div>
+                  </div>
+                  <div>
+                      ${isReply ? `<span class="mod-pill reply-pill"><i class="fas fa-reply"></i> Reply to #${c.parentCommentId}</span>` : ''}
+                      ${totalReactions > 0 ? `<span class="mod-pill reaction-pill"><i class="fas fa-heart"></i> ${totalReactions}</span>` : ''}
+                  </div>
+              </div>
+
+              <div class="mod-content">${escapeHtml(c.content)}</div>
+
+              <div class="mod-meta">
+                  <span>Material:</span>
+                  <span class="mod-material-id">${escapeHtml(c.materialId)}</span>
+              </div>
+
+              <div class="mod-actions">
+                  <a href="/discussion/${encodeURIComponent(c.materialId)}" target="_blank" rel="noopener" class="btn-view">
+                      <i class="fas fa-external-link-alt"></i> View in context
+                  </a>
+                  <button class="btn-delete" onclick="adminDelete(${c.id})">
+                      <i class="fas fa-trash"></i> Delete
+                  </button>
+              </div>
+          </div>
+      `;
+  }
+
+  function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+          .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+  }
+
+  async function adminDelete(commentId) {
+      if (!confirm('Delete this comment as admin? This cannot be undone.')) return;
+      try {
+          const res = await fetch(`/api/discussions/admin/${commentId}`, {
+              method: 'DELETE',
+              credentials: 'same-origin'
+          });
+          if (!res.ok && res.status !== 204) {
+              const err = await res.json().catch(() => ({}));
+              alert(err.error || 'Failed to delete');
+              return;
+          }
+          allComments = allComments.filter(c => c.id !== commentId);
+          filterAndRender();
+      } catch {
+          alert('Network error while deleting.');
+      }
+  }
+</script>
+</body>
+</html>

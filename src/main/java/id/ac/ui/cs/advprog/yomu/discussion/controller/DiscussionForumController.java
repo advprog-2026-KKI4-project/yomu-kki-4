@@ -43,7 +43,7 @@ public class DiscussionForumController {
             try {
                 User user = authUserResolver.requireUser(authentication);
                 currentUserId = user.getId();
-            } catch (org.springframework.security.access.AccessDeniedException ignored) {
+            } catch (Exception ignored) {
             }
         }
         return ResponseEntity.ok(service.getCommentsByMaterial(materialId, currentUserId));
@@ -94,5 +94,12 @@ public class DiscussionForumController {
     public ResponseEntity<Void> adminDelete(@PathVariable Long id) {
         service.deleteCommentAsAdmin(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CommentResponse>> adminListAll(Authentication authentication) {
+        Long currentUserId = authUserResolver.requireUserId(authentication);
+        return ResponseEntity.ok(service.getAllComments(currentUserId));
     }
 }

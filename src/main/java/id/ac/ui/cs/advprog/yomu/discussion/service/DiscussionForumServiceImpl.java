@@ -34,13 +34,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
                     "Material with ID " + req.getMaterialId() + " does not exist");
         }
 
-        if (req.getParentCommentId() != null) {
-            DiscussionForum parent = commentRepository.findById(req.getParentCommentId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Parent comment with ID " + req.getParentCommentId() + " does not exist"));
-            if (!Objects.equals(parent.getMaterialId(), req.getMaterialId())) {
-                throw new IllegalArgumentException("Parent comment must belong to the same material");
-            }
+        if (req.getParentCommentId() != null
+                && !commentRepository.existsById(req.getParentCommentId())) {
+            throw new IllegalArgumentException(
+                    "Parent comment with ID " + req.getParentCommentId() + " does not exist");
         }
 
         DiscussionForum saved = commentRepository.save(DiscussionForum.builder()
@@ -57,6 +54,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
     @Override
     public List<CommentResponse> getCommentsByMaterial(String materialId, Long currentUserId) {
         List<DiscussionForum> comments = commentRepository.findByMaterialIdOrderByCreatedAtAsc(materialId);
+        return buildResponses(comments, currentUserId);
+    }
+
+    @Override
+    public List<CommentResponse> getAllComments(Long currentUserId) {
+        List<DiscussionForum> comments = commentRepository.findAllByOrderByCreatedAtDesc();
+        return buildResponses(comments, currentUserId);
+    }
+
+    private List<CommentResponse> buildResponses(List<DiscussionForum> comments, Long currentUserId) {
         if (comments.isEmpty()) return Collections.emptyList();
 
         List<Long> commentIds = comments.stream().map(DiscussionForum::getId).toList();
