@@ -96,10 +96,10 @@ public class DiscussionForumController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/admin/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<CommentResponse>> adminListAll(Authentication authentication) {
-        Long currentUserId = authUserResolver.requireUserId(authentication);
-        return ResponseEntity.ok(service.getAllComments(currentUserId));
+
+    @GetMapping("/counts")
+    public ResponseEntity<Map<String, Long>> getCommentCounts() {
+        Map<String, Long> counts = service.getCommentCountsByMaterial();
+        return ResponseEntity.ok(counts);
     }
 }

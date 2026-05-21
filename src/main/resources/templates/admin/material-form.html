@@ -1,75 +1,170 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Yomu - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        .form-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: var(--card-shadow); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--primary-purple); }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; }
-        .question-editor { background: #fdfbff; padding: 20px; border-radius: 15px; border: 1px dashed var(--primary-purple); margin-top: 20px; }
-        .option-input { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .logout-link {
+            margin-top: auto;
+            padding: 12px 18px;
+            color: var(--danger);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 12px;
+            transition: background 0.15s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+        }
+        .logout-link:hover { background: #ffebee; }
+
+        .form-container {
+            max-width: 760px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-soft);
+        }
+        .form-container h1 {
+            color: var(--text-heading);
+            font-weight: 800;
+            margin-bottom: 28px;
+            font-size: 26px;
+            letter-spacing: -0.3px;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-heading);
+            font-size: 14px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-input);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(91, 75, 138, 0.08);
+        }
+        .question-editor {
+            background: var(--bg-subtle);
+            padding: 22px;
+            border-radius: 14px;
+            border: 1px dashed var(--border-input);
+            margin-top: 20px;
+        }
+        .option-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .option-input input[type="text"] { flex: 1; }
+        .option-input input[type="radio"] { accent-color: var(--primary-purple); transform: scale(1.2); }
+        .section-divider { margin: 36px 0 24px; border: 0; border-top: 1px solid var(--border-soft); }
+        .section-heading { color: var(--text-heading); font-weight: 800; font-size: 18px; margin-bottom: 16px; }
+        .save-btn { margin-top: 32px; width: auto; padding: 13px 44px; font-size: 15px; }
     </style>
 </head>
-<body style="background-color: var(--bg-color); padding: 60px 20px;">
+<body>
 
-<div class="form-container">
-    <div style="margin-bottom: 30px;">
-        <a th:href="@{/reading}" class="back-link">← Cancel and Exit</a>
-    </div>
+<div class="app-container">
 
-    <h1 style="margin-bottom: 30px; color: var(--primary-purple);"
-        th:text="${material.id == null ? 'Create New Material' : 'Edit Material'}"></h1>
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${role == 'ADMIN'}"><i class="fas fa-shield-alt"></i> Moderation</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-    <form th:action="${material.id == null ? '/api/admin/materials/add' : '/api/admin/materials/edit/' + material.id}"
-          th:object="${material}" method="post">
-
-        <div class="form-group">
-            <label>Title</label>
-            <input type="text" th:field="*{title}" placeholder="e.g., Basic Java" required>
-        </div>
-
-        <div class="form-group">
-            <label>Category</label>
-            <input type="text" th:field="*{category}" placeholder="e.g., Code, Sport, Art" required>
-        </div>
-
-        <div class="form-group">
-            <label>Time Limit (Seconds)</label>
-            <input type="number" th:field="*{timeLimit}" min="10" required>
-        </div>
-
-        <div class="form-group">
-            <label>Reading Content</label>
-            <textarea th:field="*{content}" rows="8" placeholder="Type the learning material here..." required></textarea>
-        </div>
-
-        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;">
-
-        <h2 style="margin-bottom: 20px; color: var(--primary-purple);">Quiz Settings</h2>
-
-        <div class="question-editor">
-            <div class="form-group">
-                <label>Question 1 Text</label>
-                <input type="text" name="questions[0].questionText" th:value="*{questions.size() > 0 ? questions[0].questionText : ''}" required>
+    <main class="main-content">
+        <div class="form-container">
+            <div style="margin-bottom: 24px;">
+                <a th:href="@{/reading}" class="back-link"><i class="fas fa-arrow-left"></i> Cancel and Exit</a>
             </div>
 
-            <div class="form-group">
-                <label>Options (Check the radio for the correct answer)</label>
-                <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
-                    <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}"
-                           th:checked="${questions.size() > 0 && questions[0].correctOptionIndex == i}" required>
-                    <input type="text" th:name="'questions[0].options[' + ${i} + ']'"
-                           th:value="${questions.size() > 0 && questions[0].options.size() > i ? questions[0].options[i] : ''}"
-                           placeholder="Option text..." required>
+            <h1 th:text="${material.id == null ? 'Create New Material' : 'Edit Material'}"></h1>
+
+            <form th:action="${material.id == null ? '/api/admin/materials/add' : '/api/admin/materials/edit/' + material.id}"
+                  th:object="${material}" method="post">
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" th:field="*{title}" placeholder="e.g., Basic Java" required>
                 </div>
-            </div>
-        </div>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 40px;">Save Material</button>
-    </form>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" th:field="*{category}" placeholder="e.g., Code, Sport, Art" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Limit (Seconds)</label>
+                    <input type="number" th:field="*{timeLimit}" min="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Reading Content</label>
+                    <textarea th:field="*{content}" rows="8" placeholder="Type the learning material here..." required></textarea>
+                </div>
+
+                <hr class="section-divider">
+
+                <h2 class="section-heading">Quiz Settings</h2>
+
+                <div class="question-editor">
+                    <div class="form-group">
+                        <label>Question 1 Text</label>
+                        <input type="text" name="questions[0].questionText" th:value="*{questions.size() > 0 ? questions[0].questionText : ''}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Options (Check the radio for the correct answer)</label>
+                        <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
+                            <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}"
+                                   th:checked="${questions.size() > 0 && questions[0].correctOptionIndex == i}" required>
+                            <input type="text" th:name="'questions[0].options[' + ${i} + ']'"
+                                   th:value="${questions.size() > 0 && questions[0].options.size() > i ? questions[0].options[i] : ''}"
+                                   placeholder="Option text..." required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary save-btn">Save Material</button>
+            </form>
+        </div>
+    </main>
 </div>
 
 </body>

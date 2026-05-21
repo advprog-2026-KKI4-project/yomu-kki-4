@@ -1,21 +1,67 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Yomu - Results</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <style>
+        .logout-link {
+            margin-top: auto;
+            padding: 12px 18px;
+            color: var(--danger);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 12px;
+            transition: background 0.15s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+        }
+        .logout-link:hover { background: #ffebee; }
+
+        .result-icon {
+            width: 80px; height: 80px;
+            background: var(--primary-purple-light);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 36px;
+        }
+        .result-card h1 { color: var(--text-heading); font-weight: 800; font-size: 26px; margin-bottom: 6px; letter-spacing: -0.3px; }
+        .result-card .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .breakdown-row { display: flex; justify-content: space-between; align-items: center; }
+        .breakdown-row + .breakdown-row { margin-top: 12px; }
+        .breakdown-label { color: var(--text-muted); font-weight: 600; font-size: 14px; }
+    </style>
 </head>
 <body>
 <div class="app-container">
+
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
-            <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
-            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Rank</a>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${role == 'ADMIN'}"><i class="fas fa-shield-alt"></i> Moderation</a>
         </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
     </aside>
 
     <main class="main-content" style="display: flex; align-items: center; justify-content: center;">
@@ -38,19 +84,21 @@
             </div>
 
             <div class="score-breakdown">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                    <span style="color: #666; font-weight: 600;">Quiz Accuracy:</span>
-                    <span style="font-weight: 800; color: var(--primary-purple);" th:text="${#numbers.formatDecimal(baseScore, 1, 0)}">0</span>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Quiz Accuracy</span>
+                    <span style="font-weight: 800; color: var(--primary-purple); font-size: 16px;" th:text="${#numbers.formatDecimal(baseScore, 1, 0)}">0</span>
                 </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: #666; font-weight: 600;">Speed Bonus:</span>
-                    <span style="color: var(--completed-green); font-weight: 800;" th:text="'+' + ${#numbers.formatDecimal(bonus, 1, 1)}">+0.0</span>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Speed Bonus</span>
+                    <span style="color: var(--success-green); font-weight: 800; font-size: 16px;" th:text="'+' + ${#numbers.formatDecimal(bonus, 1, 1)}">+0.0</span>
                 </div>
             </div>
 
-            <div style="margin-top: 30px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                <a th:href="@{/reading}" class="btn btn-primary">Back to Dashboard</a>
-                <a th:if="${materialId != null}" th:href="@{|/discussion/${materialId}|}" class="btn btn-secondary"><i class="fas fa-comments"></i> Discuss this material</a>
+            <div style="margin-top: 26px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <a th:href="@{/reading}" class="btn btn-primary btn-icon">Back to Library</a>
+                <a th:if="${materialId != null}" th:href="@{|/discussion/${materialId}|}" class="btn btn-secondary btn-icon">
+                    <i class="fas fa-comments"></i> Discuss this material
+                </a>
             </div>
         </div>
     </main>

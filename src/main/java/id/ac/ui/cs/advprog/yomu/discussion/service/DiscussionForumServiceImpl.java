@@ -183,4 +183,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
                 .ownedByCurrentUser(currentUserId != null && currentUserId.equals(c.getAuthorId()))
                 .build();
     }
+
+    @Override
+    public Map<String, Long> getCommentCountsByMaterial() {
+        return commentRepository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        DiscussionForum::getMaterialId,
+                        Collectors.counting()
+                ));
+    }
 }
