@@ -85,12 +85,21 @@ class AchievementEventListenerTest {
 
     @Test
     void onDiscussionPost_triggersMissionOnly() {
-        when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        listener.onDiscussionPost(new DiscussionPostEvent("test@test.com"));
+        listener.onDiscussionPost(new DiscussionPostEvent(1L));
 
         verify(missionTrackingService).incrementProgress(user, MissionType.DISCUSSION);
         verify(achievementTrackingService, never()).incrementProgress(any(), any());
+    }
+
+    @Test
+    void onDiscussionPost_doesNothing_whenUserNotFound() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        listener.onDiscussionPost(new DiscussionPostEvent(99L));
+
+        verify(missionTrackingService, never()).incrementProgress(any(), any());
     }
 
     @Test

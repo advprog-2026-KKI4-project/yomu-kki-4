@@ -5,6 +5,7 @@
     <title>Yomu - My Clan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
         .logout-link:hover { background: #ffebee; }
@@ -75,6 +76,15 @@
         .role-leader { background: var(--primary-purple); color: white; }
         .role-member { background: var(--bg-subtle); color: var(--primary-purple); border: 1px solid var(--border-soft); }
         .contribution { color: var(--success-green); font-weight: 800; }
+
+        /* Tab styles for member/request lists */
+        .nav-tabs { border-bottom: 1px solid var(--border-soft); }
+        .nav-tabs .nav-link { color: var(--text-muted); font-weight: 600; border: none; padding: 10px 18px; }
+        .nav-tabs .nav-link.active { color: var(--primary-purple); border-bottom: 2px solid var(--primary-purple); background: transparent; }
+        .nav-tabs .nav-link:hover { color: var(--primary-purple); }
+
+        /* Modal */
+        .modal-content { border: none; border-radius: 20px; padding: 8px; background: var(--bg-card); }
     </style>
 </head>
 <body>
@@ -168,33 +178,148 @@
             <div class="members-card">
                 <div class="members-header">
                     <h3><i class="fas fa-users"></i> Clan Members</h3>
-                    <span class="members-count-pill" th:text="${clan.members.size()} + ' / 20'">5 / 20</span>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button th:if="${myRole == 'LEADER'}" class="btn btn-primary btn-icon" data-bs-toggle="modal" data-bs-target="#inviteModal" style="padding: 8px 18px; font-size: 13px;">
+                            <i class="fas fa-plus"></i> Invite
+                        </button>
+                        <span class="members-count-pill" th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + ' / 20'">5 / 20</span>
+                    </div>
                 </div>
 
-                <table class="yomu-table">
-                    <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th>Role</th>
-                        <th style="text-align: right;">Contribution</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="member : ${clan.members}">
-                        <td>
-                            <i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 8px;"></i>
-                            <span th:text="${member.studentId}">Student ID</span>
-                        </td>
-                        <td>
-                            <span class="role-pill" th:classappend="${member.role == 'LEADER' ? 'role-leader' : 'role-member'}" th:text="${member.role}">MEMBER</span>
-                        </td>
-                        <td style="text-align: right;" class="contribution" th:text="${#numbers.formatInteger(member.localScore, 0, 'COMMA')} + ' pts'">0 pts</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <ul class="nav nav-tabs mb-3" id="clanTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button">Active Members</button>
+                    </li>
+                    <li class="nav-item" role="presentation" th:if="${myRole == 'LEADER'}">
+                        <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button">
+                            Join Requests <span class="badge bg-danger ms-1" th:text="${#lists.size(clan.members.?[status == 'PENDING_REQUEST'])}"></span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="clanTabsContent">
+                    <div class="tab-pane fade show active" id="active">
+                        <table class="yomu-table">
+                            <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Role</th>
+                                <th style="text-align: right;">Contribution</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
+                                <td>
+                                    <i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 8px;"></i>
+                                    <span th:text="${member.student != null ? member.student.username : member.studentId}">Username</span>
+                                </td>
+                                <td>
+                                    <span class="role-pill" th:classappend="${member.role == 'LEADER' ? 'role-leader' : 'role-member'}" th:text="${member.role}">MEMBER</span>
+                                </td>
+                                <td style="text-align: right;" class="contribution" th:text="${#numbers.formatInteger(member.localScore, 0, 'COMMA')} + ' pts'">0 pts</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-pane fade" id="requests" th:if="${myRole == 'LEADER'}">
+                        <table class="yomu-table">
+                            <thead>
+                            <tr>
+                                <th>Student Requesting</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="req : ${clan.members}" th:if="${req.status == 'PENDING_REQUEST'}">
+                                <td>
+                                    <i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 8px;"></i>
+                                    <span th:text="${req.student != null ? req.student.username : req.studentId}">Student</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <button class="btn-row btn-row-secondary" style="margin-right: 6px;"
+                                            th:data-clan-id="${clan.id}"
+                                            th:data-student-id="${req.studentId}"
+                                            onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'approve')">
+                                        Approve
+                                    </button>
+                                    <button class="btn-row btn-row-danger"
+                                            th:data-clan-id="${clan.id}"
+                                            th:data-student-id="${req.studentId}"
+                                            onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'reject')">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.size(clan.members.?[status == 'PENDING_REQUEST']) == 0}">
+                                <td colspan="2" style="text-align: center; padding: 30px; color: var(--text-muted);">No pending join requests.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 </div>
+
+<!-- Invite Modal -->
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-hidden="true" th:if="${hasClan && myRole == 'LEADER'}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; padding: 8px;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h5 style="font-weight: 800; color: var(--text-heading);"><i class="fas fa-paper-plane" style="color: var(--primary-purple); margin-right: 8px;"></i> Invite a Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-heading); font-size: 13px;">Target Student ID</label>
+                    <input type="number" id="inviteStudentId" class="form-control" placeholder="Enter student's ID number" style="border-radius: 10px;">
+                </div>
+                <button th:data-clan-id="${clan.id}"
+                        onclick="sendInvite(this.getAttribute('data-clan-id'))"
+                        class="btn btn-primary" style="width: 100%; margin-top: 16px; border-radius: 10px; font-weight: 700;">
+                    Send Invitation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function manageRequest(clanId, studentId, action) {
+        if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+        try {
+            const response = await fetch(`/api/clans/${clanId}/${action}/${studentId}`, { method: 'POST' });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Action failed. Please try again.');
+            }
+        } catch (e) {
+            alert('A network error occurred.');
+        }
+    }
+
+    async function sendInvite(clanId) {
+        const studentId = document.getElementById('inviteStudentId').value;
+        if (!studentId) { alert("Please enter an ID."); return; }
+
+        try {
+            const response = await fetch(`/api/clans/${clanId}/invite?targetStudentId=${studentId}`, { method: 'POST' });
+            if (response.ok) {
+                alert('Invitation sent successfully!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('inviteModal'));
+                modal.hide();
+                window.location.reload();
+            } else {
+                alert('Failed to send invitation. The user might already be invited.');
+            }
+        } catch (e) {
+            alert('A network error occurred.');
+        }
+    }
+</script>
 </body>
 </html>

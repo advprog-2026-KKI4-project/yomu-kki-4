@@ -6,11 +6,11 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserAchievementProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.AchievementRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserAchievementProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -31,7 +32,6 @@ class AchievementTrackingServiceImplTest {
     @Mock
     private AchievementRepository achievementRepository;
 
-    @InjectMocks
     private AchievementTrackingServiceImpl service;
 
     private User user;
@@ -39,6 +39,7 @@ class AchievementTrackingServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        service = new AchievementTrackingServiceImpl(progressRepository, achievementRepository, new SimpleMeterRegistry());
         user = User.builder().id(1L).email("test@test.com").username("test").password("password123").build();
 
         achievement = Achievement.builder()
@@ -123,5 +124,64 @@ class AchievementTrackingServiceImplTest {
 
         assertThat(result).isEqualTo(expected);
         verify(progressRepository).findByUser(user);
+    }
+
+    @Test
+    void getUnlockedAchievements_returnsOnlyUnlockedRecords() {
+        UserAchievementProgress unlocked = UserAchievementProgress.builder()
+                .user(user).achievement(achievement).currentCount(3).unlocked(true).build();
+        when(progressRepository.findByUserAndUnlockedTrue(user)).thenReturn(List.of(unlocked));
+
+        List<UserAchievementProgress> result = service.getUnlockedAchievements(user);
+
+        assertThat(result).containsExactly(unlocked);
+        verify(progressRepository).findByUserAndUnlockedTrue(user);
+    }
+
+    @Test
+    void getPublicAchievements_delegatesToRepository() {
+        UserAchievementProgress pub = UserAchievementProgress.builder()
+                .user(user).achievement(achievement).currentCount(3).unlocked(true).showOnProfile(true).build();
+        when(progressRepository.findByUser_IdAndShowOnProfileTrueAndUnlockedTrue(1L)).thenReturn(List.of(pub));
+
+        List<UserAchievementProgress> result = service.getPublicAchievements(1L);
+
+        assertThat(result).containsExactly(pub);
+        verify(progressRepository).findByUser_IdAndShowOnProfileTrueAndUnlockedTrue(1L);
+    }
+
+    @Test
+    void setShowOnProfile_setsFlag_whenAchievementIsUnlocked() {
+        UUID progressId = UUID.randomUUID();
+        UserAchievementProgress progress = UserAchievementProgress.builder()
+                .user(user).achievement(achievement).currentCount(3).unlocked(true).showOnProfile(false).build();
+        when(progressRepository.findByIdAndUser(progressId, user)).thenReturn(Optional.of(progress));
+
+        service.setShowOnProfile(user, progressId, true);
+
+        assertThat(progress.isShowOnProfile()).isTrue();
+        verify(progressRepository).save(progress);
+    }
+
+    @Test
+    void setShowOnProfile_throws_whenProgressNotFound() {
+        UUID progressId = UUID.randomUUID();
+        when(progressRepository.findByIdAndUser(progressId, user)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.setShowOnProfile(user, progressId, true))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Achievement progress not found");
+    }
+
+    @Test
+    void setShowOnProfile_throws_whenAchievementIsLocked() {
+        UUID progressId = UUID.randomUUID();
+        UserAchievementProgress locked = UserAchievementProgress.builder()
+                .user(user).achievement(achievement).currentCount(1).unlocked(false).build();
+        when(progressRepository.findByIdAndUser(progressId, user)).thenReturn(Optional.of(locked));
+
+        assertThatThrownBy(() -> service.setShowOnProfile(user, progressId, true))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("locked");
     }
 }
