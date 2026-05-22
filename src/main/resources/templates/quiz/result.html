@@ -18,38 +18,41 @@
         </nav>
     </aside>
 
-    <main class="main-content" style="display: flex; align-items: center; justify-content: center;">
-        <div class="result-card" style="margin-top: 0;">
-            <div class="result-icon">🎉</div>
-            <h1 th:if="${score >= 80}">Excellent!</h1>
-            <h1 th:if="${score < 80 and score >= 50}">Good Effort!</h1>
-            <h1 th:if="${score < 50}">Keep Practicing!</h1>
-            <p class="subtitle">You have successfully completed the quiz.</p>
+    <main class="main-content" style="display: flex; align-items: center; justify-content: center; padding: 40px; min-height: 100vh; background-color: var(--bg-canvas);">
+        <div class="result-card" style="background: #ffffff; padding: 50px 40px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); text-align: center; max-width: 520px; width: 100%;">
 
-            <div class="stats-container">
-                <div class="stat-item">
-                    <span class="stat-label">Total Score</span>
-                    <div class="stat-value" th:text="${#numbers.formatDecimal(score, 1, 1)}">0.0</div>
+            <div class="result-icon" style="font-size: 64px; margin-bottom: 20px; line-height: 1;">🎉</div>
+
+            <h1 th:if="${score >= 80}" style="font-size: 32px; font-weight: 800; color: #111016; margin-bottom: 8px;">Excellent!</h1>
+            <h1 th:if="${score < 80 and score >= 50}" style="font-size: 32px; font-weight: 800; color: #111016; margin-bottom: 8px;">Good Effort!</h1>
+            <h1 th:if="${score < 50}" style="font-size: 32px; font-weight: 800; color: #111016; margin-bottom: 8px;">Keep Practicing!</h1>
+
+            <p class="subtitle" style="color: #7f8fa4; font-size: 15px; margin-bottom: 35px;">You have successfully completed the quiz.</p>
+
+            <div class="stats-container" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 25px;">
+                <div class="stat-item" style="background: #faf6fa; padding: 20px; border-radius: 18px; flex: 1; min-width: 120px;">
+                    <span class="stat-label" style="display: block; color: #7f8fa4; font-size: 13px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Total Score</span>
+                    <div class="stat-value" th:text="${#numbers.formatDecimal(score, 1, 1)}" style="font-size: 28px; font-weight: 800; color: #6b5ce0;">0.0</div>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Time Spent</span>
-                    <div class="stat-value" th:text="${duration} + 's'">0s</div>
+                <div class="stat-item" style="background: #faf6fa; padding: 20px; border-radius: 18px; flex: 1; min-width: 120px;">
+                    <span class="stat-label" style="display: block; color: #7f8fa4; font-size: 13px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Time Spent</span>
+                    <div class="stat-value" th:text="${duration} + 's'" style="font-size: 28px; font-weight: 800; color: #111016;">0s</div>
                 </div>
             </div>
 
-            <div class="score-breakdown">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <div class="score-breakdown" style="background: #ffffff; border: 1px solid #ede6ec; padding: 20px; border-radius: 18px; text-align: left; margin-bottom: 35px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px;">
                     <span style="color: #666; font-weight: 600;">Quiz Accuracy:</span>
-                    <span style="font-weight: 800; color: var(--primary-purple);" th:text="${#numbers.formatDecimal(baseScore, 1, 0)}">0</span>
+                    <span style="font-weight: 800; color: #6b5ce0;" th:text="${#numbers.formatDecimal(baseScore, 1, 0)}">0</span>
                 </div>
-                <div style="display: flex; justify-content: space-between;">
+                <div style="display: flex; justify-content: space-between; font-size: 14px; border-top: 1px dashed #ede6ec; padding-top: 14px;">
                     <span style="color: #666; font-weight: 600;">Speed Bonus:</span>
-                    <span style="color: var(--completed-green); font-weight: 800;" th:text="'+' + ${#numbers.formatDecimal(bonus, 1, 1)}">+0.0</span>
+                    <span style="color: #27ae60; font-weight: 800;" th:text="'+' + ${#numbers.formatDecimal(bonus, 1, 1)}">+0.0</span>
                 </div>
             </div>
 
-            <div style="margin-top: 30px;">
-                <a th:href="@{/reading}" class="btn btn-primary">Back to Dashboard</a>
+            <div>
+                <a th:href="@{/reading}" class="btn btn-primary" style="display: block; width: 100%; padding: 16px; font-size: 16px; border-radius: 14px; font-weight: 700; text-align: center; box-sizing: border-box;">Back to Dashboard</a>
             </div>
         </div>
     </main>

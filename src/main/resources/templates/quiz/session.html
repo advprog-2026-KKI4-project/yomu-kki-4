@@ -8,14 +8,15 @@
     <script th:src="@{/js/quiz-timer.js}" defer></script>
     <script th:src="@{/js/quiz-session.js}" defer></script>
 </head>
-<body class="focused-view"> <main class="quiz-focus-container">
-    <header class="quiz-header">
+<body class="focused-view">
+<main class="quiz-focus-container" style="max-width: 850px; margin: 0 auto; padding: 40px 20px; width: 100%;">
+    <header class="quiz-header" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
         <div class="timer-badge">
             ⏱ <span id="timer-display">0:00</span>
         </div>
     </header>
 
-    <div class="content-box">
+    <div class="content-box" style="background: #ffffff; padding: 40px; border-radius: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.04);">
         <form id="quiz-form" th:action="@{/api/materials/{id}/submit(id=${material.id})}" method="post">
             <input type="hidden" id="time-limit" th:value="${material.timeLimit}">
             <input type="hidden" id="duration-input" name="duration" value="0">
@@ -27,9 +28,9 @@
                 <p class="reading-text" style="font-weight: 700; margin-bottom: 20px;"
                    th:text="(${iter.index} + 1) + '. ' + ${question.questionText}"></p>
 
-                <div class="options-stack">
+                <div class="options-stack" style="display: flex; flex-direction: column; gap: 12px;">
                     <div th:each="option, optIter : ${question.options}" class="option-row">
-                        <label th:for="'q' + ${iter.index} + 'o' + ${optIter.index}">
+                        <label th:for="'q' + ${iter.index} + 'o' + ${optIter.index}" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                             <input type="radio" th:name="|answers[${iter.index}]|" th:value="${optIter.index}"
                                    th:id="'q' + ${iter.index} + 'o' + ${optIter.index}" required>
                             <span th:text="${option}"></span>

@@ -15,19 +15,8 @@
             <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
-<<<<<<< HEAD
-            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
-                <i class="fas fa-book-open"></i> My Learning
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-users"></i> Clan
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-trophy"></i> Rank
-=======
             <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
                 <i class="fas fa-book-open"></i> Course
->>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
             </a>
             <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a href="#" class="nav-item"><i class="fas fa-search"></i> Discover</a>
@@ -54,19 +43,6 @@
                 </div>
             </header>
 
-<<<<<<< HEAD
-                <div class="card-footer">
-                    <div th:if="${role == 'STUDENT'}">
-                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id})}" class="btn btn-primary">Start Reading !</a>
-                        <a th:if="${material.progress == 50}" th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
-                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id})}" class="btn btn-completed">Completed !</a>
-                    </div>
-
-                    <div th:if="${role == 'ADMIN'}" class="admin-actions">
-                        <a th:href="@{/admin/edit/{id}(id=${material.id})}" class="btn btn-secondary">Edit</a>
-                        <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="flex:1">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete?')">Delete</button>
-=======
             <div class="search-bar-container">
                 <input type="text" id="materialSearch" placeholder="Search module name or category..." class="search-input">
             </div>
@@ -103,7 +79,6 @@
                         <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="display:inline">
                             <input type="hidden" name="role" value="ADMIN">
                             <button type="submit" class="btn-icon-only btn-danger" onclick="return confirm('Delete this module?')"><i class="fas fa-trash-alt"></i></button>
->>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
                         </form>
                     </div>
                 </div>

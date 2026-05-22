@@ -11,17 +11,12 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-<<<<<<< HEAD
-            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-book-open"></i> My Learning</a>
-=======
             <a th:href="@{/dashboard(role=${role})}" class="nav-item" th:classappend="${currentUri == '/dashboard' ? 'active' : ''}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
             <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
                 <i class="fas fa-book-open"></i> Course
             </a>
->>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
             <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a href="#" class="nav-item"><i class="fas fa-search"></i> Discover</a>
             <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Leaderboard</a>
@@ -30,27 +25,9 @@
     </aside>
 
     <main class="main-content">
-<<<<<<< HEAD
-        <div style="margin-bottom: 30px;">
-            <a th:href="@{/reading}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-        </div>
-
-        <div th:if="${material == null}">
-            <div class="content-box" style="text-align: center; padding: 60px;">
-                <h2 style="color: var(--primary-purple);">Material not found.</h2>
-                <a th:href="@{/reading}" class="btn btn-primary" style="margin-top: 20px;">Back to Dashboard</a>
-            </div>
-        </div>
-
-        <section th:if="${material != null}" class="reader-view">
-            <div class="reader-header">
-                <span class="category-tag" th:text="${material.category}">Category</span>
-                <h1 class="reader-title" th:text="${material.title}">Material Title</h1>
-=======
         <div class="canvas-container">
             <div style="margin-bottom: 35px;">
                 <a th:href="@{/dashboard(role=${role})}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
->>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
             </div>
 
             <div th:if="${material == null}" style="text-align: center; padding: 50px 0;">
@@ -85,13 +62,8 @@
                     </div>
                 </div>
 
-<<<<<<< HEAD
-                <div th:if="${!isReview}" class="reader-actions">
-                    <a th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
-=======
                 <div th:if="${!isReview && role == 'STUDENT'}" style="display: flex; justify-content: center; margin-top: 40px; border-top: 1px solid #ede6ec; padding-top: 30px;">
                     <a th:href="@{/quiz/{id}(id=${material.id}, role=${role})}" class="btn btn-primary" style="padding: 16px 80px; font-size: 16px; border-radius: 14px;">Start Quiz !</a>
->>>>>>> e874c0d (Fix: fixing frontend and backend issues for admin role and quiz settings, also i make my web similar to rae's style)
                 </div>
             </section>
         </div>
