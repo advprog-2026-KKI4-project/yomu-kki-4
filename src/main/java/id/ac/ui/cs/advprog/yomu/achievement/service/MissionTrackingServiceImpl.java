@@ -7,6 +7,8 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserMissionProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
     private final UserMissionProgressRepository progressRepository;
     private final DailyMissionRepository dailyMissionRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MeterRegistry meterRegistry;
 
     @Override
     @Transactional
@@ -59,7 +62,19 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
             if (progress.getCurrentCount() >= mission.getTargetCount()) {
                 progress.setCompleted(true);
                 eventPublisher.publishEvent(new MissionCompletedEvent(user.getId(), mission.getRewardPoints()));
+
+                Counter.builder("mission.completed")
+                        .tag("type", mission.getType().name())
+                        .description("Number of daily missions completed by users")
+                        .register(meterRegistry)
+                        .increment();
             }
+
+            Counter.builder("mission.progress.incremented")
+                    .tag("type", mission.getType().name())
+                    .description("Number of times mission progress was incremented")
+                    .register(meterRegistry)
+                    .increment();
 
             progressRepository.save(progress);
         }

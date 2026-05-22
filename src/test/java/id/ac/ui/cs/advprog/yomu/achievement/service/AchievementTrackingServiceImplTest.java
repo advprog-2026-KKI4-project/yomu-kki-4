@@ -6,11 +6,11 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserAchievementProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.AchievementRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserAchievementProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,7 +32,6 @@ class AchievementTrackingServiceImplTest {
     @Mock
     private AchievementRepository achievementRepository;
 
-    @InjectMocks
     private AchievementTrackingServiceImpl service;
 
     private User user;
@@ -40,6 +39,7 @@ class AchievementTrackingServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        service = new AchievementTrackingServiceImpl(progressRepository, achievementRepository, new SimpleMeterRegistry());
         user = User.builder().id(1L).email("test@test.com").username("test").password("password123").build();
 
         achievement = Achievement.builder()

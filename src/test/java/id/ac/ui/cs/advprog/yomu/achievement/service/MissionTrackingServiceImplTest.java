@@ -6,11 +6,11 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserMissionProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,7 +39,6 @@ class MissionTrackingServiceImplTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
-    @InjectMocks
     private MissionTrackingServiceImpl service;
 
     private User user;
@@ -47,6 +46,7 @@ class MissionTrackingServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        service = new MissionTrackingServiceImpl(progressRepository, dailyMissionRepository, eventPublisher, new SimpleMeterRegistry());
         user = User.builder().id(1L).email("test@test.com").username("test").password("password123").build();
 
         mission = DailyMission.builder()
