@@ -6,39 +6,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        .logout-link {
-            margin-top: auto;
-            padding: 12px 18px;
-            color: var(--danger);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 12px;
-            transition: background 0.15s;
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-align: left;
-            width: 100%;
-            font-family: inherit;
-        }
-        .logout-link:hover {
-            background: #ffebee;
-        }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
     </style>
 </head>
 <body>
-
 <div class="app-container">
-
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
             <a th:href="@{/dashboard}" class="nav-item active"><i class="fas fa-home"></i> Dashboard</a>
             <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
             <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
             <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
@@ -52,13 +31,10 @@
 
     <main class="main-content">
         <header class="header">
-            <div class="greeting-block">
-                <div class="user-profile">
-                    <div class="avatar"><i class="fas fa-user"></i></div>
-                    <div>
-                        <h2 th:text="'Hi, ' + ${username} + '!'">Hi, Learner!</h2>
-                        <div class="greeting-sub">Welcome back. Pick a module to continue your learning journey.</div>
-                    </div>
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <h2 th:text="'Hi, ' + ${username} + '!'">Hi, Learner!</h2>
                 </div>
             </div>
             <div class="header-actions">
@@ -68,8 +44,69 @@
                 </div>
             </div>
         </header>
+
+        <section class="hub-section">
+            <h3 class="hub-section-title">Explore Modules</h3>
+            <div class="hub-tile-grid">
+                <a th:href="@{/reading}" class="hub-tile">
+                    <div class="hub-tile-icon"><i class="fas fa-book-open"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Learning Materials</div>
+                        <div class="hub-tile-desc">Browse reading materials and take quizzes to test your understanding.</div>
+                    </div>
+                    <div class="hub-tile-cta">Open Library <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/my-learning}" class="hub-tile">
+                    <div class="hub-tile-icon"><i class="fas fa-bookmark"></i></div>
+                    <div>
+                        <div class="hub-tile-title">My Learning</div>
+                        <div class="hub-tile-desc">Continue where you left off across your in-progress materials.</div>
+                    </div>
+                    <div class="hub-tile-cta">Resume <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/achievements}" class="hub-tile accent">
+                    <div class="hub-tile-icon"><i class="fas fa-trophy"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Achievements</div>
+                        <div class="hub-tile-desc">Track badges you've earned and progress toward new ones.</div>
+                    </div>
+                    <div class="hub-tile-cta">View Achievements <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/daily-missions}" class="hub-tile mint">
+                    <div class="hub-tile-icon"><i class="fas fa-bullseye"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Daily Missions</div>
+                        <div class="hub-tile-desc">Complete daily quests to earn extra points and stay motivated.</div>
+                    </div>
+                    <div class="hub-tile-cta">View Missions <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/clans/my-clan}" class="hub-tile sky">
+                    <div class="hub-tile-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="hub-tile-title">My Clan</div>
+                        <div class="hub-tile-desc">Team up with other learners and climb the leaderboard together.</div>
+                    </div>
+                    <div class="hub-tile-cta">Go to Clan <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/leaderboard}" class="hub-tile">
+                    <div class="hub-tile-icon"><i class="fas fa-medal"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Leaderboard</div>
+                        <div class="hub-tile-desc">See how clans rank globally and within their divisions.</div>
+                    </div>
+                    <div class="hub-tile-cta">View Rankings <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/discussions}" class="hub-tile accent">
+                    <div class="hub-tile-icon"><i class="fas fa-comments"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Discussions</div>
+                        <div class="hub-tile-desc">Join material discussions, share thoughts, and react.</div>
+                    </div>
+                    <div class="hub-tile-cta">Browse Discussions <i class="fas fa-arrow-right"></i></div>
+                </a>
+            </div>
+        </section>
     </main>
 </div>
-
 </body>
 </html>

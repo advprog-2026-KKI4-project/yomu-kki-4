@@ -72,6 +72,7 @@ public class ReadingPageController {
         model.addAttribute("material", material);
         model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", false);
+        model.addAttribute("currentUri", "/reading");
         return "reading/reader";
     }
 
@@ -97,6 +98,7 @@ public class ReadingPageController {
         model.addAttribute("remaining", remaining);
         model.addAttribute("materialId", materialId);
         model.addAttribute("role", getCurrentUserRole());
+        model.addAttribute("currentUri", "/reading");
         return "quiz/result";
     }
 
@@ -112,6 +114,7 @@ public class ReadingPageController {
         model.addAttribute("score", attempt != null ? attempt.getScore() : 0);
         model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", true);
+        model.addAttribute("currentUri", "/my-learning");
 
         return "reading/reader";
     }
@@ -121,6 +124,7 @@ public class ReadingPageController {
     public String showCreateForm(Model model) {
         model.addAttribute("material", new ReadingMaterial());
         model.addAttribute("role", "ADMIN");
+        model.addAttribute("currentUri", "/reading");
         return "admin/material-form";
     }
 
@@ -129,6 +133,7 @@ public class ReadingPageController {
     public String showEditForm(@PathVariable String id, Model model) {
         model.addAttribute("material", service.getById(id));
         model.addAttribute("role", "ADMIN");
+        model.addAttribute("currentUri", "/reading");
         return "admin/material-form";
     }
 }

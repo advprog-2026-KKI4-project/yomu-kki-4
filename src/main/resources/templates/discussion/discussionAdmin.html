@@ -303,12 +303,13 @@
     <h1 class="logo">YOMU</h1>
     <nav>
       <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
-      <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+      <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+      <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
       <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
       <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
       <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
       <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
-      <a th:href="@{/discussions}" class="nav-item active"><i class="fas fa-comments"></i> Discussions</a>
+      <a th:href="@{/discussions}" class="nav-item" th:classappend="${currentUri == '/discussions' ? 'active' : ''}"><i class="fas fa-comments"></i> Discussions</a>
       <a th:href="@{/admin/discussions}" class="nav-item" id="moderationNavLink" style="display:none;"><i class="fas fa-shield-alt"></i> Moderation</a>
     </nav>
     <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
@@ -426,7 +427,7 @@
           if (profile.role === 'ADMIN') {
               isAdmin = true;
               document.getElementById('tabBar').style.display = 'flex';
-              document.getElementById('moderationNavLink').style.display = 'flex';
+              document.getElementById('moderationNavLink')?.style.display = 'flex';
               await loadAllComments();
           }
       } catch (error) {

@@ -1,304 +1,284 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/components :: head('Yomu - My-Clan')}"></th:block>
+    <meta charset="UTF-8">
+    <title>Yomu - My Clan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root {
-            --button-bg-orange: #f3a683;
-            --button-bg-orange-hover: #fd8a48;
-        }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
 
-        .main-card {
-            background-color: white;
-            border-radius: 25px;
-            min-height: 93vh;
-            padding: 60px 30px;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            display: flex;
-            justify-content: center;
+        .empty-clan {
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 60px 40px;
         }
-
-        .empty-state {
-            align-content: center;
-        }
+        .empty-clan-icon { font-size: 3rem; color: var(--accent-lavender); margin-bottom: 20px; }
+        .empty-clan h2 { color: var(--text-heading); font-weight: 800; font-size: 26px; margin-bottom: 12px; letter-spacing: -0.3px; }
+        .empty-clan p { color: var(--text-muted); margin-bottom: 28px; font-size: 15px; }
+        .empty-clan .button-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .empty-clan .btn { width: auto; padding: 13px 30px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
 
         .clan-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 28px;
+            margin-bottom: 24px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
+            align-items: flex-start;
+            gap: 24px;
+            flex-wrap: wrap;
         }
-
-        .clan-profile-group {
-            display: flex;
-            align-items: center;
-        }
-
-        .profile-circle {
-            width: 100px;
-            height: 100px;
-            background-color: #e0e0e0;
+        .clan-identity { display: flex; gap: 18px; align-items: center; flex: 1; min-width: 0; }
+        .clan-emblem {
+            width: 72px; height: 72px;
             border-radius: 50%;
-            border: 4px solid white;
-            margin-right: 1rem;
-        }
-
-        .clan-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 0.5rem;
-        }
-
-        .stat-card {
-            padding: 1rem;
-            border: 1px solid #dee2e6;
-            border-radius: 1rem;
-            background-color: #f8f9fa;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            height: 100%;
-        }
-
-        .members-container {
-            padding: 1.5rem;
-            border: 1px solid #dee2e6;
-            border-radius: 1rem;
-            background-color: white;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .members-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state-text {
+            background: var(--primary-purple-light);
             color: var(--primary-purple);
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 3rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
         }
+        .clan-name { font-weight: 800; font-size: 22px; color: var(--text-heading); margin-bottom: 6px; letter-spacing: -0.3px; }
+        .clan-division { background: var(--accent-peach); color: var(--text-heading); padding: 3px 12px; border-radius: 50px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+        .clan-bio { color: var(--text-muted); font-size: 13px; margin-top: 6px; }
 
-        .btn-action {
-            background-color: var(--button-bg-orange);
-            color: white;
-            border-radius: 30px;
-            padding: 12px 30px;
-            border: none;
-            font-weight: 600;
-            transition: 0.3s;
-            display: inline-block;
-            text-decoration: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
+        .clan-actions { display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
+        .btn-row { padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-family: inherit; transition: background 0.15s; }
+        .btn-row-secondary { background: var(--bg-subtle); color: var(--primary-purple); border: 1px solid var(--border-soft); }
+        .btn-row-secondary:hover { background: var(--primary-purple-light); }
+        .btn-row-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-row-danger:hover { background: var(--danger); color: white; }
 
-        .btn-action:hover {
-            background-color: var(--button-bg-orange-hover);
-            transform: translateY(-2px);
-            color: white;
-        }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; text-align: center; box-shadow: var(--card-shadow); }
+        .stat-label { color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .stat-card-value { font-size: 24px; font-weight: 800; color: var(--primary-purple); }
+
+        .members-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 18px; box-shadow: var(--card-shadow); padding: 26px; }
+        .members-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .members-header h3 { color: var(--text-heading); font-weight: 800; font-size: 17px; }
+        .members-count-pill { background: var(--bg-subtle); color: var(--primary-purple); padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+
+        .yomu-table { width: 100%; border-collapse: collapse; }
+        .yomu-table th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-soft); }
+        .yomu-table td { padding: 12px 14px; font-size: 14px; color: var(--text-primary); border-bottom: 1px solid var(--border-soft); }
+        .yomu-table tr:last-child td { border-bottom: none; }
+        .role-pill { padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+        .role-leader { background: var(--primary-purple); color: white; }
+        .role-member { background: var(--bg-subtle); color: var(--primary-purple); border: 1px solid var(--border-soft); }
+        .contribution { color: var(--success-green); font-weight: 800; }
+
+        /* Tab styles for member/request lists */
+        .nav-tabs { border-bottom: 1px solid var(--border-soft); }
+        .nav-tabs .nav-link { color: var(--text-muted); font-weight: 600; border: none; padding: 10px 18px; }
+        .nav-tabs .nav-link.active { color: var(--primary-purple); border-bottom: 2px solid var(--primary-purple); background: transparent; }
+        .nav-tabs .nav-link:hover { color: var(--primary-purple); }
+
+        /* Modal */
+        .modal-content { border: none; border-radius: 20px; padding: 8px; background: var(--bg-card); }
     </style>
 </head>
 <body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+        <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+        <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+        <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+        <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+        <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+        <a th:href="@{/clans/my-clan}" class="nav-item" th:classappend="${currentUri == '/clans/my-clan' ? 'active' : ''}"><i class="fas fa-users"></i> Clan</a>
+        <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+        <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+    </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-<div class="container-fluid row p-0 m-0">
-    <th:block th:replace="~{fragments/components :: sidebar('/clans/my-clan')}"></th:block>
-
-    <div class="main-content">
-        <div class="main-card text-center">
-
-            <!-- Empty State -->
-            <div th:if="${!hasClan}" class="container empty-state">
-                <h2 class="empty-state-text">You don't have <br> clan yet :(</h2>
-                <div class="d-flex justify-content-center gap-3">
-                    <a th:href="@{/clans/discover}" class="btn-action">Join Existing Clan</a>
-                    <a th:href="@{/clans/create-form}" class="btn-action">Make My Own</a>
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-users"></i></div>
+                <div>
+                    <h2>My Clan</h2>
+                    <div class="greeting-sub">Team up with other learners and climb the leaderboard.</div>
                 </div>
             </div>
+        </header>
 
-            <!-- Active Clan State -->
-            <div th:unless="${!hasClan}" class="container text-start w-100">
+        <!-- NO CLAN -->
+        <div th:if="${!hasClan}" class="empty-clan">
+            <div class="empty-clan-icon"><i class="fas fa-shield-halved"></i></div>
+            <h2>You don't have a clan yet</h2>
+            <p>Join an existing clan or create your own to compete with other learners.</p>
+            <div class="button-row">
+                <a th:href="@{/clans/discover}" class="btn btn-primary"><i class="fas fa-search"></i> Join Existing Clan</a>
+                <a th:href="@{/clans/create-form}" class="btn btn-secondary"><i class="fas fa-plus"></i> Make My Own</a>
+            </div>
+        </div>
 
-                <!-- Header Section -->
-                <div class="clan-header">
-                    <div class="clan-profile-group">
-                        <div class="profile-circle"></div>
-                        <div>
-                            <h2 class="mb-0 fw-bold" th:text="${clan.name}">Clan Name</h2>
-                            <span class="badge rounded-pill bg-warning text-dark" th:text="${clan.division}">GOLD</span>
-                            <p class="text-muted mb-0 mt-1" th:text="${clan.bio}">Clan Bio goes here...</p>
-                        </div>
+        <!-- HAS CLAN -->
+        <div th:unless="${!hasClan}">
+            <div class="clan-header">
+                <div class="clan-identity">
+                    <div class="clan-emblem"><i class="fas fa-shield-halved"></i></div>
+                    <div>
+                        <div class="clan-name" th:text="${clan.name}">Clan Name</div>
+                        <span class="clan-division" th:text="${clan.division}">GOLD</span>
+                        <div class="clan-bio" th:text="${clan.bio}">Clan bio goes here...</div>
                     </div>
+                </div>
 
-                    <div class="text-end">
-                        <div th:if="${myRole == 'LEADER'}" class="clan-actions">
-                            <a th:href="@{/clans/{id}/edit-form(id=${clan.id})}"
-                               class="btn btn-outline-secondary btn-sm px-3 shadow-sm w-100">
-                                <i class="fas fa-pen-to-square me-1"></i> Edit Clan
-                            </a>
-
-                            <form th:action="@{/clans/delete}" method="POST" class="w-100" onsubmit="return confirm('Are you sure you want to delete this clan?')">
-                                <input type="hidden" name="clanId" th:value="${clan.id}">
-                                <button type="submit" class="btn btn-danger btn-sm px-3 shadow-sm w-100">
-                                    <i class="fas fa-trash me-1"></i> Delete Clan
-                                </button>
-                            </form>
-                        </div>
-
-                        <form th:unless="${myRole == 'LEADER'}" th:action="@{/clans/leave}" method="POST">
-                            <button type="submit" class="btn btn-outline-danger btn-sm px-3 shadow-sm">
-                                <i class="fas fa-sign-out-alt"></i> Leave Clan
+                <div class="clan-actions">
+                    <div th:if="${myRole == 'LEADER'}" style="display:flex; flex-direction:column; gap:8px;">
+                        <a th:href="@{/clans/{id}/edit-form(id=${clan.id}, studentId=${param.studentId})}" class="btn-row btn-row-secondary">
+                            <i class="fas fa-pen"></i> Edit Clan
+                        </a>
+                        <form th:action="@{/clans/delete}" method="POST" onsubmit="return confirm('Delete this clan?')">
+                            <input type="hidden" name="clanId" th:value="${clan.id}">
+                            <button type="submit" class="btn-row btn-row-danger" style="width:100%;">
+                                <i class="fas fa-trash"></i> Delete Clan
                             </button>
                         </form>
                     </div>
+                    <form th:unless="${myRole == 'LEADER'}" th:action="@{/clans/leave}" method="POST">
+                        <button type="submit" class="btn-row btn-row-danger" style="width:100%;">
+                            <i class="fas fa-right-from-bracket"></i> Leave Clan
+                        </button>
+                    </form>
                 </div>
+            </div>
 
-                <!-- Stats Section -->
-                <div class="row g-3 mb-4 text-center">
-                    <div class="col-md-4">
-                        <div class="stat-card">
-                            <small class="text-muted d-block fw-bold text-uppercase">Multiplier</small>
-                            <h4 class="fw-bold text-primary mb-0" th:text="${clan.activeMultiplier} + 'x'">1.0x</h4>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card">
-                            <small class="text-muted d-block fw-bold text-uppercase">Total Points</small>
-                            <h4 class="fw-bold text-success mb-0" th:text="${#numbers.formatInteger(clan.totalScore, 0, 'COMMA')}">0</h4>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card">
-                            <small class="text-muted d-block fw-bold text-uppercase">Rank</small>
-                            <div class="d-flex justify-content-center gap-2 mt-1">
-                                <span class="badge bg-dark">Global #<span th:text="${clan.previousRank != null ? clan.previousRank : '??'}">12</span></span>
-                                <span class="badge bg-info text-dark">Div #1</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">Multiplier</div>
+                    <div class="stat-card-value" th:text="${clan.activeMultiplier} + 'x'">1.0x</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Points</div>
+                    <div class="stat-card-value" th:text="${#numbers.formatInteger(clan.totalScore, 0, 'COMMA')}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Global Rank</div>
+                    <div class="stat-card-value">#<span th:text="${clan.previousRank != null ? clan.previousRank : '??'}">??</span></div>
+                </div>
+            </div>
 
-                <!-- Members Section -->
-                <div class="members-container">
-                    <div class="members-header">
-                        <h5 class="fw-bold mb-0">
-                            <i class="fas fa-user-friends me-2"></i>Clan Members
-                        </h5>
-                        <div class="d-flex gap-2">
-                            <button th:if="${myRole == 'LEADER'}" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#inviteModal">
-                                <i class="fas fa-plus"></i> Invite
-                            </button>
-                            <span class="badge bg-secondary p-2" th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + '/20'">5/20</span>
-                        </div>
-                    </div>
-
-                    <ul class="nav nav-tabs mb-3" id="clanTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active">Active Members</button>
-                        </li>
-                        <li class="nav-item" role="presentation" th:if="${myRole == 'LEADER'}">
-                            <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests">
-                                Join Requests <span class="badge bg-danger ms-1" th:text="${#lists.size(clan.members.?[status == 'PENDING_REQUEST'])}"></span>
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="clanTabsContent">
-
-                        <div class="tab-pane fade show active" id="active">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Member Name</th>
-                                        <th>Role</th>
-                                        <th class="text-end">Contribution</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
-                                        <td class="fw-semibold">
-                                            <i class="fas fa-user-circle me-2 text-muted"></i>
-                                            <span th:text="${member.student != null ? member.student.username : member.studentId}">Username</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge rounded-pill"
-                                                  th:classappend="${member.role == 'LEADER' ? 'bg-primary' : 'bg-light text-dark border'}"
-                                                  th:text="${member.role}">MEMBER</span>
-                                        </td>
-                                        <td class="text-end fw-bold text-success"
-                                            th:text="${#numbers.formatInteger(member.localScore, 0, 'COMMA')} + ' pts'">0 pts
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="requests" th:if="${myRole == 'LEADER'}">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Student Requesting</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="req : ${clan.members}" th:if="${req.status == 'PENDING_REQUEST'}">
-                                        <td class="fw-semibold">
-                                            <i class="fas fa-user me-2 text-muted"></i>
-                                            <span th:text="${req.student != null ? req.student.username : req.studentId}">Student</span>
-                                        </td>
-                                        <td class="text-end">
-                                            <button class="btn btn-sm btn-success px-3 me-1"
-                                                    th:data-clan-id="${clan.id}"
-                                                    th:data-student-id="${req.studentId}"
-                                                    onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'approve')">
-                                                Approve
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger px-3"
-                                                    th:data-clan-id="${clan.id}"
-                                                    th:data-student-id="${req.studentId}"
-                                                    onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'reject')">
-                                                Reject
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.size(clan.members.?[status == 'PENDING_REQUEST']) == 0}">
-                                        <td colspan="2" class="text-center text-muted py-4">No pending join requests.</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
+            <div class="members-card">
+                <div class="members-header">
+                    <h3><i class="fas fa-users"></i> Clan Members</h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button th:if="${myRole == 'LEADER'}" class="btn btn-primary btn-icon" data-bs-toggle="modal" data-bs-target="#inviteModal" style="padding: 8px 18px; font-size: 13px;">
+                            <i class="fas fa-plus"></i> Invite
+                        </button>
+                        <span class="members-count-pill" th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + ' / 20'">5 / 20</span>
                     </div>
                 </div>
 
+                <ul class="nav nav-tabs mb-3" id="clanTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button">Active Members</button>
+                    </li>
+                    <li class="nav-item" role="presentation" th:if="${myRole == 'LEADER'}">
+                        <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button">
+                            Join Requests <span class="badge bg-danger ms-1" th:text="${#lists.size(clan.members.?[status == 'PENDING_REQUEST'])}"></span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="clanTabsContent">
+                    <div class="tab-pane fade show active" id="active">
+                        <table class="yomu-table">
+                            <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Role</th>
+                                <th style="text-align: right;">Contribution</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
+                                <td>
+                                    <i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 8px;"></i>
+                                    <span th:text="${member.student != null ? member.student.username : member.studentId}">Username</span>
+                                </td>
+                                <td>
+                                    <span class="role-pill" th:classappend="${member.role == 'LEADER' ? 'role-leader' : 'role-member'}" th:text="${member.role}">MEMBER</span>
+                                </td>
+                                <td style="text-align: right;" class="contribution" th:text="${#numbers.formatInteger(member.localScore, 0, 'COMMA')} + ' pts'">0 pts</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-pane fade" id="requests" th:if="${myRole == 'LEADER'}">
+                        <table class="yomu-table">
+                            <thead>
+                            <tr>
+                                <th>Student Requesting</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="req : ${clan.members}" th:if="${req.status == 'PENDING_REQUEST'}">
+                                <td>
+                                    <i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 8px;"></i>
+                                    <span th:text="${req.student != null ? req.student.username : req.studentId}">Student</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <button class="btn-row btn-row-secondary" style="margin-right: 6px;"
+                                            th:data-clan-id="${clan.id}"
+                                            th:data-student-id="${req.studentId}"
+                                            onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'approve')">
+                                        Approve
+                                    </button>
+                                    <button class="btn-row btn-row-danger"
+                                            th:data-clan-id="${clan.id}"
+                                            th:data-student-id="${req.studentId}"
+                                            onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'reject')">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.size(clan.members.?[status == 'PENDING_REQUEST']) == 0}">
+                                <td colspan="2" style="text-align: center; padding: 30px; color: var(--text-muted);">No pending join requests.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
+<!-- Invite Modal -->
 <div class="modal fade" id="inviteModal" tabindex="-1" aria-hidden="true" th:if="${hasClan && myRole == 'LEADER'}">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold"><i class="fas fa-paper-plane text-primary me-2"></i> Invite a Student</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold text-uppercase">Target Student ID</label>
-                    <input type="number" id="inviteStudentId" class="form-control rounded-pill" placeholder="Enter student's ID number">
+        <div class="modal-content" style="border-radius: 20px; padding: 8px;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h5 style="font-weight: 800; color: var(--text-heading);"><i class="fas fa-paper-plane" style="color: var(--primary-purple); margin-right: 8px;"></i> Invite a Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-heading); font-size: 13px;">Target Student ID</label>
+                    <input type="number" id="inviteStudentId" class="form-control" placeholder="Enter student's ID number" style="border-radius: 10px;">
                 </div>
                 <button th:data-clan-id="${clan.id}"
                         onclick="sendInvite(this.getAttribute('data-clan-id'))"
-                        class="btn btn-primary w-100 rounded-pill fw-bold">
+                        class="btn btn-primary" style="width: 100%; margin-top: 16px; border-radius: 10px; font-weight: 700;">
                     Send Invitation
                 </button>
             </div>
@@ -306,8 +286,7 @@
     </div>
 </div>
 
-<th:block th:replace="~{fragments/components :: scripts}"></th:block>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     async function manageRequest(clanId, studentId, action) {
         if (!confirm(`Are you sure you want to ${action} this request?`)) return;

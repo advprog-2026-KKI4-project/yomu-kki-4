@@ -19,6 +19,7 @@ public class DiscussionAdminController {
     public String discussionIndex(Model model) {
         List<ReadingMaterial> materials = readingMaterialService.getAll();
         model.addAttribute("materials", materials);
+        model.addAttribute("currentUri", "/discussions");
         return "discussion/discussionAdmin";
     }
 }
