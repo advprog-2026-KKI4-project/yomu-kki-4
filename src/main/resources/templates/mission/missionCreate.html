@@ -11,12 +11,12 @@
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; margin-bottom: 8px; font-weight: bold; color: #a096e0; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
 
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"], input[type="datetime-local"], select {
             width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid transparent;
             background: #6b5ce0; color: #f7ecf4; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease;
         }
         input::placeholder { color: #a096e0; opacity: 0.7; }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #f5b17f; box-shadow: 0 0 8px rgba(245, 177, 127, 0.3); }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus, select:focus { border-color: #f5b17f; box-shadow: 0 0 8px rgba(245, 177, 127, 0.3); }
         select option { background: #564b8f; color: #f7ecf4; }
 
         .checkbox-group { display: flex; align-items: center; gap: 12px; background: #6b5ce0; padding: 14px 16px; border-radius: 12px; margin-top: 0.5rem; cursor: pointer; }
@@ -59,6 +59,15 @@
         <div class="form-group">
             <label for="rewardPoints">Reward Points</label>
             <input type="number" id="rewardPoints" th:field="*{rewardPoints}" required min="0" placeholder="e.g., 10"/>
+        </div>
+
+        <div class="form-group">
+            <label for="activeFrom">Active From (optional)</label>
+            <input type="datetime-local" id="activeFrom" th:field="*{activeFrom}"/>
+        </div>
+        <div class="form-group">
+            <label for="activeTo">Active Until (optional)</label>
+            <input type="datetime-local" id="activeTo" th:field="*{activeTo}"/>
         </div>
 
         <label>Availability</label>

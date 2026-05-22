@@ -9,8 +9,8 @@
         .container { max-width: 500px; margin: 0 auto; background-color: #564b8f; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8); }
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; margin-bottom: 8px; font-weight: bold; color: #a096e0; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
-        input[type="text"], input[type="number"], select { width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid transparent; background: #6b5ce0; color: #f7ecf4; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #f5b17f; box-shadow: 0 0 8px rgba(245, 177, 127, 0.3); }
+        input[type="text"], input[type="number"], input[type="datetime-local"], select { width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid transparent; background: #6b5ce0; color: #f7ecf4; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus, select:focus { border-color: #f5b17f; box-shadow: 0 0 8px rgba(245, 177, 127, 0.3); }
         select option { background: #564b8f; color: #f7ecf4; }
         .checkbox-group { display: flex; align-items: center; gap: 12px; background: #6b5ce0; padding: 14px 16px; border-radius: 12px; margin-top: 0.5rem; cursor: pointer; }
         .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: #f5b17f; cursor: pointer; margin: 0; }
@@ -49,6 +49,15 @@
             <label for="rewardPoints">Reward Points</label>
             <input type="number" id="rewardPoints" th:field="*{rewardPoints}" required min="0"/>
         </div>
+        <div class="form-group">
+            <label for="activeFrom">Active From (optional)</label>
+            <input type="datetime-local" id="activeFrom" th:field="*{activeFrom}"/>
+        </div>
+        <div class="form-group">
+            <label for="activeTo">Active Until (optional)</label>
+            <input type="datetime-local" id="activeTo" th:field="*{activeTo}"/>
+        </div>
+
         <label>Availability</label>
         <div class="checkbox-group" onclick="document.getElementById('active').click();">
             <input type="checkbox" id="active" th:field="*{active}"/>
