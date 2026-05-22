@@ -41,28 +41,14 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             int currentRank = i + 1;
             clan.setPreviousRank(currentRank);
 
-            if (currentRank <= promotionLimit && clan.getDivision() != Division.DIAMOND) {
-                promoteClan(clan);
+            if (currentRank <= promotionLimit) {
+                clan.setDivision(clan.getDivision().next());
             }
 
             clan.setTotalScore(0L);
-
-            for (ClanMember member : clan.getMembers()) {
-                member.setLocalScore(0);
-            }
+            clan.getMembers().forEach(m -> m.setLocalScore(0));
         }
         clanRepository.saveAll(allClans);
-    }
-
-    private void promoteClan(Clan clan) {
-        Division current = clan.getDivision();
-        Division next = switch (current) {
-            case BRONZE -> Division.SILVER;
-            case SILVER -> Division.GOLD;
-            case GOLD -> Division.DIAMOND;
-            default -> current;
-        };
-        clan.setDivision(next);
     }
 
     @Override
@@ -74,7 +60,6 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     public List<Clan> getDivisionLeaderboard(String division) {
         try {
             Division divisionEnum = Division.valueOf(division.toUpperCase());
-
             return clanRepository.findAllByDivisionOrderByTotalScoreDesc(divisionEnum);
         } catch (IllegalArgumentException | NullPointerException e) {
             return List.of();

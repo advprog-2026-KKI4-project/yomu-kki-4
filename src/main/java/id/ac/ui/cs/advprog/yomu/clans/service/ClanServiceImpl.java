@@ -2,11 +2,11 @@ package id.ac.ui.cs.advprog.yomu.clans.service;
 
 import id.ac.ui.cs.advprog.yomu.clans.model.*;
 import id.ac.ui.cs.advprog.yomu.clans.repository.*;
-import id.ac.ui.cs.advprog.yomu.clans.service.LeaderboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,6 +20,11 @@ public class ClanServiceImpl implements ClanService {
 
     @Autowired
     private LeaderboardService leaderboardService;
+
+    @Override
+    public List<Clan> findAllClans() {
+        return clanRepository.findAll();
+    }
 
     @Override
     @Transactional
@@ -53,6 +58,16 @@ public class ClanServiceImpl implements ClanService {
 
         return clanRepository.save(clan);
     }
+
+    @Override
+    @Transactional
+    public void deleteClan(UUID clanId, Long leaderId) {
+        Clan clan = clanRepository.findById(clanId).orElseThrow();
+        if (!clan.getLeaderId().equals(leaderId))
+            throw new RuntimeException("Unauthorized");
+        clanRepository.delete(clan);
+    }
+
 
     @Override
     public void requestToJoin(UUID clanId, Long studentId) {
@@ -109,6 +124,7 @@ public class ClanServiceImpl implements ClanService {
         memberRepository.delete(member);
     }
 
+
     @Override
     public void inviteStudent(UUID clanId, Long leaderId, Long targetStudentId) {
         Clan clan = clanRepository.findById(clanId)
@@ -156,6 +172,7 @@ public class ClanServiceImpl implements ClanService {
         memberRepository.delete(member);
     }
 
+
     @Override
     @Transactional
     public void kickMember(UUID clanId, Long leaderId, Long targetStudentId) {
@@ -193,33 +210,24 @@ public class ClanServiceImpl implements ClanService {
         clanRepository.save(clan);
     }
 
+
     @Override
-    @Transactional
-    public void deleteClan(UUID clanId, Long leaderId) {
-        Clan clan = clanRepository.findById(clanId).orElseThrow();
-        if (!clan.getLeaderId().equals(leaderId))
-            throw new RuntimeException("Unauthorized");
-        clanRepository.delete(clan);
+    public boolean isUserInAnyClan(Long studentId) {
+        return getAcceptedMembership(studentId).isPresent();
     }
 
     @Override
-    public List<Clan> findAllClans() {
-        return clanRepository.findAll();
-    }
-
-    // Temporary Function
-    @Override
-    @Transactional
-    public void updateMemberScoreMock(Long studentId, int newScore) {
-        ClanMember member = memberRepository.findByStudentId(studentId)
-                .stream()
+    public Optional<ClanMember> getAcceptedMembership(Long studentId) {
+        return memberRepository.findByStudentId(studentId).stream()
                 .filter(m -> "ACCEPTED".equals(m.getStatus()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Active member not found"));
+                .findFirst();
+    }
 
-        member.setLocalScore(newScore);
-        memberRepository.save(member);
-
-        leaderboardService.updateClanScore(member.getClanId());
+    @Override
+    public List<UUID> getPendingRequestClanIds(Long studentId) {
+        return memberRepository.findByStudentId(studentId).stream()
+                .filter(m -> "PENDING_REQUEST".equals(m.getStatus()))
+                .map(m -> m.getClanId().getId())
+                .toList();
     }
 }
