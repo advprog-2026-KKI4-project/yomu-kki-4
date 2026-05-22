@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +62,28 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
     @Override
     public List<UserAchievementProgress> getUserAchievements(User user) {
         return progressRepository.findByUser(user);
+    }
+
+    @Override
+    public List<UserAchievementProgress> getUnlockedAchievements(User user) {
+        return progressRepository.findByUserAndUnlockedTrue(user);
+    }
+
+    @Override
+    public List<UserAchievementProgress> getPublicAchievements(Long userId) {
+        return progressRepository.findByUser_IdAndShowOnProfileTrueAndUnlockedTrue(userId);
+    }
+
+    @Override
+    @Transactional
+    public void setShowOnProfile(User user, UUID progressId, boolean show) {
+        UserAchievementProgress progress = progressRepository
+                .findByIdAndUser(progressId, user)
+                .orElseThrow(() -> new IllegalArgumentException("Achievement progress not found"));
+        if (!progress.isUnlocked()) {
+            throw new IllegalStateException("Cannot show a locked achievement on profile");
+        }
+        progress.setShowOnProfile(show);
+        progressRepository.save(progress);
     }
 }
