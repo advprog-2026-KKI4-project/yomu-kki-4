@@ -39,3 +39,53 @@ jobs:
         with:
           name: yomu-jar
           path: build/libs/*.jar
+
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: yomu-jar
+          path: build/libs/
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/yomu-repo/yomu:${{ github.sha }}"
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy yomu \
+            --image "asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/yomu-repo/yomu:${{ github.sha }}" \
+            --region=${{ secrets.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --clear-env-vars \
+            --set-secrets="JWT_SECRET=jwt-secret:latest" \
+            --set-secrets="GOOGLE_CLIENT_ID=google-client-id:latest" \
+            --set-secrets="GOOGLE_CLIENT_SECRET=google-client-secret:latest" \
+            --memory=512Mi --cpu=1 \
+            --min-instances=0 --max-instances=3
