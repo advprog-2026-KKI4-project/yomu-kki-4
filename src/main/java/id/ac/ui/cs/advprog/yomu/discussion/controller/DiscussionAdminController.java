@@ -19,6 +19,6 @@ public class DiscussionAdminController {
     public String discussionIndex(Model model) {
         List<ReadingMaterial> materials = readingMaterialService.getAll();
         model.addAttribute("materials", materials);
-        return "discussion/discussionIndex";
+        return "discussion/discussionAdmin";
     }
 }

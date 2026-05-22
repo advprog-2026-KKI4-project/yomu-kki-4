@@ -49,6 +49,6 @@ public class DiscussionViewController {
         String username = (authentication != null && authentication.isAuthenticated()) ? authentication.getName() : "Admin";
         model.addAttribute("username", username);
         model.addAttribute("role", "ADMIN");
-        return "discussion/admin_moderation";
+        return "discussion/discussionAdmin";
     }
 }
