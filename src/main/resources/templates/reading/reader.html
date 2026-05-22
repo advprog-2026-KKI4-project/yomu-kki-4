@@ -11,15 +11,21 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/dashboard(role=${role})}" class="nav-item" th:classappend="${currentUri == '/dashboard' ? 'active' : ''}">
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
             <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
                 <i class="fas fa-book-open"></i> Course
             </a>
-            <a href="#" class="nav-item"><i class="fas fa-users"></i> Clan</a>
-            <a href="#" class="nav-item"><i class="fas fa-search"></i> Discover</a>
-            <a href="#" class="nav-item"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a th:href="@{/clans/my-clan}" class="sidebar-btn d-block text-decoration-none">
+                <i class="bi bi-shield"></i> My Clan
+            </a>
+            <a th:href="@{/clans/discover}" class="sidebar-btn d-block text-decoration-none">
+                <i class="bi bi-search"></i> Discover
+            </a>
+            <a th:href="@{/leaderboard}" class="sidebar-btn active d-block text-decoration-none">
+                <i class="bi bi-trophy"></i> Leaderboard
+            </a>
             <a href="#" class="nav-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>

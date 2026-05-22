@@ -31,6 +31,12 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-2 sidebar d-none d-md-block">
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
+                <i class="fas fa-book-open"></i> Course
+            </a>
             <a th:href="@{/clans/my-clan}" class="sidebar-btn d-block text-decoration-none">
                 <i class="bi bi-shield"></i> My Clan
             </a>
