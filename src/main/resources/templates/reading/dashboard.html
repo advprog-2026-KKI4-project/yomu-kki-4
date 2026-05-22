@@ -1,40 +1,53 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Yomu - Dashboard</title>
+    <title>Yomu - Learning</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <style>
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
+        .empty-grid { background: var(--bg-card); border: 1.5px dashed var(--border-input); border-radius: 16px; padding: 60px 20px; text-align: center; color: var(--text-muted); }
+        .empty-grid i { font-size: 2.5rem; color: var(--accent-lavender); margin-bottom: 12px; }
+    </style>
 </head>
 <body>
 <div class="app-container">
-
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
-                <i class="fas fa-book-open"></i> My Learning
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-users"></i> Clan
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-trophy"></i> Rank
-            </a>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
         </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
     </aside>
 
     <main class="main-content">
         <header class="header">
             <div class="user-profile">
-                <i class="fas fa-user-circle"></i>
-                <h2 th:text="'Welcome, ' + ${username} + '!'">Welcome, Username!</h2>
+                <div class="avatar"><i class="fas fa-book-open"></i></div>
+                <div>
+                    <h2 th:text="${currentUri == '/my-learning' ? 'My Learning' : 'Learning Library'}">Learning Library</h2>
+                    <div class="greeting-sub" th:text="${currentUri == '/my-learning' ? 'Continue where you left off.' : 'Browse all available materials and quizzes.'}">Subtitle</div>
+                </div>
             </div>
-            <div th:if="${role == 'ADMIN'}">
-                <a th:href="@{/admin/create}" class="btn btn-primary add-btn">+ Add Material</a>
+            <div class="header-actions">
+                <div class="stat-chip purple">
+                    <i class="fas fa-book"></i>
+                    <span th:text="${materials != null ? materials.size() : 0}">0</span>
+                </div>
+                <div th:if="${role == 'ADMIN'}">
+                    <a th:href="@{/admin/create}" class="btn btn-primary btn-icon"><i class="fas fa-plus"></i> Add Material</a>
+                </div>
             </div>
         </header>
 
@@ -48,22 +61,22 @@
                     <span class="category-tag" th:text="${material.category}">Code</span>
                     <h3 class="material-title" th:text="${material.title}">Programming Foundation 1</h3>
                 </div>
-
                 <div class="progress-area">
-                    <span class="progress-percent" th:text="${material.progress} + '%'">0%</span>
+                    <div class="progress-percent">
+                        <span>Progress</span>
+                        <span th:text="${material.progress} + '%'">0%</span>
+                    </div>
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill" th:style="'width: ' + ${material.progress} + '%'"></div>
                     </div>
                 </div>
-
                 <div class="card-footer">
                     <div th:if="${role == 'STUDENT'}" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id})}" class="btn btn-primary">Start Reading !</a>
-                        <a th:if="${material.progress == 50}" th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz !</a>
-                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id})}" class="btn btn-completed">Completed !</a>
+                        <a th:if="${material.progress == 0}" th:href="@{/reading/{id}(id=${material.id})}" class="btn btn-primary">Start Reading</a>
+                        <a th:if="${material.progress == 50}" th:href="@{/quiz/{id}(id=${material.id})}" class="btn btn-primary">Start Quiz</a>
+                        <a th:if="${material.progress == 100}" th:href="@{/review/{id}(id=${material.id})}" class="btn btn-completed">Completed</a>
                         <a th:href="@{/discussion/{id}(id=${material.id})}" class="btn btn-secondary"><i class="fas fa-comments"></i> Discuss</a>
                     </div>
-
                     <div th:if="${role == 'ADMIN'}" class="admin-actions">
                         <a th:href="@{/admin/edit/{id}(id=${material.id})}" class="btn btn-secondary">Edit</a>
                         <form th:action="@{/api/admin/materials/delete/{id}(id=${material.id})}" method="post" style="flex:1">
@@ -73,6 +86,11 @@
                 </div>
             </div>
         </section>
+
+        <div class="empty-grid" th:if="${materials == null or materials.isEmpty()}">
+            <i class="fas fa-book-open"></i>
+            <p>No materials available yet.</p>
+        </div>
     </main>
 </div>
 
@@ -81,10 +99,4 @@
         const query = this.value.toLowerCase();
         document.querySelectorAll('.card').forEach(card => {
             const title = card.querySelector('.material-title').innerText.toLowerCase();
-            const cat = card.querySelector('.category-tag').innerText.toLowerCase();
-            card.style.display = (title.includes(query) || cat.includes(query)) ? 'flex' : 'none';
-        });
-    });
-</script>
-</body>
-</html>
+            const cat = card.querySelector('.category-tag').inner
