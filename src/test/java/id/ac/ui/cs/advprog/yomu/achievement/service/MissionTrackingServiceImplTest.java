@@ -13,6 +13,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+
+import id.ac.ui.cs.advprog.yomu.achievement.event.MissionCompletedEvent;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +35,9 @@ class MissionTrackingServiceImplTest {
 
     @Mock
     private DailyMissionRepository dailyMissionRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private MissionTrackingServiceImpl service;
@@ -84,6 +90,23 @@ class MissionTrackingServiceImplTest {
 
         assertThat(existing.getCurrentCount()).isEqualTo(3);
         assertThat(existing.isCompleted()).isTrue();
+    }
+
+    @Test
+    void incrementProgress_publishesMissionCompletedEvent_withCorrectRewardPoints() {
+        UserMissionProgress existing = UserMissionProgress.builder()
+                .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.now()).build();
+
+        when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
+        when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
+                .thenReturn(Optional.of(existing));
+
+        service.incrementProgress(user, MissionType.QUIZ);
+
+        ArgumentCaptor<MissionCompletedEvent> captor = ArgumentCaptor.forClass(MissionCompletedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().getUserId()).isEqualTo(user.getId());
+        assertThat(captor.getValue().getRewardPoints()).isEqualTo(mission.getRewardPoints());
     }
 
     @Test

@@ -1,12 +1,14 @@
 package id.ac.ui.cs.advprog.yomu.achievement.service;
 
 import id.ac.ui.cs.advprog.yomu.achievement.enums.MissionType;
+import id.ac.ui.cs.advprog.yomu.achievement.event.MissionCompletedEvent;
 import id.ac.ui.cs.advprog.yomu.achievement.model.DailyMission;
 import id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserMissionProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
 
     private final UserMissionProgressRepository progressRepository;
     private final DailyMissionRepository dailyMissionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -55,8 +58,7 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
             // 5. Check if they hit the target
             if (progress.getCurrentCount() >= mission.getTargetCount()) {
                 progress.setCompleted(true);
-                // NOTE FOR MILESTONE 3: Trigger reward logic here!
-                // e.g., pointsService.addPoints(user, mission.getRewardPoints());
+                eventPublisher.publishEvent(new MissionCompletedEvent(user.getId(), mission.getRewardPoints()));
             }
 
             progressRepository.save(progress);
