@@ -50,6 +50,7 @@ dependencies {
     // Monitoring & Observability
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-registry-otlp")
     implementation("org.aspectj:aspectjweaver")
 
     // Testing
