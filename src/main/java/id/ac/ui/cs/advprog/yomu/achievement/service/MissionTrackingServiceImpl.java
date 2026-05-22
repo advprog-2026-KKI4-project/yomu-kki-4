@@ -69,4 +69,11 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
     public List<UserMissionProgress> getUserProgressToday(User user) {
         return progressRepository.findByUserAndDate(user, LocalDate.now());
     }
+
+    @Override
+    public long getCompletedMissionCountForUsers(List<Long> userIds, LocalDate date) {
+        if (userIds == null || userIds.isEmpty())
+            return 0;
+        return progressRepository.countUsersWithCompletedMissions(userIds, date);
+    }
 }

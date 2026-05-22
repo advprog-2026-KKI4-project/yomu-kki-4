@@ -3,8 +3,6 @@ package id.ac.ui.cs.advprog.yomu.clans.controller;
 import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.yomu.clans.model.Clan;
 import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
-import id.ac.ui.cs.advprog.yomu.clans.repository.ClanMemberRepository;
-import id.ac.ui.cs.advprog.yomu.clans.repository.ClanRepository;
 import id.ac.ui.cs.advprog.yomu.clans.service.ClanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,13 +22,7 @@ public class ClanViewController {
     private ClanService clanService;
 
     @Autowired
-    private ClanRepository clanRepository;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private ClanMemberRepository memberRepository;
 
     private Long getAuthId(Principal principal) {
         Long id = userRepository.findByEmail(principal.getName())
@@ -40,9 +32,7 @@ public class ClanViewController {
     }
 
     @GetMapping("/create-form")
-    public String showCreateForm(Principal principal,
-                                 Model model) {
-        model.addAttribute("studentId", getAuthId(principal));
+    public String showCreateForm() {
         return "clans/createClan";
     }
 
@@ -56,11 +46,11 @@ public class ClanViewController {
 
     @GetMapping("/{clanId}/edit-form")
     public String showEditForm(@PathVariable UUID clanId,
-                               Principal principal,
-                               Model model) {
-        Clan clan = clanRepository.findById(clanId).orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Clan not found"));
+                                Model model) {
+        Clan clan = clanService.findAllClans().stream()
+                .filter(c -> c.getId().equals(clanId)).findFirst()
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Clan not found"));
         model.addAttribute("clan", clan);
-        model.addAttribute("studentId", getAuthId(principal));
         return "clans/editClan";
     }
 
@@ -77,18 +67,11 @@ public class ClanViewController {
     public String viewMyClan(Principal principal,
                              Model model) {
         Long studentId = getAuthId(principal);
-        if (studentId == null) {
-            return "redirect:/clans/discover";
-        }
-
-        Optional<ClanMember> membership = memberRepository.findByStudentId(studentId)
-                .stream()
-                .filter(m -> "ACCEPTED".equals(m.getStatus()))
-                .findFirst();
+        Optional<ClanMember> membership = clanService.getAcceptedMembership(studentId);
 
         if (membership.isPresent()) {
             model.addAttribute("hasClan", true);
-            model.addAttribute("clan", membership.get().getClanId());
+            model.addAttribute("clan", membership.get().getClan());
             model.addAttribute("myRole", membership.get().getRole());
         } else {
             model.addAttribute("hasClan", false);
@@ -102,17 +85,11 @@ public class ClanViewController {
                                    Model model) {
         Long studentId = getAuthId(principal);
         model.addAttribute("clans", clanService.findAllClans());
+        model.addAttribute("hasClan", clanService.isUserInAnyClan(studentId));
+        model.addAttribute("pendingClanIds", clanService.getPendingRequestClanIds(studentId));
 
-        boolean inClan = memberRepository.findByStudentId(studentId)
-                .stream().anyMatch(m -> "ACCEPTED".equals(m.getStatus()));
-        model.addAttribute("hasClan", inClan);
-
-        List<UUID> pendingClanIds = memberRepository.findByStudentId(studentId)
-                .stream()
-                .filter(m -> "PENDING_REQUEST".equals(m.getStatus()))
-                .map(m -> m.getClanId().getId())
-                .toList();
-        model.addAttribute("pendingClanIds", pendingClanIds);
+        List<ClanMember> myInvitations = clanService.getPendingInvitations(studentId);
+        model.addAttribute("myInvitations", myInvitations);
 
         return "clans/clanList";
     }
