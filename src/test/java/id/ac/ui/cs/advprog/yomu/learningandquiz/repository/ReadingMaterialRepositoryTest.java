@@ -1,14 +1,11 @@
-package id.ac.ui.cs.advprog.yomu.repository;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.repository;
 
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.ReadingMaterialRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
-@Disabled
 class ReadingMaterialRepositoryTest {
     private ReadingMaterialRepository repository;
 
@@ -20,6 +17,7 @@ class ReadingMaterialRepositoryTest {
     @Test
     void testSaveAndFindAll() {
         ReadingMaterial mat = new ReadingMaterial();
+        mat.setId("mat-test-1");
         mat.setTitle("Test Material");
         repository.save(mat);
 
@@ -31,21 +29,21 @@ class ReadingMaterialRepositoryTest {
     @Test
     void testFindById() {
         ReadingMaterial mat = new ReadingMaterial();
-        String id = mat.getId();
+        mat.setId("mat-test-2");
         repository.save(mat);
 
-        ReadingMaterial found = repository.findById(id);
+        ReadingMaterial found = repository.findById("mat-test-2");
         assertNotNull(found);
-        assertEquals(id, found.getId());
+        assertEquals("mat-test-2", found.getId());
     }
 
     @Test
     void testDelete() {
         ReadingMaterial mat = new ReadingMaterial();
-        String id = mat.getId();
+        mat.setId("mat-test-3");
         repository.save(mat);
 
-        repository.deleteById(id);
-        assertNull(repository.findById(id));
+        repository.deleteById("mat-test-3");
+        assertNull(repository.findById("mat-test-3"));
     }
 }

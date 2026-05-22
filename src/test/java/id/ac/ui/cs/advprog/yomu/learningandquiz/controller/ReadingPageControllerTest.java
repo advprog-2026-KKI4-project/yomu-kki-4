@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
-import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;

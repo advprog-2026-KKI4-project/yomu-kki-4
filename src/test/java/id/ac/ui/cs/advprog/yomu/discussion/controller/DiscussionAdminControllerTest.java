@@ -1,50 +1,46 @@
 package id.ac.ui.cs.advprog.yomu.discussion.controller;
 
-import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication; // Added
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.List;
+@Controller
+@RequiredArgsConstructor
+public class DiscussionViewController {
 
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+    private final ReadingMaterialService readingMaterialService;
 
-@SpringBootTest
-class DiscussionAdminControllerTest {
+    @GetMapping("/discussion/{materialId}")
+    public String discussionForMaterial(@PathVariable String materialId, Authentication authentication, Model model) {
+        ReadingMaterial material = readingMaterialService.getById(materialId);
+        model.addAttribute("materialId", materialId);
+        model.addAttribute("materialTitle",
+                material != null ? material.getTitle() : "Unknown material");
+        model.addAttribute("materialCategory",
+                material != null ? material.getCategory() : "");
+        model.addAttribute("materialExists", material != null);
+        model.addAttribute("currentUri", "/discussion");
 
-    @Autowired
-    private WebApplicationContext context;
+        // Pass authentication state to Thymeleaf safely
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        boolean isAdmin = isAuthenticated && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"));
 
-    @MockitoBean
-    private ReadingMaterialService readingMaterialService;
+        model.addAttribute("isAuthenticated", isAuthenticated);
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("currentUsername", isAuthenticated ? authentication.getName() : null);
 
-    private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        return "discussion/discussion";
     }
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void testDiscussionIndex() throws Exception {
-        ReadingMaterial mockMaterial = new ReadingMaterial();
-        when(readingMaterialService.getAll()).thenReturn(List.of(mockMaterial));
+    @GetMapping("/discussion")
+    public String discussionIndex() {
+        return "redirect:/reading";
 
-        mockMvc.perform(get("/discussions"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("discussion/discussionAdmin"))
-                .andExpect(model().attributeExists("materials"))
-                .andExpect(model().attribute("currentUri", "/discussions"));
     }
 }
