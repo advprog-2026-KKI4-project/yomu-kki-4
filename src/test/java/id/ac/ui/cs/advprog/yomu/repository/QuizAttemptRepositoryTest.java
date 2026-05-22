@@ -1,6 +1,6 @@
-package id.ac.ui.cs.advprog.yomu.repository;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.repository;
 
-import id.ac.ui.cs.advprog.yomu.model.QuizAttempt;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ class QuizAttemptRepositoryTest {
         repository.save(attempt);
 
         QuizAttempt updated = new QuizAttempt("user1", "mat1", 95.0, 60, Arrays.asList(0, 1));
-        updated.setId(attempt.getId()); // same ID
+        updated.setId(attempt.getId());
         repository.save(updated);
 
         List<QuizAttempt> all = repository.findAll();
