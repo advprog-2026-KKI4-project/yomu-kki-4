@@ -26,6 +26,7 @@ public class AchievementController {
     @GetMapping
     public String listAchievements(Model model, Authentication authentication) {
         model.addAttribute("achievements", achievementService.findAll());
+        model.addAttribute("currentUri", "/achievements");
         boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);

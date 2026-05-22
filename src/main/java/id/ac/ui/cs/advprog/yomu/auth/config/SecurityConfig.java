@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**",
                                 "/",
                                 "/error",
+                                "/actuator/**",
                                 "/my-achievements.html",
                                 "/**/*.html"
                         ).permitAll()

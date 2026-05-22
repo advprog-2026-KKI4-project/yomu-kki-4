@@ -36,6 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
+# GCP service account key
+gcp-sa-key.json
+
 # OS junk files
 .DS_Store
 .AppleDouble
