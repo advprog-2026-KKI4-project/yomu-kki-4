@@ -1,7 +1,5 @@
 .gradle/
 build/
-!build/libs/
-src/
 .git/
 .gitignore
 *.md

@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.yomu.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.yomu.auth.dto.UpdateProfileRequest;
 import id.ac.ui.cs.advprog.yomu.auth.dto.UserProfileResponse;
 import id.ac.ui.cs.advprog.yomu.auth.service.AuthService;
+import io.github.bucket4j.Bucket;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,6 +30,9 @@ class AuthControllerTest {
 
     @Mock
     private AuthService authService;
+
+    @Mock
+    private Bucket loginRateLimitBucket;
 
     @InjectMocks
     private AuthController authController;
@@ -67,6 +71,7 @@ class AuthControllerTest {
                 .build();
 
         when(authService.login(any(LoginRequest.class))).thenReturn(response);
+        when(loginRateLimitBucket.tryConsume(1)).thenReturn(true);
 
         org.springframework.mock.web.MockHttpServletResponse mockResponse = new org.springframework.mock.web.MockHttpServletResponse();
         ResponseEntity<AuthResponse> result = authController.login(request, mockResponse);

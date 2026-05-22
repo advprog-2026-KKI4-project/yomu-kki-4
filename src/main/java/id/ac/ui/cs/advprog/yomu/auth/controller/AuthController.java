@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.yomu.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.yomu.auth.dto.UpdateProfileRequest;
 import id.ac.ui.cs.advprog.yomu.auth.dto.UserProfileResponse;
 import id.ac.ui.cs.advprog.yomu.auth.service.AuthService;
+import io.github.bucket4j.Bucket;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final Bucket loginRateLimitBucket;
 
     /**
      * POST /api/auth/register
@@ -39,6 +41,11 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, jakarta.servlet.http.HttpServletResponse httpResponse) {
+        if (!loginRateLimitBucket.tryConsume(1)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(
+                    AuthResponse.builder().message("Too many login attempts. Please try again in 1 minute.").build()
+            );
+        }
         AuthResponse response = authService.login(request);
         id.ac.ui.cs.advprog.yomu.auth.config.CookieUtils.addCookie(httpResponse, "jwt", response.getToken(), 86400);
         return ResponseEntity.ok(response);

@@ -44,8 +44,8 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    // Cloud SQL socket factory (for Cloud Run DB connection)
-    runtimeOnly("com.google.cloud.sql:postgres-socket-factory:1.25.1")
+    // Rate Limiting
+    implementation("com.bucket4j:bucket4j-core:8.7.0")
 
     // Databases & Tools
     compileOnly("org.projectlombok:lombok")
