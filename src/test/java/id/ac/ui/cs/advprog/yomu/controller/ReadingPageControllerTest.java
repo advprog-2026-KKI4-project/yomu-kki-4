@@ -157,7 +157,8 @@ class ReadingPageControllerTest {
     @Test
     void testResultPageAddsAllParamsToModel() {
         Model model = new ConcurrentModel();
-        String view = controller.resultPage(95.5, 120, 90.0, 5.5, 60, model);
+        String view = controller.resultPage(95.5, 120L, 90.0, 5.5, 60L, null, model);
+
 
         assertEquals("quiz/result", view);
         assertEquals(95.5, model.getAttribute("score"));
