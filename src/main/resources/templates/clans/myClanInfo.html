@@ -238,11 +238,109 @@
                             </div>
                         </div>
 
+                        <div class="tab-pane fade" id="requests" th:if="${myRole == 'LEADER'}">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>Student Requesting</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="req : ${clan.members}" th:if="${req.status == 'PENDING_REQUEST'}">
+                                        <td class="fw-semibold">
+                                            <i class="fas fa-user me-2 text-muted"></i>
+                                            <span th:text="${req.student != null ? req.student.username : req.studentId}">Student</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-success px-3 me-1"
+                                                    th:data-clan-id="${clan.id}"
+                                                    th:data-student-id="${req.studentId}"
+                                                    onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'approve')">
+                                                Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger px-3"
+                                                    th:data-clan-id="${clan.id}"
+                                                    th:data-student-id="${req.studentId}"
+                                                    onclick="manageRequest(this.getAttribute('data-clan-id'), this.getAttribute('data-student-id'), 'reject')">
+                                                Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.size(clan.members.?[status == 'PENDING_REQUEST']) == 0}">
+                                        <td colspan="2" class="text-center text-muted py-4">No pending join requests.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-hidden="true" th:if="${hasClan && myRole == 'LEADER'}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold"><i class="fas fa-paper-plane text-primary me-2"></i> Invite a Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Target Student ID</label>
+                    <input type="number" id="inviteStudentId" class="form-control rounded-pill" placeholder="Enter student's ID number">
+                </div>
+                <button th:data-clan-id="${clan.id}"
+                        onclick="sendInvite(this.getAttribute('data-clan-id'))"
+                        class="btn btn-primary w-100 rounded-pill fw-bold">
+                    Send Invitation
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <th:block th:replace="~{fragments/components :: scripts}"></th:block>
+
+<script>
+    async function manageRequest(clanId, studentId, action) {
+        if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+        try {
+            const response = await fetch(`/api/clans/${clanId}/${action}/${studentId}`, { method: 'POST' });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Action failed. Please try again.');
+            }
+        } catch (e) {
+            alert('A network error occurred.');
+        }
+    }
+
+    async function sendInvite(clanId) {
+        const studentId = document.getElementById('inviteStudentId').value;
+        if (!studentId) { alert("Please enter an ID."); return; }
+
+        try {
+            const response = await fetch(`/api/clans/${clanId}/invite?targetStudentId=${studentId}`, { method: 'POST' });
+            if (response.ok) {
+                alert('Invitation sent successfully!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('inviteModal'));
+                modal.hide();
+                window.location.reload();
+            } else {
+                alert('Failed to send invitation. The user might already be invited.');
+            }
+        } catch (e) {
+            alert('A network error occurred.');
+        }
+    }
+</script>
 </body>
 </html>

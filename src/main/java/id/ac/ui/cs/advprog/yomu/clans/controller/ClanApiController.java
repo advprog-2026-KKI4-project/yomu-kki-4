@@ -56,7 +56,7 @@ public class ClanApiController {
         return ResponseEntity.ok("Request sent to clan leader.");
     }
 
-    @PostMapping("/{clanId}/approve")
+    @PostMapping("/{clanId}/approve/{targetStudentId}")
     public ResponseEntity<String> approveMember(@PathVariable UUID clanId,
                                                 Principal principal,
                                                 @RequestParam Long targetStudentId) {

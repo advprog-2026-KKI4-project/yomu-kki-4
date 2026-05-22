@@ -26,4 +26,5 @@ public interface ClanService {
     boolean isUserInAnyClan(Long studentId);
     Optional<ClanMember> getAcceptedMembership(Long studentId);
     List<UUID> getPendingRequestClanIds(Long studentId);
+    List<ClanMember> getPendingInvitations(Long studentId);
 }

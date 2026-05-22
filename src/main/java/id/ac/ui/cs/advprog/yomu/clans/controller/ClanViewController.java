@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,6 +86,9 @@ public class ClanViewController {
         model.addAttribute("clans", clanService.findAllClans());
         model.addAttribute("hasClan", clanService.isUserInAnyClan(studentId));
         model.addAttribute("pendingClanIds", clanService.getPendingRequestClanIds(studentId));
+
+        List<ClanMember> myInvitations = clanService.getPendingInvitations(studentId);
+        model.addAttribute("myInvitations", myInvitations);
 
         return "clans/clanList";
     }

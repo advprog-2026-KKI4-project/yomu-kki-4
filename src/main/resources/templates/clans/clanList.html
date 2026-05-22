@@ -170,6 +170,35 @@
         <div class="main-card">
             <h2 class="page-title">Discover Clans</h2>
 
+            <div th:if="${!myInvitations.isEmpty()}" class="alert alert-info shadow-sm mb-4 mx-lg-5" style="border-radius: 15px;">
+                <h5 class="fw-bold mb-3"><i class="fas fa-envelope-open-text me-2"></i> Clan Invitations</h5>
+                <div class="list-group">
+                    <div th:each="invite : ${myInvitations}" class="list-group-item d-flex justify-content-between align-items-center border-0 rounded bg-white shadow-sm mb-2">
+                        <div>
+                            <strong th:text="${invite.clan.name}" class="fs-5">Clan Name</strong>
+                            <span class="badge bg-warning text-dark ms-2" th:text="${invite.clan.division}">GOLD</span>
+                        </div>
+                        <div>
+                            <button th:data-clan-id="${invite.clan.id}"
+                                    onclick="handleInvitation(this.getAttribute('data-clan-id'), 'accept-invitation')"
+                                    class="btn btn-sm btn-success rounded-pill px-3 fw-bold me-1">
+                                Accept
+                            </button>
+                            <button th:data-clan-id="${invite.clan.id}"
+                                    onclick="handleInvitation(this.getAttribute('data-clan-id'), 'decline')"
+                                    class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+                                Decline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="clanSearch" class="search-input" placeholder="Search for a clan..." onkeyup="filterClans()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
             <div id="clan-list-container" class="px-lg-5">
                 <div th:each="clan : ${clans}" class="clan-row" data-bs-toggle="modal"
                     th:data-bs-target="|#modal-${clan.id}|">
@@ -181,7 +210,7 @@
                             <h5 class="mb-0 fw-bold">
                                 <span th:text="${clan.name}">Clan Name</span>
                                 <span class="badge rounded-pill bg-secondary division-badge"
-                                    th:text="${clan.division}">BRONZE</span>
+                                      th:text="${clan.division}">BRONZE</span>
                             </h5>
                             <small class="text-muted">
                                 <i class="fas fa-users me-1"></i> <span
@@ -265,12 +294,13 @@
                                     th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])}"></span>/20)</h6>
                             <table class="table table-sm table-hover align-middle">
                                 <tbody>
-                                    <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
-                                        <td><i class="fas fa-user me-2 text-muted"></i> <span
-                                                th:text="${member.studentId}"></span></td>
-                                        <td class="text-end"><span class="badge bg-light text-dark border"
-                                                th:text="${member.role}"></span></td>
-                                    </tr>
+                                <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
+                                    <td><i class="fas fa-user me-2 text-muted"></i>
+                                        <span th:text="${member.student != null ? member.student.username : member.studentId}"></span>
+                                    </td>
+                                    <td class="text-end"><span class="badge bg-light text-dark border"
+                                                               th:text="${member.role}"></span></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -310,6 +340,19 @@
             alert("Failed to send request. You might already have a pending request.");
             buttonElement.disabled = false;
             buttonElement.innerHTML = 'Request to Join';
+        }
+    }
+
+    async function handleInvitation(clanId, action) {
+        try {
+            const response = await fetch(`/api/clans/${clanId}/${action}`, { method: 'POST' });
+            if (response.ok) {
+                window.location.href = action === 'accept-invitation' ? '/clans/my-clan' : '/clans/discover';
+            } else {
+                alert("Failed to process invitation.");
+            }
+        } catch (error) {
+            alert("A network error occurred.");
         }
     }
 </script>

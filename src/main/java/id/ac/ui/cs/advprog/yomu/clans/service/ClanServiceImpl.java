@@ -45,6 +45,9 @@ public class ClanServiceImpl implements ClanService {
         leader.setRole("LEADER");
         leader.setStatus("ACCEPTED");
         memberRepository.save(leader);
+
+        clearOtherPendingRequestsAndInvites(leaderId, clan.getId());
+        
         return clan;
     }
 
@@ -111,6 +114,8 @@ public class ClanServiceImpl implements ClanService {
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
         leaderboardService.updateClanScore(clan);
+
+        clearOtherPendingRequestsAndInvites(targetId, clanId);
     }
 
     @Override
@@ -161,6 +166,8 @@ public class ClanServiceImpl implements ClanService {
         member.setStatus("ACCEPTED");
         memberRepository.save(member);
         leaderboardService.updateClanScore(clan);
+
+        clearOtherPendingRequestsAndInvites(studentId, clanId);
     }
 
     @Override
@@ -240,5 +247,15 @@ public class ClanServiceImpl implements ClanService {
         return memberRepository.findByStudentId(studentId).stream()
                 .filter(m -> "PENDING_INVITE".equals(m.getStatus()))
                 .toList();
+    }
+
+    private void clearOtherPendingRequestsAndInvites(Long studentId, UUID acceptedClanId) {
+        List<ClanMember> allMemberships = memberRepository.findByStudentId(studentId);
+
+        List<ClanMember> toDelete = allMemberships.stream()
+                .filter(m -> !m.getClan().getId().equals(acceptedClanId))
+                .toList();
+
+        memberRepository.deleteAll(toDelete);
     }
 }
