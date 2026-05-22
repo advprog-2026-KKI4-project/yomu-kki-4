@@ -20,11 +20,6 @@ public class StudentProfileController {
     private final UserRepository userRepository;
     private final AchievementTrackingService trackingService;
 
-    /**
-     * GET /api/users/{userId}/profile
-     * Returns a student's public profile — basic info + unlocked achievements they chose to display.
-     * Used by Clan, League, and Social modules to render member profile cards.
-     */
     @GetMapping("/{userId}/profile")
     public ResponseEntity<StudentProfileResponse> getStudentProfile(@PathVariable Long userId) {
         User user = userRepository.findById(userId)
