@@ -77,6 +77,7 @@ public class ClanViewController {
             model.addAttribute("hasClan", false);
         }
 
+        model.addAttribute("currentUri", "/clans/my-clan");
         return "clans/myClanInfo";
     }
 

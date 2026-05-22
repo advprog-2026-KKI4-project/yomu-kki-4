@@ -1,147 +1,124 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Daily Missions - Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        /* Base Theme Application */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 2rem;
-            background-color: #111016; /* Deepest background */
-            color: #f7ecf4; /* Light text */
-        }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
 
-        h1 {
-            text-align: center;
-            color: #f7ecf4;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin-bottom: 2rem;
-        }
+        .table-container { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 18px; box-shadow: var(--card-shadow); overflow: hidden; }
+        .yomu-table { width: 100%; border-collapse: collapse; }
+        .yomu-table thead { background: var(--bg-subtle); }
+        .yomu-table th { padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.5px; }
+        .yomu-table td { padding: 16px 20px; border-top: 1px solid var(--border-soft); font-size: 14px; color: var(--text-primary); vertical-align: middle; }
+        .yomu-table tbody tr:hover { background: var(--bg-subtle); }
+        .name-text { font-weight: 700; color: var(--text-heading); }
 
-        /* Main Container Card */
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: #564b8f; /* Dark purple card */
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8);
-        }
+        .type-pill { background: var(--primary-purple-light); color: var(--primary-purple); padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 700; display: inline-block; }
+        .points-cell { color: var(--accent-peach-hover); font-weight: 800; }
 
-        /* Pill Buttons */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px; /* Fully rounded like the image */
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            display: inline-block;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .status-pill { padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
+        .status-active { background: #e8f5e9; color: var(--success-green); }
+        .status-inactive { background: var(--bg-subtle); color: var(--text-muted); }
 
-        .btn-primary { background: #f5b17f; color: #111016; } /* Peach accent */
-        .btn-warning { background: #a096e0; color: #111016; } /* Light purple */
-        .btn-danger { background: #111016; color: #f7ecf4; border: 1px solid #6b5ce0; }
+        .row-actions { display: flex; gap: 8px; }
+        .btn-row { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; transition: background 0.15s; }
+        .btn-row-edit { background: var(--bg-subtle); color: var(--primary-purple); }
+        .btn-row-edit:hover { background: var(--primary-purple-light); }
+        .btn-row-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-row-delete:hover { background: var(--danger); color: white; }
 
-        /* Gamified Table Layout */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 12px; /* Spacing between rows for card effect */
-            margin-top: 1rem;
-        }
-        th, td { padding: 16px 20px; text-align: left; }
-
-        th {
-            background: transparent;
-            color: #a096e0;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 1px;
-            border-bottom: none;
-        }
-
-        /* Individual Row Cards */
-        tr td { background: #6b5ce0; border-bottom: none; } /* Main purple */
-        tr td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; font-weight: bold; font-size: 1.1em;}
-        tr td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
-
-        .actions { display: flex; gap: 10px; }
-
-        /* Badges */
-        .badge-active {
-            background: #f5b17f;
-            color: #111016;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-        .badge-inactive {
-            background: #111016;
-            color: #a096e0;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .empty { text-align: center; padding: 3rem; color: #a096e0; background: transparent !important; }
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .empty-state { padding: 60px 20px; text-align: center; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; color: var(--accent-lavender); display: block; margin-bottom: 12px; }
     </style>
 </head>
 <body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-<div class="container">
-    <div class="header-actions">
-        <h1 style="margin: 0;">Daily Missions</h1>
-        <a th:if="${isAdmin}" th:href="@{/daily-missions/create}" class="btn btn-primary">+ New Mission</a>
-    </div>
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-bullseye"></i></div>
+                <div>
+                    <h2>Daily Missions</h2>
+                    <div class="greeting-sub">Manage quests learners can complete each day.</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/daily-missions/create}" class="btn btn-primary btn-icon">
+                    <i class="fas fa-plus"></i> New Mission
+                </a>
+            </div>
+        </header>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Target</th>
-            <th>Reward</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="mission : ${missions}">
-            <td th:text="${mission.name}"></td>
-            <td th:text="${mission.description}"></td>
-            <td th:text="${mission.type}" style="color: #f5b17f; font-weight: bold;"></td>
-            <td th:text="${mission.targetCount}"></td>
-            <td style="font-weight: bold; color: #a096e0;">⭐ <span th:text="${mission.rewardPoints}"></span> pts</td>
-            <td>
-                <span th:if="${mission.active}" class="badge-active">Active</span>
-                <span th:unless="${mission.active}" class="badge-inactive">Inactive</span>
-            </td>
-            <td class="actions" th:if="${isAdmin}">
-                <a th:href="@{/daily-missions/edit/{id}(id=${mission.id})}" class="btn btn-warning">Edit</a>
-                <form th:action="@{/daily-missions/delete/{id}(id=${mission.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this mission?')">Delete</button>
-                </form>
-            </td>
-            <td th:unless="${isAdmin}"></td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(missions)}">
-            <td colspan="7" class="empty">No daily missions yet. Create one!</td>
-        </tr>
-        </tbody>
-    </table>
+        <div class="table-container">
+            <table class="yomu-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Target</th>
+                    <th>Reward</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="mission : ${missions}">
+                    <td><span class="name-text" th:text="${mission.name}"></span></td>
+                    <td th:text="${mission.description}"></td>
+                    <td><span class="type-pill" th:text="${mission.type}"></span></td>
+                    <td th:text="${mission.targetCount}"></td>
+                    <td class="points-cell"><i class="fas fa-star"></i> <span th:text="${mission.rewardPoints}"></span> pts</td>
+                    <td>
+                        <span th:if="${mission.active}" class="status-pill status-active">Active</span>
+                        <span th:unless="${mission.active}" class="status-pill status-inactive">Inactive</span>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <a th:href="@{/daily-missions/edit/{id}(id=${mission.id})}" class="btn-row btn-row-edit">
+                                <i class="fas fa-pen"></i> Edit
+                            </a>
+                            <form th:action="@{/daily-missions/delete/{id}(id=${mission.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn-row btn-row-delete" onclick="return confirm('Delete this mission?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(missions)}">
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fas fa-bullseye"></i>
+                            <p>No daily missions yet. Create one!</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
 </div>
-
 </body>
 </html>

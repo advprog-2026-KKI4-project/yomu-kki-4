@@ -6,35 +6,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        .logout-link {
-            margin-top: auto;
-            padding: 12px 18px;
-            color: var(--danger);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 12px;
-            transition: background 0.15s;
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-align: left;
-            width: 100%;
-            font-family: inherit;
-        }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
         .logout-link:hover { background: #ffebee; }
-
-        .result-icon {
-            width: 80px; height: 80px;
-            background: var(--primary-purple-light);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 36px;
-        }
+        .result-icon { width: 80px; height: 80px; background: var(--primary-purple-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 36px; }
         .result-card h1 { color: var(--text-heading); font-weight: 800; font-size: 26px; margin-bottom: 6px; letter-spacing: -0.3px; }
         .result-card .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
         .stat-item { text-align: center; }
@@ -46,18 +20,17 @@
 </head>
 <body>
 <div class="app-container">
-
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
             <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
-            <a th:href="@{/reading}" class="nav-item active"><i class="fas fa-book-open"></i> Learning</a>
-            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
             <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
             <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
-            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${role == 'ADMIN'}"><i class="fas fa-shield-alt"></i> Moderation</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
         </nav>
         <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
             <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
@@ -96,9 +69,7 @@
 
             <div style="margin-top: 26px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
                 <a th:href="@{/reading}" class="btn btn-primary btn-icon">Back to Library</a>
-                <a th:if="${materialId != null}" th:href="@{|/discussion/${materialId}|}" class="btn btn-secondary btn-icon">
-                    <i class="fas fa-comments"></i> Discuss this material
-                </a>
+                <a th:if="${materialId != null}" th:href="@{|/discussion/${materialId}|}" class="btn btn-secondary btn-icon"><i class="fas fa-comments"></i> Discuss</a>
             </div>
         </div>
     </main>
