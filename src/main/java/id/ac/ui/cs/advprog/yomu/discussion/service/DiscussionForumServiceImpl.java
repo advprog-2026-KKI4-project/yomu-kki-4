@@ -10,7 +10,7 @@ import id.ac.ui.cs.advprog.yomu.discussion.model.DiscussionForum;
 import id.ac.ui.cs.advprog.yomu.discussion.model.ReactionType;
 import id.ac.ui.cs.advprog.yomu.discussion.repository.CommentReactionRepository;
 import id.ac.ui.cs.advprog.yomu.discussion.repository.DiscussionForumRepository;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

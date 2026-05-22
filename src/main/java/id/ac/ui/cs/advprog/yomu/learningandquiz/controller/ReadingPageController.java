@@ -1,8 +1,10 @@
-package id.ac.ui.cs.advprog.yomu.controller;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.*;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
-import id.ac.ui.cs.advprog.yomu.repository.QuizAttemptRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.*;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -69,6 +71,11 @@ public class ReadingPageController {
     public String readingPage(@PathVariable String id, Model model) {
         ReadingMaterial material = service.getById(id);
 
+        if ("STUDENT".equals(getCurrentUserRole()) && material != null && material.getProgress() == 0) {
+            material.setProgress(50);
+            service.add(material);
+        }
+
         model.addAttribute("material", material);
         model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", false);
@@ -104,7 +111,6 @@ public class ReadingPageController {
 
     @GetMapping("/review/{id}")
     public String reviewPage(@PathVariable String id, Model model) {
-
         ReadingMaterial material = service.getById(id);
         String userId = getCurrentUserId();
         QuizAttempt attempt = attemptRepo.findByUserIdAndMaterialId(userId, id);
@@ -131,7 +137,13 @@ public class ReadingPageController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
-        model.addAttribute("material", service.getById(id));
+        ReadingMaterial material = service.getById(id);
+
+        if (material == null) {
+            return "redirect:/reading?error=Material+not+found";
+        }
+
+        model.addAttribute("material", material);
         model.addAttribute("role", "ADMIN");
         model.addAttribute("currentUri", "/reading");
         return "admin/material-form";

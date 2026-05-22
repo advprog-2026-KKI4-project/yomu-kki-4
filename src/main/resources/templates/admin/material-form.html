@@ -90,7 +90,6 @@
 <body>
 
 <div class="app-container">
-
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
@@ -116,9 +115,7 @@
 
             <h1 th:text="${material.id == null ? 'Create New Material' : 'Edit Material'}"></h1>
 
-            <form th:action="${material.id == null ? '/api/admin/materials/add' : '/api/admin/materials/edit/' + material.id}"
-                  th:object="${material}" method="post">
-
+            <form th:action="${material.id == null} ? @{/api/admin/materials/add} : @{/api/admin/materials/edit/{id}(id=${material.id})}" th:object="${material}" method="post">
                 <div class="form-group">
                     <label>Title</label>
                     <input type="text" th:field="*{title}" placeholder="e.g., Basic Java" required>
@@ -143,20 +140,32 @@
 
                 <h2 class="section-heading">Quiz Settings</h2>
 
-                <div class="question-editor">
-                    <div class="form-group">
-                        <label>Question 1 Text</label>
-                        <input type="text" name="questions[0].questionText" th:value="*{questions.size() > 0 ? questions[0].questionText : ''}" required>
+                <div id="questions-container">
+                    <div th:if="${material.questions != null}" th:each="question, qIter : ${material.questions}" class="question-editor" th:data-index="${qIter.index}">
+                        <div class="form-group">
+                            <label th:text="'Question ' + (${qIter.index} + 1) + ' Text'"></label>
+                            <input type="text" th:name="'questions[' + ${qIter.index} + '].questionText'" th:value="${question.questionText}" placeholder="Type question core string..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Options (Check the radio for the correct answer)</label>
+                            <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
+                                <input type="radio" th:name="'questions[' + ${qIter.index} + '].correctOptionIndex'" th:value="${i}" th:checked="${question.correctOptionIndex == i}" required>
+                                <input type="text" th:name="'questions[' + ${qIter.index} + '].options[' + ${i} + ']'" th:value="${question.options != null && question.options.size() > i ? question.options.get(i) : ''}" placeholder="Option text..." required>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Options (Check the radio for the correct answer)</label>
-                        <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
-                            <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}"
-                                   th:checked="${questions.size() > 0 && questions[0].correctOptionIndex == i}" required>
-                            <input type="text" th:name="'questions[0].options[' + ${i} + ']'"
-                                   th:value="${questions.size() > 0 && questions[0].options.size() > i ? questions[0].options[i] : ''}"
-                                   placeholder="Option text..." required>
+                    <div th:if="${material.questions == null || material.questions.isEmpty()}" class="question-editor" data-index="0">
+                        <div class="form-group">
+                            <label>Question 1 Text</label>
+                            <input type="text" name="questions[0].questionText" placeholder="Type question core string..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Options (Check the radio for the correct answer)</label>
+                            <div class="option-input" th:each="i : ${#numbers.sequence(0, 3)}">
+                                <input type="radio" name="questions[0].correctOptionIndex" th:value="${i}" required>
+                                <input type="text" th:name="'questions[0].options[' + ${i} + ']'" placeholder="Option text..." required>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -166,6 +175,5 @@
         </div>
     </main>
 </div>
-
 </body>
 </html>

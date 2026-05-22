@@ -1,8 +1,14 @@
-package id.ac.ui.cs.advprog.yomu.service;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.service;
 
-import id.ac.ui.cs.advprog.yomu.model.*;
-import id.ac.ui.cs.advprog.yomu.repository.*;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.ReadingMaterialRepository;
+import id.ac.ui.cs.advprog.yomu.achievement.event.QuizCompletedEvent;
+import id.ac.ui.cs.advprog.yomu.achievement.event.ReadingCompletedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -11,11 +17,15 @@ public class ReadingMaterialService {
 
     private final ReadingMaterialRepository materialRepo;
     private final QuizAttemptRepository attemptRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public ReadingMaterialService(ReadingMaterialRepository materialRepo, QuizAttemptRepository attemptRepo) {
+    public ReadingMaterialService(ReadingMaterialRepository materialRepo,
+                                  QuizAttemptRepository attemptRepo,
+                                  ApplicationEventPublisher eventPublisher) {
         this.materialRepo = materialRepo;
         this.attemptRepo = attemptRepo;
+        this.eventPublisher = eventPublisher;
     }
 
     public ReadingMaterial add(ReadingMaterial material) {
@@ -32,8 +42,16 @@ public class ReadingMaterialService {
 
     public void delete(String id) {
         materialRepo.deleteById(id);
-
         attemptRepo.deleteByMaterialId(id);
+    }
+
+    public void completeReading(String userId, String materialId) {
+        ReadingMaterial material = materialRepo.findById(materialId);
+        if (material != null) {
+            material.setProgress(50);
+            materialRepo.save(material);
+        }
+        eventPublisher.publishEvent(new ReadingCompletedEvent(userId));
     }
 
     public double submitQuiz(String userId, String materialId, List<Integer> studentAnswers, long duration) {
@@ -74,6 +92,8 @@ public class ReadingMaterialService {
         material.setProgress(100);
         materialRepo.save(material);
         attemptRepo.save(new QuizAttempt(userId, materialId, finalScore, duration, studentAnswers));
+
+        eventPublisher.publishEvent(new QuizCompletedEvent(userId, finalScore));
 
         return finalScore;
     }

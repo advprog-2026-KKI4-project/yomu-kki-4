@@ -73,10 +73,10 @@
                             <div th:each="option, oIter : ${question.options}"
                                  class="option-review-box"
                                  th:classappend="${oIter.index == question.correctOptionIndex ? 'option-correct' :
-                                               (attempt != null && oIter.index == attempt.answers[qIter.index] ? 'option-wrong' : 'option-neutral')}">
+                                               (attempt != null && attempt.answers != null && attempt.answers.size() > qIter.index && oIter.index == attempt.answers[qIter.index] ? 'option-wrong' : 'option-neutral')}">
                                 <span th:text="${option}">Option</span>
                                 <span th:if="${oIter.index == question.correctOptionIndex}" style="font-weight: 800;">✔ Correct</span>
-                                <span th:if="${attempt != null && oIter.index == attempt.answers[qIter.index] && oIter.index != question.correctOptionIndex}" style="font-weight: 800;">✖ Your Choice</span>
+                                <span th:if="${attempt != null && attempt.answers != null && attempt.answers.size() > qIter.index && oIter.index == attempt.answers[qIter.index] && oIter.index != question.correctOptionIndex}" style="font-weight: 800;">✖ Your Choice</span>
                             </div>
                         </div>
                     </div>

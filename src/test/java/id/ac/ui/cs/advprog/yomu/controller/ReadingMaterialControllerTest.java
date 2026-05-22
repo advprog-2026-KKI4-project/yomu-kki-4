@@ -1,7 +1,8 @@
 package id.ac.ui.cs.advprog.yomu.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.controller.ReadingMaterialController;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ class ReadingMaterialControllerTest {
         service = mock(ReadingMaterialService.class);
         controller = new ReadingMaterialController(service);
 
-        // Set up authenticated admin user in SecurityContext
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(
                         "admin@test.com", null,
@@ -69,7 +69,6 @@ class ReadingMaterialControllerTest {
         when(service.submitQuiz(anyString(), anyString(), anyList(), anyLong()))
                 .thenReturn(80.0);
 
-        // answers[10] should sort AFTER answers[2] with numeric sorting
         Map<String, String> params = new HashMap<>();
         params.put("answers[10]", "3");
         params.put("answers[2]", "1");
@@ -78,7 +77,6 @@ class ReadingMaterialControllerTest {
         String result = controller.submitQuiz("test-id", 30L, params);
 
         assertTrue(result.startsWith("redirect:/quiz/result?"));
-        // Verify answer order: [1, 3] (numeric sort), not [3, 1] (lexicographic)
         verify(service).submitQuiz(eq("admin@test.com"), eq("test-id"), eq(List.of(1, 3)), eq(30L));
     }
 

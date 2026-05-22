@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.yomu.model;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.model;
 
 import java.util.ArrayList;
 import java.util.List;

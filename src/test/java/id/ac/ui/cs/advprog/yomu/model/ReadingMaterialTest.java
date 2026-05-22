@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.yomu.model;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,14 +16,15 @@ class ReadingMaterialTest {
 
     @Test
     void testReadingMaterialProperties() {
+        material.setId("test-uuid-123");
         material.setTitle("Quadratic Equations");
         material.setContent("Standard form is ax^2 + bx + c = 0");
         material.setCategory("Math");
 
+        assertEquals("test-uuid-123", material.getId());
         assertEquals("Quadratic Equations", material.getTitle());
         assertEquals("Standard form is ax^2 + bx + c = 0", material.getContent());
         assertEquals("Math", material.getCategory());
-        assertNotNull(material.getId());
     }
 
     @Test

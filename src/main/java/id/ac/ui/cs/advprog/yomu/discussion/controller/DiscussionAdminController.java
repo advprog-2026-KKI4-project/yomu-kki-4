@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.yomu.discussion.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

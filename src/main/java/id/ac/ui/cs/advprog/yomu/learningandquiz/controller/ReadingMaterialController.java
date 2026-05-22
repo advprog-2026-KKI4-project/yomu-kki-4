@@ -1,8 +1,8 @@
-package id.ac.ui.cs.advprog.yomu.controller;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.Question;
-import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Controller
@@ -36,7 +37,7 @@ public class ReadingMaterialController {
             List<Integer> answers = allParams.entrySet().stream()
                     .filter(entry -> entry.getKey().startsWith("answers["))
                     .sorted(Comparator.comparingInt(e ->
-                            Integer.parseInt(e.getKey().replaceAll("\\D+", ""))))
+                        Integer.parseInt(e.getKey().replaceAll("\\D+", ""))))
                     .map(entry -> Integer.parseInt(entry.getValue()))
                     .collect(Collectors.toList());
 
@@ -50,14 +51,14 @@ public class ReadingMaterialController {
                 }
             }
 
-            double baseScore = ((double) correctCount / questions.size()) * 100;
+            double baseScore = questions.isEmpty() ? 0.0 : ((double) correctCount / questions.size()) * 100;
             double finalScore = service.submitQuiz(userId, id, answers, duration);
 
             double timeLimit = material.getTimeLimit();
             double remaining = Math.max(0, timeLimit - duration);
             double bonus = (remaining / timeLimit) * 10.0;
 
-            return String.format("redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d&materialId=%s",
+            return String.format(Locale.US, "redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d&materialId=%s",
                     finalScore, duration, baseScore, bonus, (long)remaining, java.net.URLEncoder.encode(id, java.nio.charset.StandardCharsets.UTF_8));
         } catch (IllegalArgumentException | IllegalStateException e) {
             return "redirect:/reading?error=" + e.getMessage();

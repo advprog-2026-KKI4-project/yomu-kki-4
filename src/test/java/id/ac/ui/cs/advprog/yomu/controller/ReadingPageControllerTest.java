@@ -1,10 +1,10 @@
-package id.ac.ui.cs.advprog.yomu.controller;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
-import id.ac.ui.cs.advprog.yomu.model.Question;
-import id.ac.ui.cs.advprog.yomu.model.QuizAttempt;
-import id.ac.ui.cs.advprog.yomu.model.ReadingMaterial;
-import id.ac.ui.cs.advprog.yomu.repository.QuizAttemptRepository;
-import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.repository.QuizAttemptRepository;
+import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.ui.ConcurrentModel;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,8 +44,6 @@ class ReadingPageControllerTest {
         SecurityContextHolder.clearContext();
     }
 
-    // --- dashboard() ---
-
     @Test
     void testDashboardReturnsCorrectView() {
         when(service.getAll()).thenReturn(Collections.emptyList());
@@ -71,8 +68,6 @@ class ReadingPageControllerTest {
         assertNotNull(model.getAttribute("materials"));
         assertEquals(1, ((List<?>) model.getAttribute("materials")).size());
     }
-
-    // --- myLearning() ---
 
     @Test
     void testMyLearningReturnsCorrectView() {
@@ -104,10 +99,8 @@ class ReadingPageControllerTest {
 
         assertEquals("/my-learning", model.getAttribute("currentUri"));
         List<?> materials = (List<?>) model.getAttribute("materials");
-        assertEquals(2, materials.size()); // inProgress + completed, not notStarted
+        assertEquals(2, materials.size());
     }
-
-    // --- readingPage() ---
 
     @Test
     void testReadingPageReturnsMaterial() {
@@ -136,8 +129,6 @@ class ReadingPageControllerTest {
         assertEquals(false, model.getAttribute("isReview"));
     }
 
-    // --- quizPage() ---
-
     @Test
     void testQuizPageReturnsSessionView() {
         ReadingMaterial mat = new ReadingMaterial();
@@ -152,13 +143,10 @@ class ReadingPageControllerTest {
         assertEquals("STUDENT", model.getAttribute("role"));
     }
 
-    // --- resultPage() ---
-
     @Test
     void testResultPageAddsAllParamsToModel() {
         Model model = new ConcurrentModel();
         String view = controller.resultPage(95.5, 120L, 90.0, 5.5, 60L, null, model);
-
 
         assertEquals("quiz/result", view);
         assertEquals(95.5, model.getAttribute("score"));
@@ -168,8 +156,6 @@ class ReadingPageControllerTest {
         assertEquals(60L, model.getAttribute("remaining"));
         assertEquals("STUDENT", model.getAttribute("role"));
     }
-
-    // --- reviewPage() ---
 
     @Test
     void testReviewPageFindsAttemptForCurrentUser() {
@@ -208,13 +194,10 @@ class ReadingPageControllerTest {
         assertEquals(true, model.getAttribute("isReview"));
     }
 
-    // --- SecurityContext edge cases ---
-
     @Test
     void testGetCurrentUserIdReturnsAnonymousWhenNoAuth() {
         SecurityContextHolder.clearContext();
 
-        // Call dashboard which uses getCurrentUserId()
         when(service.getAll()).thenReturn(Collections.emptyList());
         Model model = new ConcurrentModel();
         controller.dashboard(model);
