@@ -69,7 +69,7 @@ public class ClanViewController {
 
         if (membership.isPresent()) {
             model.addAttribute("hasClan", true);
-            model.addAttribute("clan", membership.get().getClanId());
+            model.addAttribute("clan", membership.get().getClan());
             model.addAttribute("myRole", membership.get().getRole());
         } else {
             model.addAttribute("hasClan", false);

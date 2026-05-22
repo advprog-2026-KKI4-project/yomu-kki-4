@@ -3,25 +3,25 @@
 <head>
     <th:block th:replace="~{fragments/components :: head('Yomu - My-Clan')}"></th:block>
     <style>
-        /* --- VARIABLES --- */
         :root {
             --button-bg-orange: #f3a683;
             --button-bg-orange-hover: #fd8a48;
         }
 
-        /* --- MAIN CONTENT & CONTAINERS --- */
         .main-card {
             background-color: white;
             border-radius: 25px;
             min-height: 93vh;
-            padding: 30px;
+            padding: 60px 30px;
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
             display: flex;
-            align-items: center;
             justify-content: center;
         }
 
-        /* --- CLAN COMPONENTS --- */
+        .empty-state {
+            align-content: center;
+        }
+
         .clan-header {
             display: flex;
             align-items: center;
@@ -74,7 +74,6 @@
             margin-bottom: 1rem;
         }
 
-        /* --- CUSTOM TYPOGRAPHY & BUTTONS --- */
         .empty-state-text {
             color: var(--primary-purple);
             font-size: 3.5rem;
@@ -112,7 +111,7 @@
         <div class="main-card text-center">
 
             <!-- Empty State -->
-            <div th:if="${!hasClan}" class="container">
+            <div th:if="${!hasClan}" class="container empty-state">
                 <h2 class="empty-state-text">You don't have <br> clan yet :(</h2>
                 <div class="d-flex justify-content-center gap-3">
                     <a th:href="@{/clans/discover}" class="btn-action">Join Existing Clan</a>
@@ -136,7 +135,7 @@
 
                     <div class="text-end">
                         <div th:if="${myRole == 'LEADER'}" class="clan-actions">
-                            <a th:href="@{/clans/{id}/edit-form(id=${clan.id}, studentId=${param.studentId})}"
+                            <a th:href="@{/clans/{id}/edit-form(id=${clan.id})}"
                                class="btn btn-outline-secondary btn-sm px-3 shadow-sm w-100">
                                 <i class="fas fa-pen-to-square me-1"></i> Edit Clan
                             </a>
@@ -192,38 +191,52 @@
                             <button th:if="${myRole == 'LEADER'}" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#inviteModal">
                                 <i class="fas fa-plus"></i> Invite
                             </button>
-                            <span class="badge bg-secondary p-2" th:text="${clan.members.size()} + '/20'">5/20</span>
+                            <span class="badge bg-secondary p-2" th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + '/20'">5/20</span>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                            <tr>
-                                <th>Member Name</th>
-                                <th>Role</th>
-                                <th class="text-end">Contribution</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="member : ${clan.members}">
-                                <td class="fw-semibold">
-                                    <i class="fas fa-user-circle me-2 text-muted"></i>
-                                    <span th:text="${member.studentId}">Student ID</span>
-                                </td>
-                                <td>
-                                    <span class="badge rounded-pill"
-                                          th:classappend="${member.role == 'LEADER' ? 'bg-primary' : 'bg-light text-dark border'}"
-                                          th:text="${member.role}">MEMBER</span>
-                                </td>
-                                <td class="text-end fw-bold text-success"
-                                    th:text="${#numbers.formatInteger(member.localScore, 0, 'COMMA')} + ' pts'">0 pts
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    <ul class="nav nav-tabs mb-3" id="clanTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active">Active Members</button>
+                        </li>
+                        <li class="nav-item" role="presentation" th:if="${myRole == 'LEADER'}">
+                            <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests">
+                                Join Requests <span class="badge bg-danger ms-1" th:text="${#lists.size(clan.members.?[status == 'PENDING_REQUEST'])}"></span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="clanTabsContent">
+
+                        <div class="tab-pane fade show active" id="active">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>Member Name</th>
+                                        <th>Role</th>
+                                        <th class="text-end">Contribution</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
+                                        <td class="fw-semibold">
+                                            <i class="fas fa-user-circle me-2 text-muted"></i>
+                                            <span th:text="${member.student != null ? member.student.username : member.studentId}">Username</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill"
+                                                  th:classappend="${member.role == 'LEADER' ? 'bg-primary' : 'bg-light text-dark border'}"
+                                                  th:text="${member.role}">MEMBER</span>
+                                        </td>
+                                        <td class="text-end fw-bold text-success"
+                                            th:text="${#numbers.formatInteger(member.localScore, 0, 'COMMA')} + ' pts'">0 pts
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
             </div>
         </div>

@@ -12,7 +12,6 @@
             --clan-row-hover: #e0d9f0;
         }
 
-        /* --- MAIN CONTENT & LAYOUT --- */
         .main-card {
             background-color: white;
             border-radius: 25px;
@@ -21,7 +20,6 @@
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
 
-        /* --- PAGE SPECIFIC CSS --- */
         .page-title {
             color: var(--primary-purple);
             font-weight: 700;
@@ -30,7 +28,6 @@
             margin-bottom: 2rem;
         }
 
-        /* --- SEARCH --- */
         .search-container {
             max-width: 600px;
             margin: 0 auto 40px;
@@ -59,7 +56,6 @@
             font-size: 1.2rem;
         }
 
-        /* --- CLAN ROW --- */
         .clan-row {
             background-color: var(--theme-purple-light);
             border-radius: 20px;
@@ -114,7 +110,6 @@
             color: white;
         }
 
-        /* --- MODAL --- */
         .modal-content {
             border-radius: 25px;
             border: none;
@@ -171,7 +166,7 @@
 <div class="container-fluid row p-0 m-0">
     <th:block th:replace="~{fragments/components :: sidebar('/clans/discover')}"></th:block>
 
-    <main class="main-content" th:with="currentUserId=${param.studentId}">
+    <main class="main-content">
         <div class="main-card">
             <h2 class="page-title">Discover Clans</h2>
 
@@ -234,7 +229,7 @@
                                 <button th:unless="${#lists.contains(pendingClanIds, clan.id)}" type="button"
                                     th:id="|request-btn-${clan.id}|"
                                     class="btn btn-primary rounded-pill px-5 fw-bold shadow"
-                                    th:data-clan-id="${clan.id}" th:data-student-id="${currentUserId}"
+                                    th:data-clan-id="${clan.id}"
                                     onclick="sendJoinRequest(this)">
                                     Request to Join
                                 </button>
@@ -299,21 +294,12 @@
 
     async function sendJoinRequest(buttonElement) {
         const clanId = buttonElement.getAttribute('data-clan-id');
-        const studentId = buttonElement.getAttribute('data-student-id');
 
         buttonElement.disabled = true;
         buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Sending...';
 
-        const params = new URLSearchParams();
-        params.append('studentId', studentId);
-
         try {
-            const response = await fetch(`/api/clans/${clanId}/request`, {
-                method: 'POST',
-                body: params,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-
+            const response = await fetch(`/api/clans/${clanId}/request`, { method: 'POST' });
             if (response.ok) {
                 buttonElement.innerHTML = '<i class="fas fa-check"></i> Request Sent';
                 buttonElement.className = "btn btn-success rounded-pill px-5 fw-bold shadow-sm";
@@ -321,7 +307,7 @@
                 throw new Error('Error');
             }
         } catch (error) {
-            alert("Please try again later.");
+            alert("Failed to send request. You might already have a pending request.");
             buttonElement.disabled = false;
             buttonElement.innerHTML = 'Request to Join';
         }

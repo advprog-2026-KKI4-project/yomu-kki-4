@@ -114,7 +114,7 @@
 
                 <div class="creation-container w-100">
                     <form th:action="@{/clans/update}" method="POST">
-                        <input type="hidden" name="studentId">
+                        <input type="hidden" name="clanId" th:value="${clan.id}">
 
                         <div class="mb-4">
                             <label class="form-label">Clan Name</label>
