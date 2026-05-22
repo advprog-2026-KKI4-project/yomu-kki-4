@@ -222,4 +222,17 @@ public class ClanServiceImpl implements ClanService {
 
         leaderboardService.updateClanScore(member.getClanId());
     }
+
+    @Override
+    @Transactional
+    public void addPoints(Long studentId, int points) {
+        memberRepository.findByStudentId(studentId).stream()
+                .filter(m -> "ACCEPTED".equals(m.getStatus()))
+                .findFirst()
+                .ifPresent(member -> {
+                    member.setLocalScore(member.getLocalScore() + points);
+                    memberRepository.save(member);
+                    leaderboardService.updateClanScore(member.getClanId());
+                });
+    }
 }

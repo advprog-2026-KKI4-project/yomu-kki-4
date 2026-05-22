@@ -19,4 +19,6 @@ public interface ClanService {
     List<Clan> findAllClans();
 
     void updateMemberScoreMock(Long studentId, int newScore); // Temporary use
+
+    void addPoints(Long studentId, int points);
 }
