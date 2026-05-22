@@ -48,7 +48,8 @@ public class ClanViewController {
     public String showEditForm(@PathVariable UUID clanId,
                                 Model model) {
         Clan clan = clanService.findAllClans().stream()
-                .filter(c -> c.getId().equals(clanId)).findFirst().orElseThrow();
+                .filter(c -> c.getId().equals(clanId)).findFirst()
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Clan not found"));
         model.addAttribute("clan", clan);
         return "clans/editClan";
     }
