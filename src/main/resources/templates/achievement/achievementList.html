@@ -32,7 +32,7 @@
 <div class="container">
     <div class="header-actions">
         <h1 style="margin: 0;">Achievements Library</h1>
-        <a th:href="@{/achievements/create}" class="btn btn-primary">+ New Achievement</a>
+        <a th:if="${isAdmin}" th:href="@{/achievements/create}" class="btn btn-primary">+ New Achievement</a>
     </div>
 
     <table>
@@ -56,12 +56,13 @@
             <td th:text="${achievement.type}" style="color: #f5b17f; font-weight: bold;"></td>
             <td th:text="${achievement.targetCount}"></td>
             <td style="font-weight: bold; color: #a096e0;">+<span th:text="${achievement.points}"></span></td>
-            <td class="actions">
+            <td class="actions" th:if="${isAdmin}">
                 <a th:href="@{/achievements/edit/{id}(id=${achievement.id})}" class="btn btn-warning">Edit</a>
                 <form th:action="@{/achievements/delete/{id}(id=${achievement.id})}" method="post" style="display:inline;">
                     <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this achievement?')">Delete</button>
                 </form>
             </td>
+            <td th:unless="${isAdmin}"></td>
         </tr>
         <tr th:if="${#lists.isEmpty(achievements)}">
             <td colspan="6" class="empty">No achievements yet. Create one!</td>

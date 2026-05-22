@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public class DailyMissionServiceImpl implements DailyMissionService {
 
     @Override
     public List<DailyMission> findActiveMissions() {
-        return dailyMissionRepository.findByActiveTrue();
+        return dailyMissionRepository.findCurrentlyActive(LocalDateTime.now());
     }
 
     @Override
@@ -52,6 +53,8 @@ public class DailyMissionServiceImpl implements DailyMissionService {
         existing.setTargetCount(updated.getTargetCount());
         existing.setRewardPoints(updated.getRewardPoints());
         existing.setActive(updated.isActive());
+        existing.setActiveFrom(updated.getActiveFrom());
+        existing.setActiveTo(updated.getActiveTo());
 
         return dailyMissionRepository.save(existing);
     }

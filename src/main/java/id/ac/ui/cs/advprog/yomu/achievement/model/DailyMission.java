@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.enums.MissionType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -43,4 +44,10 @@ public class DailyMission {
     // Whether this mission is currently active/available
     @Column(nullable = false)
     private boolean active;
+
+    // Optional: earliest datetime this mission can be completed (null = no lower bound)
+    private LocalDateTime activeFrom;
+
+    // Optional: latest datetime this mission can be completed (null = no upper bound)
+    private LocalDateTime activeTo;
 }

@@ -51,4 +51,9 @@ public class UserAchievementProgress {
 
     // When did they unlock it?
     private LocalDateTime unlockedAt;
+
+    // Whether this achievement is visible on the user's public profile
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean showOnProfile = false;
 }

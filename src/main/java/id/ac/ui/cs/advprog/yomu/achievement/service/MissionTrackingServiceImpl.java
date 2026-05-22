@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,8 +26,8 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
     public void incrementProgress(User user, MissionType actionType) {
         LocalDate today = LocalDate.now();
 
-        // 1. Get active missions that match what the user just did
-        List<DailyMission> relevantMissions = dailyMissionRepository.findByActiveTrue()
+        // 1. Get currently active missions (respects active flag + activeFrom/activeTo window)
+        List<DailyMission> relevantMissions = dailyMissionRepository.findCurrentlyActive(LocalDateTime.now())
                 .stream()
                 .filter(m -> m.getType() == actionType)
                 .toList();

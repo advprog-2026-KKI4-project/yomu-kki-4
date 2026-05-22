@@ -102,7 +102,7 @@
 <div class="container">
     <div class="header-actions">
         <h1 style="margin: 0;">Daily Missions</h1>
-        <a th:href="@{/daily-missions/create}" class="btn btn-primary">+ New Mission</a>
+        <a th:if="${isAdmin}" th:href="@{/daily-missions/create}" class="btn btn-primary">+ New Mission</a>
     </div>
 
     <table>
@@ -128,12 +128,13 @@
                 <span th:if="${mission.active}" class="badge-active">Active</span>
                 <span th:unless="${mission.active}" class="badge-inactive">Inactive</span>
             </td>
-            <td class="actions">
+            <td class="actions" th:if="${isAdmin}">
                 <a th:href="@{/daily-missions/edit/{id}(id=${mission.id})}" class="btn btn-warning">Edit</a>
                 <form th:action="@{/daily-missions/delete/{id}(id=${mission.id})}" method="post" style="display:inline;">
                     <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this mission?')">Delete</button>
                 </form>
             </td>
+            <td th:unless="${isAdmin}"></td>
         </tr>
         <tr th:if="${#lists.isEmpty(missions)}">
             <td colspan="7" class="empty">No daily missions yet. Create one!</td>

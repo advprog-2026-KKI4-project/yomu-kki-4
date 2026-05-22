@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.discussion.service;
 
+import id.ac.ui.cs.advprog.yomu.achievement.event.DiscussionPostEvent;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentRequest;
@@ -12,6 +13,7 @@ import id.ac.ui.cs.advprog.yomu.discussion.repository.DiscussionForumRepository;
 import id.ac.ui.cs.advprog.yomu.service.ReadingMaterialService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +27,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
     private final CommentReactionRepository reactionRepository;
     private final UserRepository userRepository;
     private final ReadingMaterialService readingMaterialService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -46,6 +49,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService {
                 .authorId(authorId)
                 .parentCommentId(req.getParentCommentId())
                 .build());
+
+        eventPublisher.publishEvent(new DiscussionPostEvent(authorId));
 
         Map<Long, String> usernames = resolveUsernames(List.of(authorId));
         return toResponse(saved, Collections.emptyList(), authorId, usernames);
