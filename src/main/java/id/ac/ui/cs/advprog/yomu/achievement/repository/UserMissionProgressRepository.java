@@ -3,6 +3,8 @@ package id.ac.ui.cs.advprog.yomu.achievement.repository;
 import id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -18,4 +20,7 @@ public interface UserMissionProgressRepository extends JpaRepository<UserMission
 
     // Find a specific mission's progress to update it
     Optional<UserMissionProgress> findByUserAndMissionIdAndDate(User user, UUID missionId, LocalDate date);
+
+    @Query("SELECT COUNT(DISTINCT u.user.id) FROM UserMissionProgress u WHERE u.user.id IN :userIds AND u.date = :date AND u.completed = true")
+    long countUsersWithCompletedMissions(@Param("userIds") List<Long> userIds, @Param("date") LocalDate date);
 }

@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.enums.AchievementType;
 import id.ac.ui.cs.advprog.yomu.achievement.model.Achievement;
 import id.ac.ui.cs.advprog.yomu.achievement.service.AchievementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,12 @@ public class AchievementController {
     // ===== LIST ALL =====
     // GET /achievements
     @GetMapping
-    public String listAchievements(Model model) {
+    public String listAchievements(Model model, Authentication authentication) {
         model.addAttribute("achievements", achievementService.findAll());
-        return "achievement/achievementList";  // renders templates/achievement/achievementList.html
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+        return "achievement/achievementList";
     }
 
     // ===== CREATE FORM =====

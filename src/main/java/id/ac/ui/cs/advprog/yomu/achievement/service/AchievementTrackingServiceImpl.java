@@ -6,12 +6,15 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserAchievementProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.AchievementRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserAchievementProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
 
     private final UserAchievementProgressRepository progressRepository;
     private final AchievementRepository achievementRepository;
+    private final MeterRegistry meterRegistry;
 
     @Override
     @Transactional
@@ -50,9 +54,18 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
                 progress.setUnlocked(true);
                 progress.setUnlockedAt(LocalDateTime.now());
 
-                // TODO: Trigger reward logic here!
-                // e.g., pointsService.addPoints(user, achievement.getPoints());
+                Counter.builder("achievement.unlocked")
+                        .tag("type", achievement.getType().name())
+                        .description("Number of achievements unlocked by users")
+                        .register(meterRegistry)
+                        .increment();
             }
+
+            Counter.builder("achievement.progress.incremented")
+                    .tag("type", achievement.getType().name())
+                    .description("Number of times achievement progress was incremented")
+                    .register(meterRegistry)
+                    .increment();
 
             progressRepository.save(progress);
         }
@@ -61,5 +74,28 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
     @Override
     public List<UserAchievementProgress> getUserAchievements(User user) {
         return progressRepository.findByUser(user);
+    }
+
+    @Override
+    public List<UserAchievementProgress> getUnlockedAchievements(User user) {
+        return progressRepository.findByUserAndUnlockedTrue(user);
+    }
+
+    @Override
+    public List<UserAchievementProgress> getPublicAchievements(Long userId) {
+        return progressRepository.findByUser_IdAndShowOnProfileTrueAndUnlockedTrue(userId);
+    }
+
+    @Override
+    @Transactional
+    public void setShowOnProfile(User user, UUID progressId, boolean show) {
+        UserAchievementProgress progress = progressRepository
+                .findByIdAndUser(progressId, user)
+                .orElseThrow(() -> new IllegalArgumentException("Achievement progress not found"));
+        if (!progress.isUnlocked()) {
+            throw new IllegalStateException("Cannot show a locked achievement on profile");
+        }
+        progress.setShowOnProfile(show);
+        progressRepository.save(progress);
     }
 }

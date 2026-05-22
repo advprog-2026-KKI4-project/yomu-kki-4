@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.enums.MissionType;
 import id.ac.ui.cs.advprog.yomu.achievement.model.DailyMission;
 import id.ac.ui.cs.advprog.yomu.achievement.service.DailyMissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,11 @@ public class DailyMissionController {
 
     // ===== LIST ALL =====
     @GetMapping
-    public String listMissions(Model model) {
+    public String listMissions(Model model, Authentication authentication) {
         model.addAttribute("missions", dailyMissionService.findAll());
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
         return "mission/missionList";
     }
 

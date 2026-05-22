@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Discussions - Yomu</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+  <style>
+    .logout-link {
+        margin-top: auto;
+        padding: 12px 18px;
+        color: var(--danger);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 12px;
+        transition: background 0.15s;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+        font-family: inherit;
+    }
+    .logout-link:hover {
+        background: #ffebee;
+    }
+
+    .tab-bar {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        background: var(--bg-subtle);
+        border-radius: 12px;
+        padding: 4px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-family: inherit;
+        color: var(--text-muted);
+        background: transparent;
+    }
+
+    .tab-btn.active {
+        background: var(--bg-card);
+        color: var(--primary-purple);
+        box-shadow: var(--card-shadow);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .discussion-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .discussion-row {
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .discussion-row:hover {
+        border-color: var(--accent-lavender);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .discussion-row-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .discussion-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--primary-purple-light);
+        color: var(--primary-purple);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .discussion-row-info h3 {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-heading);
+        margin-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .discussion-row-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .comment-count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--primary-purple-light);
+        color: var(--primary-purple);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 50px;
+    }
+
+    .comment-count-badge.has-comments {
+        background: var(--primary-purple);
+        color: var(--text-on-dark);
+    }
+
+    .discussion-row-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        color: var(--accent-lavender);
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .comment-mod-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin-bottom: 10px;
+    }
+
+    .comment-mod-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .comment-mod-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+
+    .comment-mod-author {
+        font-weight: 700;
+        color: var(--text-heading);
+        font-size: 14px;
+    }
+
+    .comment-mod-time {
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+    .comment-mod-content {
+        color: var(--text-primary);
+        font-size: 14px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+
+    .comment-mod-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .comment-mod-material {
+        font-family: monospace;
+        background: var(--bg-subtle);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .comment-mod-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .btn-view-comment {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--primary-purple);
+        text-decoration: none;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--primary-purple);
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-view-comment:hover {
+        background: var(--primary-purple);
+        color: var(--text-on-dark);
+    }
+
+    .btn-delete-comment {
+        background: transparent;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-family: inherit;
+    }
+
+    .btn-delete-comment:hover {
+        background: var(--danger);
+        color: var(--text-on-dark);
+    }
+
+    .error-message {
+        color: var(--danger);
+        background: #ffebee;
+        border-left: 3px solid var(--danger);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+        text-align: left;
+    }
+
+    .reply-badge {
+        font-size: 11px;
+        color: var(--text-muted);
+        background: var(--bg-subtle);
+        padding: 2px 8px;
+        border-radius: 50px;
+        margin-left: 6px;
+    }
+
+    .admin-only-note {
+        background: var(--bg-subtle);
+        border-left: 3px solid var(--primary-purple);
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <aside class="sidebar">
+    <h1 class="logo">YOMU</h1>
+    <nav>
+      <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+      <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+      <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+      <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+      <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+      <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+      <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+      <a th:href="@{/discussions}" class="nav-item" th:classappend="${currentUri == '/discussions' ? 'active' : ''}"><i class="fas fa-comments"></i> Discussions</a>
+      <a th:href="@{/admin/discussions}" class="nav-item" id="moderationNavLink" style="display:none;"><i class="fas fa-shield-alt"></i> Moderation</a>
+    </nav>
+    <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+      <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+    </form>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="user-profile">
+        <div class="avatar"><i class="fas fa-comments"></i></div>
+        <div>
+          <h2>Discussions</h2>
+          <div class="greeting-sub">Browse all material discussions or jump into a conversation.</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="stat-chip purple">
+          <i class="fas fa-book"></i>
+          <span th:text="${materials != null ? materials.size() : 0}">0</span> materials
+        </div>
+      </div>
+    </header>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div id="tabBar" class="tab-bar" style="display:none;">
+      <button class="tab-btn active" onclick="switchTab('materials')">
+        <i class="fas fa-book-open"></i> All Materials
+      </button>
+      <button class="tab-btn" onclick="switchTab('comments')">
+        <i class="fas fa-list"></i> All Comments (Admin)
+      </button>
+    </div>
+
+    <div id="tab-materials" class="tab-content active">
+      <div class="search-bar-container">
+        <input type="text" id="discussionSearch" placeholder="Search materials by title or category..." class="search-input">
+      </div>
+
+      <div class="discussion-list" id="discussionList">
+        <div th:each="material : ${materials}"
+             class="discussion-row"
+             th:data-title="${material.title}"
+             th:data-category="${material.category}">
+          <div class="discussion-row-left">
+            <div class="discussion-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <div class="discussion-row-info">
+              <h3 th:text="${material.title}">Material Title</h3>
+              <div class="discussion-row-meta">
+                <span class="category-tag" style="font-size:11px;" th:text="${material.category}">Category</span>
+                <span class="comment-count-badge" th:data-material-id="${material.id}">
+                                    <i class="fas fa-circle-notch fa-spin"></i> loading
+                                </span>
+              </div>
+            </div>
+          </div>
+          <div class="discussion-row-actions">
+            <a th:href="@{/discussion/{id}(id=${material.id})}"
+               class="btn btn-primary btn-icon"
+               style="width:auto; padding: 9px 18px; font-size:13px;">
+              <i class="fas fa-arrow-right"></i> Open Discussion
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyStateMaterials" style="display:none;">
+        <i class="fas fa-book-open"></i>
+        <p>No materials available yet.</p>
+      </div>
+    </div>
+
+    <div id="tab-comments" class="tab-content">
+      <div class="admin-only-note">
+        <i class="fas fa-shield-alt"></i> Admin view — all comments across every material, newest first.
+      </div>
+      <div class="search-bar-container">
+        <input type="text" id="commentSearch" placeholder="Search by content, author, or material ID..." class="search-input">
+      </div>
+      <div id="allCommentsList">
+        <div class="empty-state">
+          <i class="fas fa-circle-notch fa-spin"></i>
+          <p>Loading comments...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script th:inline="javascript">
+  const serverMaterials = /*[[${materials}]]*/ [];
+  let allComments = [];
+  let isAdmin = false;
+
+  document.addEventListener('DOMContentLoaded', async function() {
+      await checkRoleAndInit();
+      await loadCommentCounts();
+      setupSearchListeners();
+
+      if (serverMaterials.length === 0) {
+          document.getElementById('emptyStateMaterials').style.display = 'block';
+      }
+  });
+
+  async function checkRoleAndInit() {
+      try {
+          const response = await fetch('/api/auth/profile', { credentials: 'same-origin' });
+          if (!response.ok) return;
+
+          const profile = await response.json();
+
+          if (profile.role === 'ADMIN') {
+              isAdmin = true;
+              document.getElementById('tabBar').style.display = 'flex';
+              document.getElementById('moderationNavLink')?.style.display = 'flex';
+              await loadAllComments();
+          }
+      } catch (error) {
+          // not critical — user just won't see admin tab
+      }
+  }
+
+  async function loadCommentCounts() {
+      try {
+          const response = await fetch('/api/discussions/counts', { credentials: 'same-origin' });
+          if (!response.ok) {
+              clearCountBadges();
+              return;
+          }
+
+          const counts = await response.json();
+
+          document.querySelectorAll('.comment-count-badge[data-material-id]').forEach(function(badge) {
+              const materialId = badge.getAttribute('data-material-id');
+              const count = counts[materialId] || 0;
+              badge.innerHTML = `<i class="fas fa-comment"></i> ${count} comment${count !== 1 ? 's' : ''}`;
+              if (count > 0) {
+                  badge.classList.add('has-comments');
+              }
+          });
+      } catch (error) {
+          clearCountBadges();
+      }
+  }
+
+  function clearCountBadges() {
+      document.querySelectorAll('.comment-count-badge[data-material-id]').forEach(function(badge) {
+          badge.innerHTML = `<i class="fas fa-comment"></i> 0 comments`;
+      });
+  }
+
+  async function loadAllComments() {
+      const container = document.getElementById('allCommentsList');
+
+      try {
+          const response = await fetch('/api/discussions/admin/all', { credentials: 'same-origin' });
+
+          if (!response.ok) {
+              container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load comments (HTTP ${response.status}).</p></div>`;
+              return;
+          }
+
+          allComments = await response.json();
+          renderAllComments(allComments);
+      } catch (error) {
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>An error occurred loading comments.</p></div>`;
+      }
+  }
+
+  function renderAllComments(comments) {
+      const container = document.getElementById('allCommentsList');
+
+      if (!comments || comments.length === 0) {
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-comment-slash"></i><p>No comments found.</p></div>`;
+          return;
+      }
+
+      container.innerHTML = comments.map(function(c) {
+          const timestamp = c.createdAt ? new Date(c.createdAt).toLocaleString() : '';
+          const isReply = c.parentCommentId != null;
+
+          return `
+              <div class="comment-mod-card">
+                  <div class="comment-mod-header">
+                      <div>
+                          <span class="comment-mod-author">${escapeHtml(c.authorUsername || 'Unknown')}</span>
+                          <span class="comment-mod-time"> · ${timestamp}</span>
+                          ${isReply ? `<span class="reply-badge"><i class="fas fa-reply"></i> reply</span>` : ''}
+                      </div>
+                  </div>
+                  <div class="comment-mod-content">${escapeHtml(c.content)}</div>
+                  <div class="comment-mod-footer">
+                      <div>Material: <span class="comment-mod-material">${escapeHtml(c.materialId)}</span></div>
+                      <div class="comment-mod-actions">
+                          <a href="/discussion/${encodeURIComponent(c.materialId)}" target="_blank" rel="noopener" class="btn-view-comment">
+                              <i class="fas fa-external-link-alt"></i> View thread
+                          </a>
+                          <button class="btn-delete-comment" onclick="adminDeleteComment(${c.id})">
+                              <i class="fas fa-trash"></i> Delete
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          `;
+      }).join('');
+  }
+
+  function setupSearchListeners() {
+      document.getElementById('discussionSearch').addEventListener('input', function() {
+          const query = this.value.trim().toLowerCase();
+          const rows = document.querySelectorAll('.discussion-row');
+          let visible = 0;
+
+          rows.forEach(function(row) {
+              const title = (row.getAttribute('data-title') || '').toLowerCase();
+              const category = (row.getAttribute('data-category') || '').toLowerCase();
+              const match = !query || title.includes(query) || category.includes(query);
+              row.style.display = match ? 'flex' : 'none';
+              if (match) visible++;
+          });
+
+          document.getElementById('emptyStateMaterials').style.display = visible === 0 ? 'block' : 'none';
+      });
+
+      document.getElementById('commentSearch').addEventListener('input', function() {
+          const query = this.value.trim().toLowerCase();
+          const filtered = !query ? allComments : allComments.filter(function(c) {
+              return (c.content || '').toLowerCase().includes(query) ||
+                  (c.authorUsername || '').toLowerCase().includes(query) ||
+                  (c.materialId || '').toLowerCase().includes(query);
+          });
+          renderAllComments(filtered);
+      });
+  }
+
+  function switchTab(tabName) {
+      const btns = document.querySelectorAll('.tab-btn');
+      btns[0].classList.toggle('active', tabName === 'materials');
+      btns[1].classList.toggle('active', tabName === 'comments');
+      document.getElementById('tab-materials').classList.toggle('active', tabName === 'materials');
+      document.getElementById('tab-comments').classList.toggle('active', tabName === 'comments');
+  }
+
+  async function adminDeleteComment(commentId) {
+      if (!confirm('Delete this comment? This cannot be undone.')) return;
+
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.style.display = 'none';
+
+      try {
+          const response = await fetch(`/api/discussions/admin/${commentId}`, {
+              method: 'DELETE',
+              credentials: 'same-origin'
+          });
+
+          if (!response.ok && response.status !== 204) {
+              const data = await response.json().catch(function() { return {}; });
+              errorDiv.textContent = data.error || 'Failed to delete comment.';
+              errorDiv.style.display = 'block';
+              return;
+          }
+
+          allComments = allComments.filter(function(c) { return c.id !== commentId; });
+          renderAllComments(allComments);
+          await loadCommentCounts();
+      } catch (error) {
+          errorDiv.textContent = 'An error occurred. Please try again later.';
+          errorDiv.style.display = 'block';
+      }
+  }
+
+  function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+  }
+</script>
+
+</body>
+</html>

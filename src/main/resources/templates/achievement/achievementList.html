@@ -1,74 +1,124 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Achievements - Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 2rem; background-color: #111016; color: #f7ecf4; }
-        h1 { text-align: center; color: #f7ecf4; font-weight: 800; letter-spacing: 1px; margin-bottom: 2rem; }
-        .container { max-width: 1000px; margin: 0 auto; background-color: #564b8f; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8); }
-        .btn { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; transition: all 0.2s ease; display: inline-block; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .btn-primary { background: #f5b17f; color: #111016; }
-        .btn-warning { background: #a096e0; color: #111016; }
-        .btn-danger { background: #111016; color: #f7ecf4; border: 1px solid #6b5ce0; }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 1rem; }
-        th, td { padding: 16px 20px; text-align: left; }
-        th { background: transparent; color: #a096e0; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
-        tr td { background: #6b5ce0; }
-        tr td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; font-weight: bold; font-size: 1.1em; display: flex; align-items: center; gap: 10px;}
-        tr td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
-        .actions { display: flex; gap: 10px; }
-        .empty { text-align: center; padding: 3rem; color: #a096e0; background: transparent !important; }
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .table-container { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 18px; box-shadow: var(--card-shadow); overflow: hidden; }
+        .yomu-table { width: 100%; border-collapse: collapse; }
+        .yomu-table thead { background: var(--bg-subtle); }
+        .yomu-table th { padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.5px; }
+        .yomu-table td { padding: 16px 20px; border-top: 1px solid var(--border-soft); font-size: 14px; color: var(--text-primary); vertical-align: middle; }
+        .yomu-table tbody tr:hover { background: var(--bg-subtle); }
 
-        /* Simulated Icon Badge */
-        .icon-circle { display: inline-block; width: 32px; height: 32px; background: #f5b17f; border-radius: 50%; text-align: center; line-height: 32px; color: #111016; font-size: 16px;}
+        .name-cell { display: flex; align-items: center; gap: 12px; }
+        .icon-circle { width: 36px; height: 36px; background: var(--accent-peach); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-heading); font-size: 16px; flex-shrink: 0; }
+        .name-text { font-weight: 700; color: var(--text-heading); }
+
+        .type-pill { background: var(--primary-purple-light); color: var(--primary-purple); padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 700; display: inline-block; }
+        .points-cell { color: var(--accent-peach-hover); font-weight: 800; }
+
+        .row-actions { display: flex; gap: 8px; }
+        .btn-row { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; transition: background 0.15s; }
+        .btn-row-edit { background: var(--bg-subtle); color: var(--primary-purple); }
+        .btn-row-edit:hover { background: var(--primary-purple-light); }
+        .btn-row-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-row-delete:hover { background: var(--danger); color: white; }
+
+        .empty-state { padding: 60px 20px; text-align: center; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; color: var(--accent-lavender); display: block; margin-bottom: 12px; }
     </style>
 </head>
 <body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${role == 'ADMIN'}"><i class="fas fa-shield-alt"></i> Moderation</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-<div class="container">
-    <div class="header-actions">
-        <h1 style="margin: 0;">Achievements Library</h1>
-        <a th:href="@{/achievements/create}" class="btn btn-primary">+ New Achievement</a>
-    </div>
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-trophy"></i></div>
+                <div>
+                    <h2>Achievements Library</h2>
+                    <div class="greeting-sub">Track all the badges learners can earn.</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/achievements/create}" class="btn btn-primary btn-icon">
+                    <i class="fas fa-plus"></i> New Achievement
+                </a>
+            </div>
+        </header>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Target</th>
-            <th>Points</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="achievement : ${achievements}">
-            <td>
-                <span class="icon-circle">🏆</span>
-                <span th:text="${achievement.name}"></span>
-            </td>
-            <td th:text="${achievement.description}"></td>
-            <td th:text="${achievement.type}" style="color: #f5b17f; font-weight: bold;"></td>
-            <td th:text="${achievement.targetCount}"></td>
-            <td style="font-weight: bold; color: #a096e0;">+<span th:text="${achievement.points}"></span></td>
-            <td class="actions">
-                <a th:href="@{/achievements/edit/{id}(id=${achievement.id})}" class="btn btn-warning">Edit</a>
-                <form th:action="@{/achievements/delete/{id}(id=${achievement.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this achievement?')">Delete</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(achievements)}">
-            <td colspan="6" class="empty">No achievements yet. Create one!</td>
-        </tr>
-        </tbody>
-    </table>
+        <div class="table-container">
+            <table class="yomu-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Target</th>
+                    <th>Points</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="achievement : ${achievements}">
+                    <td>
+                        <div class="name-cell">
+                            <div class="icon-circle"><i class="fas fa-trophy"></i></div>
+                            <span class="name-text" th:text="${achievement.name}"></span>
+                        </div>
+                    </td>
+                    <td th:text="${achievement.description}"></td>
+                    <td><span class="type-pill" th:text="${achievement.type}"></span></td>
+                    <td th:text="${achievement.targetCount}"></td>
+                    <td class="points-cell">+<span th:text="${achievement.points}"></span></td>
+                    <td>
+                        <div class="row-actions">
+                            <a th:href="@{/achievements/edit/{id}(id=${achievement.id})}" class="btn-row btn-row-edit">
+                                <i class="fas fa-pen"></i> Edit
+                            </a>
+                            <form th:action="@{/achievements/delete/{id}(id=${achievement.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn-row btn-row-delete" onclick="return confirm('Delete this achievement?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(achievements)}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-trophy"></i>
+                            <p>No achievements yet. Create one!</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
 </div>
-
 </body>
 </html>

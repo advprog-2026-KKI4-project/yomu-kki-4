@@ -15,4 +15,13 @@ public interface UserAchievementProgressRepository extends JpaRepository<UserAch
     Optional<UserAchievementProgress> findByUserAndAchievementId(User user, UUID achievementId);
 
     List<UserAchievementProgress> findByUser(User user);
+
+    // Use case 4: completed achievements only
+    List<UserAchievementProgress> findByUserAndUnlockedTrue(User user);
+
+    // Use case 5: another student's achievements visible on their profile
+    List<UserAchievementProgress> findByUser_IdAndShowOnProfileTrueAndUnlockedTrue(Long userId);
+
+    // Use case 6: find a specific progress record owned by a user
+    Optional<UserAchievementProgress> findByIdAndUser(UUID id, User user);
 }

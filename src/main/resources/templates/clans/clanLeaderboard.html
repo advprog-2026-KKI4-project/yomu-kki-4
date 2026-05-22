@@ -1,144 +1,173 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Yomu - Leaderboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        body { background-color: #fce4d6; font-family: 'Segoe UI', sans-serif; }
-        .sidebar { background-color: #fce4d6; min-height: 100vh; padding: 20px; }
-        .sidebar-btn { border: none; background: transparent; padding: 10px; width: 100%; text-align: left; color: #7b61ff; font-weight: 600; margin-bottom: 10px; }
-        .sidebar-btn.active { background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
 
-        .main-card { background-color: white; border-radius: 25px; min-height: 90vh; margin: 20px; padding: 30px; }
-        .tab-container { background-color: #d1c4e9; border-radius: 50px; padding: 5px; display: inline-flex; }
-        .tab-btn { border-radius: 50px; border: none; padding: 8px 30px; font-weight: bold; transition: all 0.3s ease; }
-        .tab-btn.active { background-color: #5e35b1; color: white; }
+        .tab-bar { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg-subtle); border-radius: 12px; padding: 4px; max-width: 320px; }
+        .tab-btn { flex: 1; padding: 10px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s; font-family: inherit; color: var(--text-muted); background: transparent; }
+        .tab-btn.active { background: var(--bg-card); color: var(--primary-purple); box-shadow: var(--card-shadow); }
 
-        .clan-row { background-color: #ede7f6; border-radius: 20px; margin-bottom: 15px; padding: 15px; border-left: 8px solid #b39ddb; transition: transform 0.2s; cursor: pointer; }
-        .clan-row:hover { transform: scale(1.01); background-color: #e5def5; }
-        .rank-number { font-size: 1.5rem; font-weight: 800; color: #5e35b1; width: 40px; }
-        .clan-icon { width: 50px; height: 50px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #5e35b1; }
-        .view-btn { border: 2px solid #5e35b1; color: #5e35b1; border-radius: 10px; font-weight: bold; background: white; }
+        .leaderboard-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 16px;
+            padding: 16px 22px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 18px;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+        }
+        .leaderboard-row:hover { border-color: var(--accent-lavender); box-shadow: var(--card-shadow-hover); transform: translateY(-1px); }
 
-        .profile-circle { width: 80px; height: 80px; background-color: #e0e0e0; border-radius: 50%; border: 3px solid #5e35b1; }
-        .modal-content { border-radius: 25px; border: none; }
+        .rank-num { font-size: 20px; font-weight: 800; color: var(--primary-purple); width: 36px; text-align: center; flex-shrink: 0; }
+        .rank-num.gold { color: #f5a623; }
+        .rank-num.silver { color: #a8a8a8; }
+        .rank-num.bronze { color: #cd7f32; }
+
+        .clan-emblem-sm { width: 44px; height: 44px; background: var(--primary-purple-light); color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+
+        .clan-info { flex: 1; min-width: 0; }
+        .clan-info h5 { font-size: 15px; font-weight: 800; color: var(--text-heading); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .division-pill { background: var(--bg-subtle); color: var(--primary-purple); font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 50px; text-transform: uppercase; }
+        .clan-info-meta { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+        .clan-info-meta .trophy { color: var(--accent-peach); }
+
+        .btn-view { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; background: transparent; color: var(--primary-purple); border: 1px solid var(--primary-purple); text-decoration: none; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
+        .btn-view:hover { background: var(--primary-purple); color: white; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; color: var(--accent-lavender); display: block; margin-bottom: 12px; }
+
+        /* Modal */
+        .modal-content { border: none; border-radius: 20px; padding: 8px; background: var(--bg-card); }
+        .modal-section { padding: 20px; }
+        .modal-emblem-large { width: 80px; height: 80px; background: var(--primary-purple-light); color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+        .modal-clan-name { color: var(--text-heading); font-weight: 800; font-size: 22px; letter-spacing: -0.3px; }
+        .modal-clan-bio { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+        .modal-stat { background: var(--bg-subtle); border-radius: 12px; padding: 14px; text-align: center; }
+        .modal-stat-label { color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-stat-value { font-weight: 800; font-size: 18px; margin-top: 4px; }
+        .members-section { background: var(--bg-subtle); border-radius: 12px; padding: 16px; }
+        .members-section h6 { color: var(--text-heading); font-weight: 800; font-size: 14px; margin-bottom: 12px; }
+        .modal-member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-soft); font-size: 13px; }
+        .modal-member-row:last-child { border-bottom: none; }
+        .role-pill-modal { background: var(--bg-card); border: 1px solid var(--border-soft); color: var(--primary-purple); padding: 2px 9px; border-radius: 50px; font-size: 11px; font-weight: 700; }
     </style>
 </head>
 <body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 sidebar d-none d-md-block">
-            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-            <a th:href="@{/my-learning(role=${role})}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}">
-                <i class="fas fa-book-open"></i> Course
-            </a>
-            <a th:href="@{/clans/my-clan}" class="sidebar-btn d-block text-decoration-none">
-                <i class="bi bi-shield"></i> My Clan
-            </a>
-            <a th:href="@{/clans/discover}" class="sidebar-btn d-block text-decoration-none">
-                <i class="bi bi-search"></i> Discover
-            </a>
-            <a th:href="@{/leaderboard}" class="sidebar-btn active d-block text-decoration-none">
-                <i class="bi bi-trophy"></i> Leaderboard
-            </a>
-        </div>
-
-        <div class="col-md-10">
-            <div class="main-card shadow">
-                <h1 class="text-center mb-4" style="color: #ffb74d; font-weight: 800;">Leaderboard</h1>
-
-                <div class="text-center mb-5">
-                    <div class="tab-container">
-                        <button id="btn-global" class="tab-btn active" onclick="switchLeaderboard('global')">Global</button>
-                        <button id="btn-division" class="tab-btn" style="background: transparent; color: #5e35b1;" onclick="switchLeaderboard('division')">Division</button>
-                    </div>
-                </div>
-
-                <div id="leaderboard-list" class="clan-list px-lg-5">
-                    <div th:each="clan, iterStat : ${clans}" class="clan-row d-flex align-items-center"
-                         data-bs-toggle="modal"
-                         th:data-bs-target="|#modal-${clan.id}|">
-                        <div class="d-flex align-items-center flex-grow-1">
-                            <div class="rank-number" th:text="${iterStat.count}">1</div>
-                            <div class="clan-icon me-3">
-                                <i class="bi bi-shield-shaded text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-0 fw-bold">
-                                    <span th:text="${clan.name}">Clan Name</span>
-                                    <span class="badge rounded-pill bg-secondary ms-1" style="font-size: 0.6em;" th:text="${clan.division}">BRONZE</span>
-                                </h5>
-                                <small class="text-muted">
-                                    <i class="bi bi-trophy-fill text-warning"></i>
-                                    <span th:text="${#numbers.formatInteger(clan.totalScore, 0, 'COMMA')}">0</span> trophies |
-                                    <i class="bi bi-people-fill"></i>
-                                    <span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + '/20'">0/20</span>
-                                </small>
-                            </div>
-                            <button class="btn view-btn">Details <i class="bi bi-eye"></i></button>
-                        </div>
-                    </div>
-
-                    <div th:if="${clans.isEmpty()}" class="text-center py-5">
-                        <p class="text-muted">No clans found this season.</p>
-                    </div>
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-medal"></i></div>
+                <div>
+                    <h2>Leaderboard</h2>
+                    <div class="greeting-sub">See how clans rank globally and within their divisions.</div>
                 </div>
             </div>
+        </header>
 
-            <div th:each="clan : ${clans}" class="modal fade" th:id="|modal-${clan.id}|" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered text-dark">
-                    <div class="modal-content shadow-lg">
-                        <div class="modal-body p-4">
-                            <div class="d-flex justify-content-end">
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="tab-bar">
+            <button id="btn-global" class="tab-btn active" onclick="switchLeaderboard('global')">Global</button>
+            <button id="btn-division" class="tab-btn" onclick="switchLeaderboard('division')">Division</button>
+        </div>
+
+        <div id="leaderboard-list">
+            <div th:each="clan, iterStat : ${clans}"
+                 class="leaderboard-row"
+                 data-bs-toggle="modal"
+                 th:data-bs-target="|#modal-${clan.id}|">
+                <div class="rank-num"
+                     th:classappend="${iterStat.count == 1 ? 'gold' : (iterStat.count == 2 ? 'silver' : (iterStat.count == 3 ? 'bronze' : ''))}"
+                     th:text="${iterStat.count}">1</div>
+                <div class="clan-emblem-sm"><i class="fas fa-shield-halved"></i></div>
+                <div class="clan-info">
+                    <h5>
+                        <span th:text="${clan.name}">Clan Name</span>
+                        <span class="division-pill" th:text="${clan.division}">BRONZE</span>
+                    </h5>
+                    <div class="clan-info-meta">
+                        <i class="fas fa-trophy trophy"></i>
+                        <span th:text="${#numbers.formatInteger(clan.totalScore, 0, 'COMMA')}">0</span> trophies
+                        ·
+                        <i class="fas fa-users"></i>
+                        <span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + '/20'">0/20</span>
+                    </div>
+                </div>
+                <button class="btn-view">Details</button>
+            </div>
+
+            <div th:if="${clans.isEmpty()}" class="empty-state">
+                <i class="fas fa-medal"></i>
+                <p>No clans found this season.</p>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div th:each="clan : ${clans}" class="modal fade" th:id="|modal-${clan.id}|" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-section">
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 22px;">
+                            <div class="modal-emblem-large"><i class="fas fa-shield-halved"></i></div>
+                            <div>
+                                <div class="modal-clan-name" th:text="${clan.name}">Clan Name</div>
+                                <span class="division-pill" style="margin-top: 4px;" th:text="${clan.division}">GOLD</span>
+                                <div class="modal-clan-bio" th:text="${clan.bio}">Bio...</div>
                             </div>
+                        </div>
 
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="profile-circle me-3"></div>
-                                <div>
-                                    <h2 class="mb-0 fw-bold" th:text="${clan.name}">Clan Name</h2>
-                                    <span class="badge rounded-pill bg-warning text-dark" th:text="${clan.division}">GOLD</span>
-                                    <p class="text-muted mb-0 mt-1" th:text="${clan.bio}">Bio...</p>
-                                </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
+                            <div class="modal-stat">
+                                <div class="modal-stat-label">Multiplier</div>
+                                <div class="modal-stat-value" style="color: var(--primary-purple);" th:text="${clan.activeMultiplier} + 'x'">1.0x</div>
                             </div>
-
-                            <div class="row g-3 mb-4 text-center">
-                                <div class="col-6">
-                                    <div class="p-2 border rounded-4 bg-light shadow-sm">
-                                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Multiplier</small>
-                                        <h5 class="fw-bold text-primary mb-0" th:text="${clan.activeMultiplier} + 'x'">1.0x</h5>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 border rounded-4 bg-light shadow-sm">
-                                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Score</small>
-                                        <h5 class="fw-bold text-success mb-0" th:text="${clan.totalScore}">0</h5>
-                                    </div>
-                                </div>
+                            <div class="modal-stat">
+                                <div class="modal-stat-label">Total Score</div>
+                                <div class="modal-stat-value" style="color: var(--success-green);" th:text="${clan.totalScore}">0</div>
                             </div>
+                        </div>
 
-                            <div class="p-3 border rounded-4 bg-white shadow-sm">
-                                <h6 class="fw-bold mb-3">Members (<span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])}"></span>/20)</h6>
-                                <table class="table table-sm table-hover align-middle">
-                                    <tbody>
-                                    <tr th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}">
-                                        <td><i class="bi bi-person me-1"></i> <span th:text="${member.studentId}"></span></td>
-                                        <td class="text-end"><span class="badge bg-light text-dark border" th:text="${member.role}"></span></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                        <div class="members-section">
+                            <h6>Members (<span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])}"></span>/20)</h6>
+                            <div th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}" class="modal-member-row">
+                                <div><i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 6px;"></i> <span th:text="${member.studentId}"></span></div>
+                                <span class="role-pill-modal" th:text="${member.role}"></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -149,25 +178,17 @@
 
         if (scope === 'global') {
             globalBtn.classList.add('active');
-            globalBtn.style.background = "#5e35b1";
-            globalBtn.style.color = "white";
             divisionBtn.classList.remove('active');
-            divisionBtn.style.background = "transparent";
-            divisionBtn.style.color = "#5e35b1";
         } else {
             divisionBtn.classList.add('active');
-            divisionBtn.style.background = "#5e35b1";
-            divisionBtn.style.color = "white";
             globalBtn.classList.remove('active');
-            globalBtn.style.background = "transparent";
-            globalBtn.style.color = "#5e35b1";
         }
 
         const url = scope === 'global' ? '/api/leaderboard/global' : '/api/leaderboard/division/bronze';
 
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response error');
+            if (!response.ok) throw new Error('Network error');
             const clans = await response.json();
             renderLeaderboard(clans);
         } catch (error) {
@@ -175,39 +196,37 @@
         }
     }
 
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+
     function renderLeaderboard(clans) {
         const listContainer = document.getElementById('leaderboard-list');
-        listContainer.innerHTML = '';
 
         if (!clans || clans.length === 0) {
-            listContainer.innerHTML = '<div class="text-center py-5"><p class="text-muted">No clans found.</p></div>';
+            listContainer.innerHTML = '<div class="empty-state"><i class="fas fa-medal"></i><p>No clans found.</p></div>';
             return;
         }
 
-        clans.forEach((clan, index) => {
-            const acceptedCount = clan.members
-                ? clan.members.filter(m => m.status === 'ACCEPTED').length
-                : 0;
-
-            const row = `
-                <div class="clan-row d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modal-${clan.id}">
-                    <div class="rank-number">${index + 1}</div>
-                    <div class="clan-icon me-3"><i class="bi bi-shield-shaded text-primary"></i></div>
-                    <div class="flex-grow-1">
-                        <h5 class="mb-0 fw-bold">
-                            ${clan.name}
-                            <span class="badge rounded-pill bg-secondary" style="font-size: 0.6em;">${clan.division}</span>
-                        </h5>
-                        <small class="text-muted">
-                            <i class="bi bi-trophy-fill text-warning"></i> ${clan.totalScore.toLocaleString()} trophies |
-                            <i class="bi bi-people-fill"></i> ${acceptedCount}/20
-                        </small>
+        listContainer.innerHTML = clans.map((clan, index) => {
+            const acceptedCount = clan.members ? clan.members.filter(m => m.status === 'ACCEPTED').length : 0;
+            const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+            return `
+                <div class="leaderboard-row" data-bs-toggle="modal" data-bs-target="#modal-${clan.id}">
+                    <div class="rank-num ${rankClass}">${index + 1}</div>
+                    <div class="clan-emblem-sm"><i class="fas fa-shield-halved"></i></div>
+                    <div class="clan-info">
+                        <h5>${escapeHtml(clan.name)} <span class="division-pill">${escapeHtml(clan.division)}</span></h5>
+                        <div class="clan-info-meta">
+                            <i class="fas fa-trophy trophy"></i> ${clan.totalScore.toLocaleString()} trophies
+                            · <i class="fas fa-users"></i> ${acceptedCount}/20
+                        </div>
                     </div>
-                    <button class="btn view-btn">Details <i class="bi bi-eye"></i></button>
-                </div>
-            `;
-            listContainer.innerHTML += row;
-        });
+                    <button class="btn-view">Details</button>
+                </div>`;
+        }).join('');
     }
 </script>
 </body>

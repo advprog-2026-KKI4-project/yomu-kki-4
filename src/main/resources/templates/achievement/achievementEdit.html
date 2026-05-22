@@ -1,62 +1,87 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Edit Achievement - Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 2rem; background-color: #111016; color: #f7ecf4; }
-        h1 { text-align: center; color: #f7ecf4; font-weight: 800; letter-spacing: 1px; margin-bottom: 2rem; }
-        .container { max-width: 500px; margin: 0 auto; background-color: #564b8f; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(17, 16, 22, 0.8); }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #a096e0; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
-        input[type="text"], input[type="number"], select { width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid transparent; background: #6b5ce0; color: #f7ecf4; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #f5b17f; box-shadow: 0 0 8px rgba(245, 177, 127, 0.3); }
-        select option { background: #564b8f; color: #f7ecf4; }
-        .btn { padding: 14px 24px; border: none; border-radius: 24px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 15px; transition: all 0.2s ease; text-align: center; display: block; width: 100%; box-sizing: border-box; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .btn-primary { background: #f5b17f; color: #111016; margin-bottom: 12px; }
-        .btn-secondary { background: transparent; color: #a096e0; border: 2px solid #6b5ce0; }
-        .btn-secondary:hover { background: #6b5ce0; color: #f7ecf4; }
-        .actions { margin-top: 2.5rem; }
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
+
+        .form-container { max-width: 560px; margin: 0 auto; background: var(--bg-card); padding: 36px 40px; border-radius: 20px; box-shadow: var(--card-shadow); border: 1px solid var(--border-soft); }
+        .form-container h1 { color: var(--text-heading); font-weight: 800; margin-bottom: 8px; font-size: 24px; letter-spacing: -0.3px; text-align: center; }
+        .form-container .form-subtitle { color: var(--text-muted); font-size: 14px; text-align: center; margin-bottom: 28px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-heading); font-size: 13px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--border-input); border-radius: 10px; font-family: inherit; font-size: 15px; background: var(--bg-card); color: var(--text-primary); transition: border-color 0.15s, box-shadow 0.15s; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary-purple); box-shadow: 0 0 0 3px rgba(91, 75, 138, 0.08); }
+        .actions { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Edit Achievement</h1>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-    <form th:action="@{/achievements/edit/{id}(id=${achievement.id})}" th:object="${achievement}" method="post">
-        <div class="form-group">
-            <label for="name">Title</label>
-            <input type="text" id="name" th:field="*{name}" required/>
-        </div>
-        <div class="form-group">
-            <label for="description">Description</label>
-            <input type="text" id="description" th:field="*{description}" required/>
-        </div>
-        <div class="form-group">
-            <label for="type">Category</label>
-            <select id="type" th:field="*{type}" required>
-                <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="targetCount">Unlock Target</label>
-            <input type="number" id="targetCount" th:field="*{targetCount}" required min="1"/>
-        </div>
-        <div class="form-group">
-            <label for="points">Points Awarded</label>
-            <input type="number" id="points" th:field="*{points}" required min="0"/>
-        </div>
-        <div class="form-group">
-            <label for="badgeIcon">Badge Icon Name (optional)</label>
-            <input type="text" id="badgeIcon" th:field="*{badgeIcon}"/>
+    <main class="main-content">
+        <div style="max-width: 560px; margin: 0 auto 20px;">
+            <a th:href="@{/achievements}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Achievements</a>
         </div>
 
-        <div class="actions">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a th:href="@{/achievements}" class="btn btn-secondary">Cancel</a>
+        <div class="form-container">
+            <h1>Edit Achievement</h1>
+            <p class="form-subtitle">Update the details of this badge.</p>
+
+            <form th:action="@{/achievements/edit/{id}(id=${achievement.id})}" th:object="${achievement}" method="post">
+                <div class="form-group">
+                    <label for="name">Title</label>
+                    <input type="text" id="name" th:field="*{name}" required/>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" th:field="*{description}" required/>
+                </div>
+                <div class="form-group">
+                    <label for="type">Category</label>
+                    <select id="type" th:field="*{type}" required>
+                        <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="targetCount">Unlock Target</label>
+                    <input type="number" id="targetCount" th:field="*{targetCount}" required min="1"/>
+                </div>
+                <div class="form-group">
+                    <label for="points">Points Awarded</label>
+                    <input type="number" id="points" th:field="*{points}" required min="0"/>
+                </div>
+                <div class="form-group">
+                    <label for="badgeIcon">Badge Icon Name (optional)</label>
+                    <input type="text" id="badgeIcon" th:field="*{badgeIcon}"/>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a th:href="@{/achievements}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </main>
 </div>
 </body>
 </html>

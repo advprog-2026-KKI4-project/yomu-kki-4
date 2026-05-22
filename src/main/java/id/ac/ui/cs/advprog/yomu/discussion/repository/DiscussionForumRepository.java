@@ -8,5 +8,8 @@ import java.util.List;
 
 @Repository
 public interface DiscussionForumRepository extends JpaRepository<DiscussionForum, Long> {
+
     List<DiscussionForum> findByMaterialIdOrderByCreatedAtAsc(String materialId);
+
+    List<DiscussionForum> findAllByOrderByCreatedAtDesc();
 }

@@ -71,9 +71,15 @@ public class ReadingPageController {
     public String readingPage(@PathVariable String id, Model model) {
         ReadingMaterial material = service.getById(id);
 
+        if ("STUDENT".equals(getCurrentUserRole()) && material != null && material.getProgress() == 0) {
+            material.setProgress(50);
+            service.add(material);
+        }
+
         model.addAttribute("material", material);
         model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", false);
+        model.addAttribute("currentUri", "/reading");
         return "reading/reader";
     }
 
@@ -90,29 +96,31 @@ public class ReadingPageController {
                              @RequestParam double baseScore,
                              @RequestParam double bonus,
                              @RequestParam long remaining,
+                             @RequestParam(required = false) String materialId,
                              Model model) {
         model.addAttribute("score", score);
         model.addAttribute("duration", duration);
         model.addAttribute("baseScore", baseScore);
         model.addAttribute("bonus", bonus);
         model.addAttribute("remaining", remaining);
+        model.addAttribute("materialId", materialId);
         model.addAttribute("role", getCurrentUserRole());
+        model.addAttribute("currentUri", "/reading");
         return "quiz/result";
     }
 
     @GetMapping("/review/{id}")
     public String reviewPage(@PathVariable String id, Model model) {
-
         ReadingMaterial material = service.getById(id);
         String userId = getCurrentUserId();
         QuizAttempt attempt = attemptRepo.findByUserIdAndMaterialId(userId, id);
 
-        model.addAttribute("currentUri", "/my-learning");
         model.addAttribute("material", material);
         model.addAttribute("attempt", attempt);
         model.addAttribute("score", attempt != null ? attempt.getScore() : 0);
         model.addAttribute("role", getCurrentUserRole());
         model.addAttribute("isReview", true);
+        model.addAttribute("currentUri", "/my-learning");
 
         return "reading/reader";
     }
@@ -122,14 +130,22 @@ public class ReadingPageController {
     public String showCreateForm(Model model) {
         model.addAttribute("material", new ReadingMaterial());
         model.addAttribute("role", "ADMIN");
+        model.addAttribute("currentUri", "/reading");
         return "admin/material-form";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
-        model.addAttribute("material", service.getById(id));
+        ReadingMaterial material = service.getById(id);
+
+        if (material == null) {
+            return "redirect:/reading?error=Material+not+found";
+        }
+
+        model.addAttribute("material", material);
         model.addAttribute("role", "ADMIN");
+        model.addAttribute("currentUri", "/reading");
         return "admin/material-form";
     }
 }

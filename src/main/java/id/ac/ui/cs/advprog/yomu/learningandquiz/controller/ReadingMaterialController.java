@@ -58,8 +58,8 @@ public class ReadingMaterialController {
             double remaining = Math.max(0, timeLimit - duration);
             double bonus = (remaining / timeLimit) * 10.0;
 
-            return String.format(Locale.US, "redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d",
-                    finalScore, duration, baseScore, bonus, (long)remaining);
+            return String.format(Locale.US, "redirect:/quiz/result?score=%.1f&duration=%d&baseScore=%.0f&bonus=%.1f&remaining=%d&materialId=%s",
+                    finalScore, duration, baseScore, bonus, (long)remaining, java.net.URLEncoder.encode(id, java.nio.charset.StandardCharsets.UTF_8));
         } catch (IllegalArgumentException | IllegalStateException e) {
             return "redirect:/reading?error=" + e.getMessage();
         }

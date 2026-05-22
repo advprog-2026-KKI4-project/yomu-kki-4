@@ -51,6 +51,8 @@ public class SecurityConfig {
                                 "/**/*.html"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/achievements/create", "/achievements/edit/**", "/achievements/delete/**",
+                                         "/daily-missions/create", "/daily-missions/edit/**", "/daily-missions/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint
