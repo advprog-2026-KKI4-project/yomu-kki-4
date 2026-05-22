@@ -5,6 +5,9 @@ import id.ac.ui.cs.advprog.yomu.clans.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @Service
@@ -30,8 +33,13 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     @Override
     @Transactional
     public void endCurrentSeason() {
+        List<Clan> allClans = clanRepository.findAllByOrderByTotalScoreDesc();
+
+        Map<Division, List<Clan>> clansByDivision = allClans.stream()
+                .collect(Collectors.groupingBy(Clan::getDivision));
+
         for (Division division : Division.values()) {
-            List<Clan> divisionClans = clanRepository.findAllByDivisionOrderByTotalScoreDesc(division);
+            List<Clan> divisionClans = clansByDivision.getOrDefault(division, List.of());
 
             if (divisionClans.isEmpty())
                 continue;
@@ -56,9 +64,9 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 clan.setTotalScore(0L);
                 clan.getMembers().forEach(m -> m.setLocalScore(0));
             }
-
-            clanRepository.saveAll(divisionClans);
         }
+
+        clanRepository.saveAll(allClans);
     }
 
     @Override
