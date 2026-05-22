@@ -6,13 +6,21 @@ public enum Division {
     GOLD,
     DIAMOND;
 
-    // OCP: If we add a 'PLATINUM' division later, we only change this enum,
-    // without touching the LeaderboardService!
+    // Promotion
     public Division next() {
         return switch (this) {
             case BRONZE -> SILVER;
             case SILVER -> GOLD;
             case GOLD, DIAMOND -> DIAMOND;
+        };
+    }
+
+    // Relegation
+    public Division previous() {
+        return switch (this) {
+            case DIAMOND -> GOLD;
+            case GOLD -> SILVER;
+            case SILVER, BRONZE -> BRONZE;
         };
     }
 }

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <th:block th:replace="~{fragments/components :: head('Admin - League Management')}"></th:block>
+</head>
+
+<body>
+    <div class="container-fluid row p-0 m-0">
+        <th:block th:replace="~{fragments/components :: sidebar('/admin/clans/league-management')}"></th:block>
+
+        <main class="main-content">
+            <div class="container mt-5">
+                <h2 class="fw-bold text-primary mb-4"><i class="fas fa-trophy me-2"></i> League Season Management</h2>
+
+                <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                    <div class="card-body p-5 text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">End Current League Season</h4>
+                        <p class="text-muted mx-auto" style="max-width: 600px;">
+                            Clicking the button below will immediately halt the current season.
+                            The top 20% of clans in each division will be promoted, the bottom 20% will be relegated,
+                            and all clan/member scores will be reset to 0 to start the new season.
+                        </p>
+
+                        <button id="endSeasonBtn" class="btn btn-danger btn-lg rounded-pill px-5 mt-3 shadow-sm fw-bold"
+                            onclick="triggerEndSeason()">
+                            <i class="fas fa-power-off me-2"></i> End Season & Process Leaderboards
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <th:block th:replace="~{fragments/components :: scripts}"></th:block>
+    <script>
+        async function triggerEndSeason() {
+            if (!confirm("CRITICAL WARNING: Are you absolutely sure you want to end the season? This will permanently reset all scores to zero and update divisions.")) {
+                return;
+            }
+
+            const btn = document.getElementById('endSeasonBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
+
+            try {
+                const response = await fetch('/api/admin/clans/end-season', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert("Success! The season has ended. Promotions, relegations, and score resets have been processed.");
+                    window.location.reload();
+                } else {
+                    throw new Error("Action denied or failed.");
+                }
+            } catch (error) {
+                alert("An error occurred while ending the season. Check your Admin permissions.");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-power-off me-2"></i> End Season & Process Leaderboards';
+            }
+        }
+    </script>
+</body>
+
+</html>

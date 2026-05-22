@@ -27,28 +27,38 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         clanRepository.save(clan);
     }
 
+    @Override
     @Transactional
     public void endCurrentSeason() {
-        List<Clan> allClans = clanRepository.findAllByOrderByTotalScoreDesc();
+        for (Division division : Division.values()) {
+            List<Clan> divisionClans = clanRepository.findAllByDivisionOrderByTotalScoreDesc(division);
 
-        if (allClans.isEmpty()) return;
+            if (divisionClans.isEmpty())
+                continue;
 
-        int totalClans = allClans.size();
-        int promotionLimit = (int) Math.ceil(totalClans * 0.10);
+            int totalClans = divisionClans.size();
 
-        for (int i = 0; i < totalClans; i++) {
-            Clan clan = allClans.get(i);
-            int currentRank = i + 1;
-            clan.setPreviousRank(currentRank);
+            int promoteLimit = Math.max(1, (int) Math.ceil(totalClans * 0.20));
+            int relegateLimit = Math.max(1, (int) Math.ceil(totalClans * 0.20));
 
-            if (currentRank <= promotionLimit) {
-                clan.setDivision(clan.getDivision().next());
+            for (int i = 0; i < totalClans; i++) {
+                Clan clan = divisionClans.get(i);
+                int currentRank = i + 1;
+
+                clan.setPreviousRank(currentRank);
+
+                if (currentRank <= promoteLimit) {
+                    clan.setDivision(clan.getDivision().next());
+                } else if (currentRank > (totalClans - relegateLimit) && totalClans >= 3) {
+                    clan.setDivision(clan.getDivision().previous());
+                }
+
+                clan.setTotalScore(0L);
+                clan.getMembers().forEach(m -> m.setLocalScore(0));
             }
 
-            clan.setTotalScore(0L);
-            clan.getMembers().forEach(m -> m.setLocalScore(0));
+            clanRepository.saveAll(divisionClans);
         }
-        clanRepository.saveAll(allClans);
     }
 
     @Override
