@@ -56,7 +56,7 @@ public class ClanApiController {
         return ResponseEntity.ok("Request sent to clan leader.");
     }
 
-    @PostMapping("/{clanId}/approve")
+    @PostMapping("/{clanId}/approve/{targetStudentId}")
     public ResponseEntity<String> approveMember(@PathVariable UUID clanId,
                                                 Principal principal,
                                                 @RequestParam Long targetStudentId) {
@@ -113,13 +113,5 @@ public class ClanApiController {
                                              Principal principal) {
         clanService.deleteClan(clanId, getAuthId(principal));
         return ResponseEntity.ok("Clan deleted successfully.");
-    }
-
-    // Temporary Endpoint
-    @PostMapping("/test/update-member-score")
-    public ResponseEntity<String> updateMemberScore(Principal principal,
-                                                    @RequestParam int newScore) {
-        clanService.updateMemberScoreMock(getAuthId(principal), newScore);
-        return ResponseEntity.ok("Score updated successfully.");
     }
 }

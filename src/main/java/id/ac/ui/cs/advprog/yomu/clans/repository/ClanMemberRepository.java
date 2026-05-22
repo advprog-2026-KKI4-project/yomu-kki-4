@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface ClanMemberRepository extends JpaRepository<ClanMember, Long> {
-    List<ClanMember> findByClanId(Clan clanId);
+    List<ClanMember> findByClan(Clan clan);
     List<ClanMember> findByStudentId(Long studentId);
-    Optional<ClanMember> findByClanIdAndStudentId(Clan clanId, Long studentId);
+    Optional<ClanMember> findByClanAndStudentId(Clan clan, Long studentId);
 }
