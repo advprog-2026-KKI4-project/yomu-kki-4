@@ -49,6 +49,7 @@ public class AchievementEventListener {
             log.warn("Achievement trigger skipped: no user found for id '{}'", event.getUserId());
             return;
         }
+        achievementTrackingService.incrementProgress(user, AchievementType.DISCUSSION);
         missionTrackingService.incrementProgress(user, MissionType.DISCUSSION);
     }
 
@@ -59,6 +60,7 @@ public class AchievementEventListener {
             log.warn("Achievement trigger skipped: no user found for identifier '{}'", event.getUserIdentifier());
             return;
         }
+        achievementTrackingService.incrementProgress(user, AchievementType.LOGIN);
         missionTrackingService.incrementProgress(user, MissionType.LOGIN);
     }
 

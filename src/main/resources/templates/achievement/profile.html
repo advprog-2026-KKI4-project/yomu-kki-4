@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isOwnProfile ? 'My Profile' : displayName + ' - Profile'} + ' - Yomu'">Profile - Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <style>
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
+
+        /* Profile card */
+        .profile-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 20px; padding: 32px; box-shadow: var(--card-shadow); display: flex; align-items: flex-start; gap: 28px; margin-bottom: 28px; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-purple), var(--accent-lavender)); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: white; flex-shrink: 0; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-info { flex: 1; min-width: 0; }
+        .profile-name { font-size: 22px; font-weight: 800; color: var(--text-heading); margin-bottom: 2px; }
+        .profile-username { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; }
+        .profile-bio { font-size: 14px; color: var(--text-primary); line-height: 1.6; margin-bottom: 12px; }
+        .profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+        .clan-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--primary-purple-light); color: var(--primary-purple); padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+        .division-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+        .division-BRONZE { background: #fff3e0; color: #bf6900; }
+        .division-SILVER { background: #f5f5f5; color: #616161; }
+        .division-GOLD { background: #fffde7; color: #f9a825; }
+        .division-PLATINUM { background: #e0f7fa; color: #006064; }
+        .division-DIAMOND { background: #ede7f6; color: #4a148c; }
+
+        /* Section */
+        .section-title { font-size: 15px; font-weight: 800; color: var(--text-heading); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: var(--primary-purple); }
+
+        /* Achievement showcase grid */
+        .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 32px; }
+        .badge-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--card-shadow); }
+        .badge-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-purple-light); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .badge-info { min-width: 0; }
+        .badge-name { font-weight: 700; font-size: 13px; color: var(--text-heading); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .badge-pts { font-size: 11px; font-weight: 700; color: var(--accent-peach-hover); }
+
+        /* Showcase editor (own profile only) */
+        .showcase-editor { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 18px; padding: 24px; box-shadow: var(--card-shadow); margin-bottom: 28px; }
+        .showcase-editor-title { font-size: 14px; font-weight: 800; color: var(--text-heading); margin-bottom: 4px; }
+        .showcase-editor-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+        .toggle-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-top: 1px solid var(--border-soft); }
+        .toggle-row:first-of-type { border-top: none; }
+        .toggle-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--primary-purple-light); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .toggle-label { flex: 1; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .toggle-switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; inset: 0; background: var(--border-soft); border-radius: 22px; cursor: pointer; transition: background 0.2s; }
+        .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+        .toggle-switch input:checked + .toggle-slider { background: var(--primary-purple); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+        /* Empty state */
+        .empty-state { padding: 40px 20px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; margin-bottom: 28px; }
+        .empty-icon-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #ede7f6, #d1c4e9); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 26px; }
+        .empty-state h3 { font-size: 16px; font-weight: 800; color: var(--text-heading); margin: 0 0 6px; }
+        .empty-state p { font-size: 13px; color: var(--text-muted); margin: 0; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+            <a th:href="@{/profile}" class="nav-item active"><i class="fas fa-user"></i> Profile</a>
+            <a th:href="@{/profile/students}" class="nav-item"><i class="fas fa-users-between-lines"></i> Students</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <h2 th:text="${isOwnProfile ? 'My Profile' : displayName + ' - Profile'}">Profile</h2>
+                    <div class="greeting-sub" th:text="${isOwnProfile ? 'Manage your public showcase' : 'Viewing student profile'}"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-avatar">
+                <img th:if="${profileUser.avatarUrl != null}" th:src="${profileUser.avatarUrl}" alt="avatar">
+                <span th:unless="${profileUser.avatarUrl != null}"
+                      th:text="${#strings.substring(displayName, 0, 1)}"></span>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name" th:text="${displayName}"></div>
+                <div class="profile-username" th:text="'@' + ${profileUser.username}"></div>
+                <div class="profile-bio" th:if="${profileUser.bio != null and !profileUser.bio.isEmpty()}"
+                     th:text="${profileUser.bio}"></div>
+                <div class="profile-badges">
+                    <span th:if="${clanMembership != null}" class="clan-badge">
+                        <i class="fas fa-users"></i>
+                        <span th:text="${clanMembership.clan.name}"></span>
+                    </span>
+                    <span th:if="${clanMembership != null}"
+                          th:classappend="'division-badge division-' + ${clanMembership.clan.division}">
+                        <i class="fas fa-star"></i>
+                        <span th:text="${clanMembership.clan.division}"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Showcase -->
+        <div class="section-title"><i class="fas fa-trophy"></i> Achievement Showcase</div>
+
+        <div class="badge-grid" th:if="${not #lists.isEmpty(unlockedAchievements)}">
+            <div th:each="prog : ${unlockedAchievements}" class="badge-card">
+                <div class="badge-icon">
+                    <i th:if="${prog.achievement.badgeIcon != null and !prog.achievement.badgeIcon.isEmpty()}"
+                       th:class="${prog.achievement.badgeIcon}"></i>
+                    <i th:unless="${prog.achievement.badgeIcon != null and !prog.achievement.badgeIcon.isEmpty()}"
+                       class="fas fa-medal"></i>
+                </div>
+                <div class="badge-info">
+                    <div class="badge-name" th:text="${prog.achievement.name}"></div>
+                    <div class="badge-pts">+<span th:text="${prog.achievement.points}"></span> pts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(unlockedAchievements)}">
+            <div class="empty-icon-ring"><i class="fas fa-trophy"></i></div>
+            <h3 th:text="${isOwnProfile} ? 'No badges yet' : 'No public badges'"></h3>
+            <p th:text="${isOwnProfile} ? 'Unlock achievements to display them here.' : 'This student hasn\'t showcased any achievements yet.'"></p>
+        </div>
+
+        <!-- Showcase Editor (own profile only) -->
+        <div th:if="${isOwnProfile and not #lists.isEmpty(unlockedAchievements)}">
+            <div class="showcase-editor">
+                <div class="showcase-editor-title"><i class="fas fa-sliders-h"></i> Edit Showcase</div>
+                <div class="showcase-editor-sub">Choose which achievements appear on your public profile.</div>
+
+                <div th:each="prog : ${unlockedAchievements}" class="toggle-row">
+                    <div class="toggle-icon">
+                        <i th:if="${prog.achievement.badgeIcon != null and !prog.achievement.badgeIcon.isEmpty()}"
+                           th:class="${prog.achievement.badgeIcon}"></i>
+                        <i th:unless="${prog.achievement.badgeIcon != null and !prog.achievement.badgeIcon.isEmpty()}"
+                           class="fas fa-medal"></i>
+                    </div>
+                    <span class="toggle-label" th:text="${prog.achievement.name}"></span>
+                    <label class="toggle-switch">
+                        <input type="checkbox"
+                               th:checked="${prog.showOnProfile}"
+                               th:data-progress-id="${prog.id}"
+                               onchange="toggleVisibility(this)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+function toggleVisibility(checkbox) {
+    const progressId = checkbox.dataset.progressId;
+    const show = checkbox.checked;
+    fetch(`/api/achievements/tracking/${progressId}/visibility`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ showOnProfile: show })
+    }).catch(() => {
+        checkbox.checked = !show;
+    });
+}
+</script>
+</body>
+</html>
