@@ -196,6 +196,12 @@
         }
     }
 
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+
     function renderLeaderboard(clans) {
         const listContainer = document.getElementById('leaderboard-list');
 
@@ -212,7 +218,7 @@
                     <div class="rank-num ${rankClass}">${index + 1}</div>
                     <div class="clan-emblem-sm"><i class="fas fa-shield-halved"></i></div>
                     <div class="clan-info">
-                        <h5>${clan.name} <span class="division-pill">${clan.division}</span></h5>
+                        <h5>${escapeHtml(clan.name)} <span class="division-pill">${escapeHtml(clan.division)}</span></h5>
                         <div class="clan-info-meta">
                             <i class="fas fa-trophy trophy"></i> ${clan.totalScore.toLocaleString()} trophies
                             · <i class="fas fa-users"></i> ${acceptedCount}/20

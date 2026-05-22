@@ -78,9 +78,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="activeFrom">Active From (optional)</label>
+                    <input type="datetime-local" id="activeFrom" th:field="*{activeFrom}"/>
+                </div>
+                <div class="form-group">
+                    <label for="activeTo">Active Until (optional)</label>
+                    <input type="datetime-local" id="activeTo" th:field="*{activeTo}"/>
+                </div>
+
+                <div class="form-group">
                     <label>Availability</label>
-                    <div class="checkbox-group" onclick="document.getElementById('active').click();">
-                        <input type="checkbox" id="active" th:field="*{active}" onclick="event.stopPropagation();"/>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="active" th:field="*{active}"/>
                         <label for="active">Mission is active and available to users</label>
                     </div>
                 </div>
