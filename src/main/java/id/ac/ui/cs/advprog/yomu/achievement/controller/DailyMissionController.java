@@ -22,6 +22,7 @@ public class DailyMissionController {
     @GetMapping
     public String listMissions(Model model, Authentication authentication) {
         model.addAttribute("missions", dailyMissionService.findAll());
+        model.addAttribute("currentUri", "/daily-missions");
         boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);

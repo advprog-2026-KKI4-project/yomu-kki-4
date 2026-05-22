@@ -43,11 +43,12 @@
             <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
             <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
             <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
-            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
-            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/achievements}" class="nav-item" th:classappend="${currentUri == '/achievements' ? 'active' : ''}"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item" th:classappend="${currentUri == '/daily-missions' ? 'active' : ''}"><i class="fas fa-bullseye"></i> Missions</a>
             <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
             <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${isAdmin}"><i class="fas fa-shield-alt"></i> Moderation</a>
         </nav>
         <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
             <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
@@ -63,7 +64,7 @@
                     <div class="greeting-sub">Manage quests learners can complete each day.</div>
                 </div>
             </div>
-            <div class="header-actions">
+            <div class="header-actions" th:if="${isAdmin}">
                 <a th:href="@{/daily-missions/create}" class="btn btn-primary btn-icon">
                     <i class="fas fa-plus"></i> New Mission
                 </a>
@@ -80,7 +81,7 @@
                     <th>Target</th>
                     <th>Reward</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th th:if="${isAdmin}">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -94,7 +95,7 @@
                         <span th:if="${mission.active}" class="status-pill status-active">Active</span>
                         <span th:unless="${mission.active}" class="status-pill status-inactive">Inactive</span>
                     </td>
-                    <td>
+                    <td th:if="${isAdmin}">
                         <div class="row-actions">
                             <a th:href="@{/daily-missions/edit/{id}(id=${mission.id})}" class="btn-row btn-row-edit">
                                 <i class="fas fa-pen"></i> Edit

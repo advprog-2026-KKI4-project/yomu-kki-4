@@ -23,8 +23,6 @@ public interface ClanService {
     void kickMember(UUID clanId, Long leaderId, Long targetUserId);
     void leaveClan(Long userId);
 
-    void updateMemberScoreMock(Long studentId, int newScore); // Temporary use
-
     void addPoints(Long studentId, int points);
     boolean isUserInAnyClan(Long studentId);
     Optional<ClanMember> getAcceptedMembership(Long studentId);
