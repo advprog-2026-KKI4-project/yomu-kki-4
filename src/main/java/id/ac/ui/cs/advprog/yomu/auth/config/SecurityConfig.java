@@ -48,7 +48,9 @@ public class SecurityConfig {
                                 "/",
                                 "/error",
                                 "/my-achievements.html",
-                                "/**/*.html"
+                                "/**/*.html",
+                                "/actuator/health",
+                                "/actuator/prometheus"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/achievements/create", "/achievements/edit/**", "/achievements/delete/**",
