@@ -44,9 +44,9 @@ public class AchievementEventListener {
 
     @EventListener
     public void onDiscussionPost(DiscussionPostEvent event) {
-        User user = resolveUser(event.getUserIdentifier());
+        User user = userRepository.findById(event.getUserId()).orElse(null);
         if (user == null) {
-            log.warn("Achievement trigger skipped: no user found for identifier '{}'", event.getUserIdentifier());
+            log.warn("Achievement trigger skipped: no user found for id '{}'", event.getUserId());
             return;
         }
         missionTrackingService.incrementProgress(user, MissionType.DISCUSSION);

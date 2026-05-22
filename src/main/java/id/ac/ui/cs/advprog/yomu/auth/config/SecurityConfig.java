@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/login",
                                 "/register",
                                 "/css/**", "/js/**", "/images/**",
-                                "/error", // Prevents 404 ghost redirects to login
+                                "/",
+                                "/error",
                                 "/my-achievements.html",
                                 "/**/*.html"
                         ).permitAll()

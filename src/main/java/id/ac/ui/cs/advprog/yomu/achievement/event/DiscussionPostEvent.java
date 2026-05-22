@@ -2,11 +2,11 @@ package id.ac.ui.cs.advprog.yomu.achievement.event;
 
 public class DiscussionPostEvent {
 
-    private final String userIdentifier; // email or phone, matches authorId in DiscussionForum
+    private final Long userId;
 
-    public DiscussionPostEvent(String userIdentifier) {
-        this.userIdentifier = userIdentifier;
+    public DiscussionPostEvent(Long userId) {
+        this.userId = userId;
     }
 
-    public String getUserIdentifier() { return userIdentifier; }
+    public Long getUserId() { return userId; }
 }

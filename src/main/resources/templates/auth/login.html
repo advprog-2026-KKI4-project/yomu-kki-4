@@ -2,139 +2,26 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Yomu Auth</title>
+    <title>Login - Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #111016; 
-            color: #fdfaf6; 
-            margin: 0; 
-            padding: 20px; 
+        body {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 20px;
         }
-        .container { 
-            width: 100%;
-            max-width: 400px; 
-            background: #201e2b; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
-            text-align: center;
-        }
-        .container h1 {
-            margin-top: 0;
-            margin-bottom: 24px;
-        }
-        .form-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            color: #ccc;
-        }
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            background: #2a2836;
-            border: 1px solid #3c3a4a;
-            border-radius: 6px;
-            color: #fff;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: #f5b17f;
-        }
-        .btn { 
-            width: 100%;
-            padding: 12px 15px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            text-decoration: none; 
-            display: inline-block; 
-            box-sizing: border-box;
-            transition: background 0.2s;
-            font-size: 16px;
-        }
-        .btn-primary { 
-            background: #f5b17f; 
-            color: #111016; 
-            margin-top: 10px;
-        }
-        .btn-primary:hover { 
-            background: #e39d6b; 
-        }
-        .btn-google {
-            background: #fff;
-            color: #444;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-google:hover {
-            background: #f0f0f0;
-        }
-        .btn-google img {
-            width: 18px;
-            margin-right: 8px;
-        }
-        .divider {
-            margin: 20px 0;
-            position: relative;
-            text-align: center;
-        }
-        .divider::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            border-top: 1px solid #3c3a4a;
-            z-index: 1;
-        }
-        .divider span {
-            position: relative;
-            z-index: 2;
-            background: #201e2b;
-            padding: 0 10px;
-            color: #888;
-            font-size: 14px;
-        }
-        .footer-text {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #aaa;
-        }
-        .footer-text a {
-            color: #f5b17f;
-            text-decoration: none;
-        }
-        .footer-text a:hover {
-            text-decoration: underline;
-        }
-        .error-message {
-            color: #ff6b6b;
-            font-size: 14px;
-            margin-bottom: 15px;
-            display: none;
-        }
+        .btn { width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="auth-container">
     <h1>Welcome Back</h1>
-    
+    <p class="auth-subtitle">Sign in to continue your learning journey</p>
+
     <div id="errorMessage" class="error-message"></div>
 
     <form id="loginForm">
@@ -153,7 +40,6 @@
         <span>OR</span>
     </div>
 
-    <!-- Calls the Google OAuth2 endpoint handled by Spring Security -->
     <a th:href="@{/oauth2/authorization/google}" class="btn btn-google">
         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
         Sign in with Google
@@ -167,11 +53,11 @@
 <script>
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const emailOrPhone = document.getElementById('emailOrPhone').value;
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('errorMessage');
-        
+
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -180,11 +66,9 @@
                 },
                 body: JSON.stringify({ emailOrPhone, password })
             });
-            
+
             if (response.ok) {
-                // The API now sets the HttpOnly cookie for us.
-                // We just need to redirect to the dashboard or home.
-                window.location.href = '/leaderboard';
+                window.location.href = '/dashboard';
             } else {
                 const data = await response.json();
                 errorDiv.textContent = data.message || 'Login failed. Please check your credentials.';

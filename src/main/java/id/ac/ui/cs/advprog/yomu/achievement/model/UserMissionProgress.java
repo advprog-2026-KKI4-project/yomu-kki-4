@@ -33,6 +33,7 @@ public class UserMissionProgress {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mission_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private DailyMission mission;
 
     @Column(nullable = false)

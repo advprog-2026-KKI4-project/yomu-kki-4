@@ -72,7 +72,7 @@
 
         <label>Availability</label>
         <div class="checkbox-group" onclick="document.getElementById('active').click();">
-            <input type="checkbox" id="active" th:field="*{active}"/>
+            <input type="checkbox" id="active" th:field="*{active}" onclick="event.stopPropagation();"/>
             <label for="active">Mission is active and available to users</label>
         </div>
 

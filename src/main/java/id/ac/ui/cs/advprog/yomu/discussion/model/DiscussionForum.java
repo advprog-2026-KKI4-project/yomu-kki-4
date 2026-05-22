@@ -6,11 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "discussion_comments")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DiscussionForum {
 
     @Id
@@ -24,7 +20,7 @@ public class DiscussionForum {
     private String materialId;
 
     @Column(name = "author_id", nullable = false)
-    private String authorId;
+    private Long authorId;
 
     @Column(name = "parent_comment_id")
     private Long parentCommentId;
@@ -33,7 +29,5 @@ public class DiscussionForum {
     private LocalDateTime createdAt;
 
     @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    protected void onCreate() { this.createdAt = LocalDateTime.now(); }
 }
