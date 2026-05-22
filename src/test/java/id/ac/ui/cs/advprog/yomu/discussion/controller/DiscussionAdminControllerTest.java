@@ -43,13 +43,4 @@ public class DiscussionViewController {
         return "redirect:/reading";
 
     }
-
-    @GetMapping("/admin/discussions")
-    public String adminDiscussions(org.springframework.ui.Model model, org.springframework.security.core.Authentication authentication) {
-        String username = (authentication != null && authentication.isAuthenticated()) ? authentication.getName() : "Admin";
-        model.addAttribute("username", username);
-        model.addAttribute("role", "ADMIN");
-        model.addAttribute("currentUri", "/discussions");
-        return "discussion/discussionAdmin";
-    }
 }
