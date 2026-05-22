@@ -83,7 +83,7 @@ jobs:
             --platform=managed \
             --allow-unauthenticated \
             --port=8080 \
-            --set-env-vars="SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI=https://yomu-543038359312.asia-southeast2.run.app/login/oauth2/code/google" \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,SPRING_DATASOURCE_URL=jdbc:h2:mem:yomudb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE,SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver,SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect,SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop,SPRING_H2_CONSOLE_ENABLED=false,SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI=https://yomu-543038359312.asia-southeast2.run.app/login/oauth2/code/google,OTEL_SERVICE_NAME=yomu,OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-us-east-0.grafana.net/otlp,OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf,OTEL_METRICS_EXPORTER=otlp,OTEL_TRACES_EXPORTER=otlp,OTEL_LOGS_EXPORTER=otlp,OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic%20MTc4MzIyNjpnbGNfZXlKdklqb2lNVGM0TXpJeU5pSXNJbTRpT2lKNWIyMTFMVzFsZEhKcFkzTXRjM0J5YVc1bkxXRndjQzF1WlhjaUxDSnJJam9pVEU0d1VrNHpaamRhZVZneGR6UkNSakEyTnpaUFF6Rm9JaXdpYlNJNmV5SnlJam9pY0hKdlpDMWhjQzF6YjNWMGFHVmhjM1F0TWlKOWZRPT0=" \
             --set-secrets="JWT_SECRET=jwt-secret:latest" \
             --set-secrets="GOOGLE_CLIENT_ID=google-client-id:latest" \
             --set-secrets="GOOGLE_CLIENT_SECRET=google-client-secret:latest" \
