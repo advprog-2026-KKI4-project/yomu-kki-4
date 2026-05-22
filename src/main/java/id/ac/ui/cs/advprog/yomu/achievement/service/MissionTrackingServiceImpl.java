@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserMissionProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
 
     @Override
     @Transactional
+    @Timed(value = "mission.increment_progress", description = "Time taken to process daily mission progress increment")
     public void incrementProgress(User user, MissionType actionType) {
         LocalDate today = LocalDate.now();
 
@@ -81,6 +83,7 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
     }
 
     @Override
+    @Timed(value = "mission.get_user_progress", description = "Time taken to retrieve today's mission progress for a user")
     public List<UserMissionProgress> getUserProgressToday(User user) {
         return progressRepository.findByUserAndDate(user, LocalDate.now());
     }

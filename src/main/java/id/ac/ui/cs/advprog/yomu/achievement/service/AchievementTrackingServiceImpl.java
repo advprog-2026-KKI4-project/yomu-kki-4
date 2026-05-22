@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserAchievementProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.AchievementRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserAchievementProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
 
     @Override
     @Transactional
+    @Timed(value = "achievement.increment_progress", description = "Time taken to process achievement progress increment")
     public void incrementProgress(User user, AchievementType actionType) {
         // 1. Get all achievements of the triggered type (e.g., QUIZ)
         List<Achievement> relevantAchievements = achievementRepository.findByType(actionType);
@@ -82,6 +84,7 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
     }
 
     @Override
+    @Timed(value = "achievement.get_public", description = "Time taken to fetch public achievements for a student profile")
     public List<UserAchievementProgress> getPublicAchievements(Long userId) {
         return progressRepository.findByUser_IdAndShowOnProfileTrueAndUnlockedTrue(userId);
     }
