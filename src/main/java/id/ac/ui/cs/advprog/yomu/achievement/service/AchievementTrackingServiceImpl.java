@@ -6,6 +6,8 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserAchievementProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.AchievementRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserAchievementProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
 
     private final UserAchievementProgressRepository progressRepository;
     private final AchievementRepository achievementRepository;
+    private final MeterRegistry meterRegistry;
 
     @Override
     @Transactional
@@ -51,9 +54,18 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
                 progress.setUnlocked(true);
                 progress.setUnlockedAt(LocalDateTime.now());
 
-                // TODO: Trigger reward logic here!
-                // e.g., pointsService.addPoints(user, achievement.getPoints());
+                Counter.builder("achievement.unlocked")
+                        .tag("type", achievement.getType().name())
+                        .description("Number of achievements unlocked by users")
+                        .register(meterRegistry)
+                        .increment();
             }
+
+            Counter.builder("achievement.progress.incremented")
+                    .tag("type", achievement.getType().name())
+                    .description("Number of times achievement progress was incremented")
+                    .register(meterRegistry)
+                    .increment();
 
             progressRepository.save(progress);
         }

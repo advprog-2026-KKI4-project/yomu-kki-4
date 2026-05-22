@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.discussion.service;
 
+import id.ac.ui.cs.advprog.yomu.achievement.event.DiscussionPostEvent;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.yomu.discussion.dto.CommentRequest;
@@ -18,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,6 +37,7 @@ class DiscussionForumServiceImplTest {
     @Mock private CommentReactionRepository reactionRepository;
     @Mock private UserRepository userRepository;
     @Mock private ReadingMaterialService readingMaterialService;
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private DiscussionForumServiceImpl service;
@@ -79,6 +82,19 @@ class DiscussionForumServiceImplTest {
         assertThat(response.getAuthorUsername()).isEqualTo("alice");
         assertThat(response.isOwnedByCurrentUser()).isTrue();
         verify(commentRepository).save(any(DiscussionForum.class));
+    }
+
+    @Test
+    void postComment_publishesDiscussionPostEvent_withAuthorId() {
+        when(readingMaterialService.getById(MATERIAL_ID)).thenReturn(mock(ReadingMaterial.class));
+        when(commentRepository.save(any())).thenReturn(savedComment);
+        when(userRepository.findAllById(any())).thenReturn(List.of(author));
+
+        service.postComment(validRequest, AUTHOR_ID);
+
+        ArgumentCaptor<DiscussionPostEvent> captor = ArgumentCaptor.forClass(DiscussionPostEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().getUserId()).isEqualTo(AUTHOR_ID);
     }
 
     @Test

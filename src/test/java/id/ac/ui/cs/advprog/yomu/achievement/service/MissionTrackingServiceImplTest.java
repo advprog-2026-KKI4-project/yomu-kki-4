@@ -6,15 +6,19 @@ import id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.UserMissionProgressRepository;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+
+import id.ac.ui.cs.advprog.yomu.achievement.event.MissionCompletedEvent;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +36,9 @@ class MissionTrackingServiceImplTest {
     @Mock
     private DailyMissionRepository dailyMissionRepository;
 
-    @InjectMocks
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private MissionTrackingServiceImpl service;
 
     private User user;
@@ -40,6 +46,7 @@ class MissionTrackingServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        service = new MissionTrackingServiceImpl(progressRepository, dailyMissionRepository, eventPublisher, new SimpleMeterRegistry());
         user = User.builder().id(1L).email("test@test.com").username("test").password("password123").build();
 
         mission = DailyMission.builder()
@@ -55,7 +62,7 @@ class MissionTrackingServiceImplTest {
 
     @Test
     void incrementProgress_createsNewRecord_whenNoExistingProgressToday() {
-        when(dailyMissionRepository.findByActiveTrue()).thenReturn(List.of(mission));
+        when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
         when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
                 .thenReturn(Optional.empty());
 
@@ -75,7 +82,7 @@ class MissionTrackingServiceImplTest {
         UserMissionProgress existing = UserMissionProgress.builder()
                 .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.now()).build();
 
-        when(dailyMissionRepository.findByActiveTrue()).thenReturn(List.of(mission));
+        when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
         when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
                 .thenReturn(Optional.of(existing));
 
@@ -86,11 +93,28 @@ class MissionTrackingServiceImplTest {
     }
 
     @Test
+    void incrementProgress_publishesMissionCompletedEvent_withCorrectRewardPoints() {
+        UserMissionProgress existing = UserMissionProgress.builder()
+                .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.now()).build();
+
+        when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
+        when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
+                .thenReturn(Optional.of(existing));
+
+        service.incrementProgress(user, MissionType.QUIZ);
+
+        ArgumentCaptor<MissionCompletedEvent> captor = ArgumentCaptor.forClass(MissionCompletedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().getUserId()).isEqualTo(user.getId());
+        assertThat(captor.getValue().getRewardPoints()).isEqualTo(mission.getRewardPoints());
+    }
+
+    @Test
     void incrementProgress_skipsAlreadyCompletedMission() {
         UserMissionProgress existing = UserMissionProgress.builder()
                 .user(user).mission(mission).currentCount(3).completed(true).date(LocalDate.now()).build();
 
-        when(dailyMissionRepository.findByActiveTrue()).thenReturn(List.of(mission));
+        when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
         when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
                 .thenReturn(Optional.of(existing));
 
@@ -101,7 +125,7 @@ class MissionTrackingServiceImplTest {
 
     @Test
     void incrementProgress_skipsMission_whenTypeDoesNotMatch() {
-        when(dailyMissionRepository.findByActiveTrue()).thenReturn(List.of(mission));
+        when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
 
         service.incrementProgress(user, MissionType.READING);
 
