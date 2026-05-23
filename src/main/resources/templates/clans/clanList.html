@@ -10,6 +10,8 @@
         .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
         .logout-link:hover { background: #ffebee; }
 
+        body { background-color: var(--bg-page); color: var(--text-primary); font-size: 15px; }
+
         .clan-row {
             background: var(--bg-card);
             border: 1px solid var(--border-soft);
@@ -72,7 +74,8 @@
             <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
             <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
-            <a th:href="@{/clans/my-clan}" class="nav-item active"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item" th:classappend="${currentUri == '/clans/my-clan' ? 'active' : ''}"><i class="fas fa-shield"></i> My Clan</a>
+            <a th:href="@{/clans/discover}" class="nav-item" th:classappend="${currentUri == '/clans/discover' ? 'active' : ''}"><i class="fas fa-search"></i> Discover Clans</a>
             <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
             <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
             <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>

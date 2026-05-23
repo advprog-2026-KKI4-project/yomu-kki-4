@@ -10,6 +10,8 @@
         .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
         .logout-link:hover { background: #ffebee; }
 
+        body { background-color: var(--bg-page); color: var(--text-primary); font-size: 15px; }
+
         .empty-clan {
             text-align: center;
             background: var(--bg-card);
@@ -97,7 +99,8 @@
         <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
         <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
         <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
-        <a th:href="@{/clans/my-clan}" class="nav-item" th:classappend="${currentUri == '/clans/my-clan' ? 'active' : ''}"><i class="fas fa-users"></i> Clan</a>
+        <a th:href="@{/clans/my-clan}" class="nav-item" th:classappend="${currentUri == '/clans/my-clan' ? 'active' : ''}"><i class="fas fa-shield"></i> My Clan</a>
+        <a th:href="@{/clans/discover}" class="nav-item"><i class="fas fa-search"></i> Discover Clans</a>
         <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
         <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
         <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>
@@ -171,6 +174,11 @@
                     <div class="stat-card-value" th:text="${#numbers.formatInteger(clan.totalScore, 0, 'COMMA')}">0</div>
                 </div>
                 <div class="stat-card">
+                    <!--<div class="stat-label">Rank</div>
+                    <div class="d-flex justify-content-center gap-2 mt-1">
+                        <span class="badge bg-dark">Global #<span th:text="${clan.previousRank != null ? clan.previousRank : '??'}">12</span></span>
+                        <span class="badge bg-info text-dark">Div #1</span>
+                    </div>-->
                     <div class="stat-label">Global Rank</div>
                     <div class="stat-card-value">#<span th:text="${clan.previousRank != null ? clan.previousRank : '??'}">??</span></div>
                 </div>
@@ -183,7 +191,7 @@
                         <button th:if="${myRole == 'LEADER'}" class="btn btn-primary btn-icon" data-bs-toggle="modal" data-bs-target="#inviteModal" style="padding: 8px 18px; font-size: 13px;">
                             <i class="fas fa-plus"></i> Invite
                         </button>
-                        <span class="members-count-pill" th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + ' / 20'">5 / 20</span>
+                        <span class="members-count-pill" th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])} + '/20'">5/20</span>
                     </div>
                 </div>
 
@@ -311,8 +319,6 @@
             const response = await fetch(`/api/clans/${clanId}/invite?targetStudentId=${studentId}`, { method: 'POST' });
             if (response.ok) {
                 alert('Invitation sent successfully!');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('inviteModal'));
-                modal.hide();
                 window.location.reload();
             } else {
                 alert('Failed to send invitation. The user might already be invited.');

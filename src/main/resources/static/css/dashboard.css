@@ -87,6 +87,7 @@ a { color: var(--primary-purple); }
     border-radius: 12px;
     margin-bottom: 4px;
     transition: background 0.15s, color 0.15s;
+    line-height: normal;
 }
 
 .nav-item:hover { background: var(--bg-subtle); color: var(--primary-purple); }
