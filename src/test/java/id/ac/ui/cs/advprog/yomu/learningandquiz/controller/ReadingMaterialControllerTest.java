@@ -1,6 +1,5 @@
-package id.ac.ui.cs.advprog.yomu.controller;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
-import id.ac.ui.cs.advprog.yomu.learningandquiz.controller.ReadingMaterialController;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.junit.jupiter.api.AfterEach;
