@@ -94,6 +94,7 @@ class AchievementEventListenerTest {
 
         verify(achievementTrackingService).incrementProgress(user, AchievementType.DISCUSSION);
         verify(missionTrackingService).incrementProgress(user, MissionType.DISCUSSION);
+        verify(achievementTrackingService).incrementProgress(eq(user), any());
     }
 
     @Test
@@ -135,6 +136,7 @@ class AchievementEventListenerTest {
 
         verify(achievementTrackingService).incrementProgress(user, AchievementType.LOGIN);
         verify(missionTrackingService).incrementProgress(user, MissionType.LOGIN);
+        verify(achievementTrackingService).incrementProgress(eq(user), any());
     }
 
     @Test
