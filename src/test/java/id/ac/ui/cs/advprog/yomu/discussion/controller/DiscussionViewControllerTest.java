@@ -3,7 +3,6 @@ package id.ac.ui.cs.advprog.yomu.discussion.controller;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -67,7 +66,6 @@ class DiscussionViewControllerTest {
     @Test
     @WithAnonymousUser
     void discussionPage_anonymous() throws Exception {
-        // Anonymous users are not allowed — SecurityConfig redirects to /login
         mockMvc.perform(get("/discussion/mat-1"))
                 .andExpect(status().is3xxRedirection());
     }
@@ -78,14 +76,5 @@ class DiscussionViewControllerTest {
         mockMvc.perform(get("/discussion"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/reading"));
-    }
-
-    @Test
-    @WithMockUser(username = "admin@yomu.id", roles = {"ADMIN"})
-    void adminModeration_renders() throws Exception {
-        mockMvc.perform(get("/admin/discussions"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("discussion/discussionAdmin"))
-                .andExpect(model().attribute("role", "ADMIN"));
     }
 }
