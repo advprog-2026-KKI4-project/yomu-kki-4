@@ -5,7 +5,7 @@ import id.ac.ui.cs.advprog.yomu.achievement.service.AchievementTrackingService;
 import id.ac.ui.cs.advprog.yomu.auth.model.User;
 import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.yomu.clans.model.ClanMember;
-import id.ac.ui.cs.advprog.yomu.clans.repository.ClanMemberRepository;
+import id.ac.ui.cs.advprog.yomu.clans.service.ClanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,7 +23,7 @@ public class ProfileController {
 
     private final UserRepository userRepository;
     private final AchievementTrackingService trackingService;
-    private final ClanMemberRepository clanMemberRepository;
+    private final ClanService clanService;
 
     private User resolveUser(Authentication authentication) {
         String identifier = authentication.getName();
@@ -36,9 +36,7 @@ public class ProfileController {
     public String myProfile(Model model, Authentication authentication) {
         User me = resolveUser(authentication);
         List<UserAchievementProgress> unlocked = trackingService.getUnlockedAchievements(me);
-        ClanMember membership = clanMemberRepository.findByStudentId(me.getId()).stream()
-                .filter(m -> "ACCEPTED".equals(m.getStatus()))
-                .findFirst().orElse(null);
+        ClanMember membership = clanService.getAcceptedMembership(me.getId()).orElse(null);
 
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -58,9 +56,7 @@ public class ProfileController {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<UserAchievementProgress> publicAchievements = trackingService.getPublicAchievements(userId);
-        ClanMember membership = clanMemberRepository.findByStudentId(userId).stream()
-                .filter(m -> "ACCEPTED".equals(m.getStatus()))
-                .findFirst().orElse(null);
+        ClanMember membership = clanService.getAcceptedMembership(userId).orElse(null);
 
         User me = resolveUser(authentication);
         boolean isOwnProfile = me.getId().equals(userId);
