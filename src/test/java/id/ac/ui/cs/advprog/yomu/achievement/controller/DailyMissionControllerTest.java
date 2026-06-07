@@ -82,7 +82,7 @@ class DailyMissionControllerTest {
     @Test
     void listMissions_buildsProgressMapFromTodayProgress() {
         UserMissionProgress progress = UserMissionProgress.builder()
-                .user(user).mission(mission).currentCount(1).completed(true).date(LocalDate.of(2026, 1, 1)).build();
+                .user(user).mission(mission).currentCount(1).completed(true).date(LocalDate.now()).build();
         when(missionTrackingService.getUserProgressToday(user)).thenReturn(List.of(progress));
         when(dailyMissionService.findAll()).thenReturn(List.of(mission));
         when(dailyMissionService.findActiveMissions()).thenReturn(List.of(mission));

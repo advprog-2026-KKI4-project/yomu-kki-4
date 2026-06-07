@@ -90,12 +90,12 @@ class DailyMissionServiceImplTest {
         assertThat(result).containsExactly(mission);
         ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(dailyMissionRepository).findCurrentlyActive(captor.capture());
-        assertThat(captor.getValue()).isNotNull();
+        assertThat(captor.getValue()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
     @Test
     void update_updatesAllFieldsAndSaves() {
-        LocalDateTime from = LocalDateTime.of(2026, 1, 1, 12, 0);
+        LocalDateTime from = LocalDateTime.now();
         LocalDateTime to = from.plusDays(1);
         DailyMission updated = DailyMission.builder()
                 .name("Daily Quiz Master").description("Complete 3 quizzes today")
