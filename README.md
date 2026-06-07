@@ -82,5 +82,9 @@ Herdayani Elision Sitio: Forum cleanup and moderation finalization.
 ## 3. Git Repositories and CI/CD
 This project uses a Monorepo structure. The Individual backend modules, are contained within a single repository.
 
+SonarQube analysis:
+<img width="1108" height="497" alt="image" src="https://github.com/user-attachments/assets/1bc93ae7-76e4-46ae-8bff-e2498740005a" />
+
+Deployment URL: https://yomu-kki-4-production.up.railway.app/dashboard
 Repository URL: https://github.com/advprog-2026-KKI4-project/yomu-kki-4.git
 
