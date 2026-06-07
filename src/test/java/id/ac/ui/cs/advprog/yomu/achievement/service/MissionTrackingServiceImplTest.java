@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,13 +75,13 @@ class MissionTrackingServiceImplTest {
         UserMissionProgress saved = captor.getValue();
         assertThat(saved.getCurrentCount()).isEqualTo(1);
         assertThat(saved.isCompleted()).isFalse();
-        assertThat(saved.getDate()).isEqualTo(LocalDate.now());
+        assertThat(saved.getDate()).isToday();
     }
 
     @Test
     void incrementProgress_marksMissionCompleted_whenTargetReached() {
         UserMissionProgress existing = UserMissionProgress.builder()
-                .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.now()).build();
+                .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.of(2026, 1, 1)).build();
 
         when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
         when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
@@ -95,7 +96,7 @@ class MissionTrackingServiceImplTest {
     @Test
     void incrementProgress_publishesMissionCompletedEvent_withCorrectRewardPoints() {
         UserMissionProgress existing = UserMissionProgress.builder()
-                .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.now()).build();
+                .user(user).mission(mission).currentCount(2).completed(false).date(LocalDate.of(2026, 1, 1)).build();
 
         when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
         when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
@@ -112,7 +113,7 @@ class MissionTrackingServiceImplTest {
     @Test
     void incrementProgress_skipsAlreadyCompletedMission() {
         UserMissionProgress existing = UserMissionProgress.builder()
-                .user(user).mission(mission).currentCount(3).completed(true).date(LocalDate.now()).build();
+                .user(user).mission(mission).currentCount(3).completed(true).date(LocalDate.of(2026, 1, 1)).build();
 
         when(dailyMissionRepository.findCurrentlyActive(any(LocalDateTime.class))).thenReturn(List.of(mission));
         when(progressRepository.findByUserAndMissionIdAndDate(eq(user), eq(mission.getId()), any(LocalDate.class)))
@@ -135,9 +136,9 @@ class MissionTrackingServiceImplTest {
     @Test
     void getUserProgressToday_delegatesToRepository() {
         List<UserMissionProgress> expected = List.of(
-                UserMissionProgress.builder().user(user).mission(mission).currentCount(1).completed(true).date(LocalDate.now()).build()
+                UserMissionProgress.builder().user(user).mission(mission).currentCount(1).completed(true).date(LocalDate.of(2026, 1, 1)).build()
         );
-        when(progressRepository.findByUserAndDate(user, LocalDate.now())).thenReturn(expected);
+        when(progressRepository.findByUserAndDate(eq(user), any(LocalDate.class))).thenReturn(expected);
 
         List<UserMissionProgress> result = service.getUserProgressToday(user);
 
@@ -146,20 +147,20 @@ class MissionTrackingServiceImplTest {
 
     @Test
     void getCompletedMissionCountForUsers_returnsZero_whenListIsNull() {
-        assertThat(service.getCompletedMissionCountForUsers(null, LocalDate.now())).isZero();
+        assertThat(service.getCompletedMissionCountForUsers(null, LocalDate.of(2026, 1, 1))).isZero();
         verify(progressRepository, never()).countUsersWithCompletedMissions(any(), any());
     }
 
     @Test
     void getCompletedMissionCountForUsers_returnsZero_whenListIsEmpty() {
-        assertThat(service.getCompletedMissionCountForUsers(List.of(), LocalDate.now())).isZero();
+        assertThat(service.getCompletedMissionCountForUsers(List.of(), LocalDate.of(2026, 1, 1))).isZero();
         verify(progressRepository, never()).countUsersWithCompletedMissions(any(), any());
     }
 
     @Test
     void getCompletedMissionCountForUsers_delegatesToRepository() {
         List<Long> userIds = List.of(1L, 2L, 3L);
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.of(2026, 1, 1);
         when(progressRepository.countUsersWithCompletedMissions(userIds, date)).thenReturn(2L);
 
         assertThat(service.getCompletedMissionCountForUsers(userIds, date)).isEqualTo(2L);

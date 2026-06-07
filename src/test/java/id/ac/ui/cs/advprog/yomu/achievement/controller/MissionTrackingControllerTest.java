@@ -53,7 +53,7 @@ class MissionTrackingControllerTest {
                 .id(UUID.randomUUID()).name("Daily Reader").description("Read 1 article")
                 .type(MissionType.READING).targetCount(1).rewardPoints(10).active(true).build();
         missionProgress = UserMissionProgress.builder()
-                .user(user).mission(mission).currentCount(0).completed(false).date(LocalDate.now()).build();
+                .user(user).mission(mission).currentCount(0).completed(false).date(LocalDate.of(2026, 1, 1)).build();
 
         when(userRepository.findByEmail("alice@test.com")).thenReturn(Optional.of(user));
     }
