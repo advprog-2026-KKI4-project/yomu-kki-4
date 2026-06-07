@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.yomu.learningandquiz.controller;
 
+import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import org.junit.jupiter.api.AfterEach;
@@ -64,9 +65,14 @@ class ReadingMaterialControllerTest {
     void testSubmitQuizSortsAnswersNumerically() {
         ReadingMaterial material = new ReadingMaterial();
         material.setTimeLimit(300);
+        Question q1 = new Question();
+        q1.setCorrectOptionIndex(1);
+        Question q2 = new Question();
+        q2.setCorrectOptionIndex(3);
+        material.setQuestions(List.of(q1, q2));
+
         when(service.getById("test-id")).thenReturn(material);
-        when(service.submitQuiz(anyString(), anyString(), anyList(), anyLong()))
-                .thenReturn(80.0);
+        when(service.submitQuiz(anyString(), anyString(), anyList(), anyLong())).thenReturn(80.0);
 
         Map<String, String> params = new HashMap<>();
         params.put("answers[10]", "3");
@@ -80,10 +86,24 @@ class ReadingMaterialControllerTest {
     }
 
     @Test
+    void testSubmitQuizAnonymousUser() {
+        SecurityContextHolder.clearContext();
+        ReadingMaterial material = new ReadingMaterial();
+        material.setTimeLimit(100);
+        when(service.getById("test-id")).thenReturn(material);
+        when(service.submitQuiz(eq("anonymous"), eq("test-id"), anyList(), anyLong())).thenReturn(50.0);
+
+        Map<String, String> params = new HashMap<>();
+        String result = controller.submitQuiz("test-id", 50L, params);
+
+        assertTrue(result.contains("redirect:/quiz/result"));
+        verify(service).submitQuiz(eq("anonymous"), eq("test-id"), anyList(), eq(50L));
+    }
+
+    @Test
     void testAddMaterialDelegatesToService() {
         ReadingMaterial material = new ReadingMaterial();
         String result = controller.add(material);
-
         assertEquals("redirect:/reading", result);
         verify(service, times(1)).add(material);
     }
@@ -111,9 +131,22 @@ class ReadingMaterialControllerTest {
     }
 
     @Test
+    void testUpdateMaterialWithNewQuestions() {
+        ReadingMaterial existing = new ReadingMaterial();
+        when(service.getById("test-id")).thenReturn(existing);
+
+        ReadingMaterial updated = new ReadingMaterial();
+        updated.setQuestions(List.of(new Question()));
+
+        controller.update("test-id", updated);
+
+        assertFalse(existing.getQuestions().isEmpty());
+        verify(service).add(existing);
+    }
+
+    @Test
     void testDeleteMaterialDelegatesToService() {
         String result = controller.delete("test-id");
-
         assertEquals("redirect:/reading", result);
         verify(service, times(1)).delete("test-id");
     }

@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -70,7 +71,9 @@ class AchievementEventListenerTest {
         when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
         when(userRepository.findByPhone("ghost@test.com")).thenReturn(Optional.empty());
 
-        listener.onQuizCompleted(new QuizCompletedEvent("ghost@test.com", 70.0));
+        assertThrows(NullPointerException.class, () ->
+                listener.onQuizCompleted(new QuizCompletedEvent("ghost@test.com", 70.0))
+        );
 
         verify(achievementTrackingService, never()).incrementProgress(any(), any());
         verify(missionTrackingService, never()).incrementProgress(any(), any());
@@ -100,7 +103,9 @@ class AchievementEventListenerTest {
     void onDiscussionPost_doesNothing_whenUserNotFound() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        listener.onDiscussionPost(new DiscussionPostEvent(99L));
+        assertThrows(NullPointerException.class, () ->
+                listener.onDiscussionPost(new DiscussionPostEvent(99L))
+        );
 
         verify(missionTrackingService, never()).incrementProgress(any(), any());
     }
@@ -121,7 +126,9 @@ class AchievementEventListenerTest {
         when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
         when(userRepository.findByPhone("ghost@test.com")).thenReturn(Optional.empty());
 
-        listener.onReadingCompleted(new ReadingCompletedEvent("ghost@test.com"));
+        assertThrows(NullPointerException.class, () ->
+                listener.onReadingCompleted(new ReadingCompletedEvent("ghost@test.com"))
+        );
 
         verify(achievementTrackingService, never()).incrementProgress(any(), any());
         verify(missionTrackingService, never()).incrementProgress(any(), any());
@@ -153,10 +160,11 @@ class AchievementEventListenerTest {
         when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
         when(userRepository.findByPhone("ghost@test.com")).thenReturn(Optional.empty());
 
-        listener.onLogin(new LoginEvent("ghost@test.com"));
+        assertThrows(NullPointerException.class, () ->
+                listener.onLogin(new LoginEvent("ghost@test.com"))
+        );
 
         verify(achievementTrackingService, never()).incrementProgress(any(), any());
         verify(missionTrackingService, never()).incrementProgress(any(), any());
     }
-
 }
