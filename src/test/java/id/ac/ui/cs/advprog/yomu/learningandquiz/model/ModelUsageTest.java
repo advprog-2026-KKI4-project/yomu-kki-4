@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.yomu.model;
+package id.ac.ui.cs.advprog.yomu.learningandquiz.model;
 
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.Question;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.QuizAttempt;
