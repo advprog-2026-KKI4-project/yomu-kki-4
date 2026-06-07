@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.yomu.achievement.service;
 import id.ac.ui.cs.advprog.yomu.achievement.enums.AchievementType;
 import id.ac.ui.cs.advprog.yomu.achievement.model.Achievement;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.AchievementRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +23,13 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
+    @Timed(value = "achievement.find_all", description = "Time taken to fetch all achievements")
     public List<Achievement> findAll() {
         return achievementRepository.findAll();
     }
 
     @Override
+    @Timed(value = "achievement.find_by_id", description = "Time taken to fetch a single achievement by id")
     public Achievement findById(UUID id) {
         return achievementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(
