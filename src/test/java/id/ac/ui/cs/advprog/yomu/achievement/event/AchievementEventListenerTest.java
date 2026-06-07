@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -45,7 +46,9 @@ class AchievementEventListenerTest {
     void onQuizCompleted_triggersServices_whenUserFoundByEmail() {
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
 
-        listener.onQuizCompleted(new QuizCompletedEvent("test@test.com", 85.0));
+        QuizCompletedEvent event = new QuizCompletedEvent("test@test.com", 85.0);
+        assertThat(event.getScore()).isEqualTo(85.0);
+        listener.onQuizCompleted(event);
 
         verify(achievementTrackingService).incrementProgress(user, AchievementType.QUIZ);
         verify(missionTrackingService).incrementProgress(user, MissionType.QUIZ);
@@ -84,13 +87,13 @@ class AchievementEventListenerTest {
     }
 
     @Test
-    void onDiscussionPost_triggersMissionOnly() {
+    void onDiscussionPost_triggersBothServices() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         listener.onDiscussionPost(new DiscussionPostEvent(1L));
 
+        verify(achievementTrackingService).incrementProgress(user, AchievementType.DISCUSSION);
         verify(missionTrackingService).incrementProgress(user, MissionType.DISCUSSION);
-        verify(achievementTrackingService).incrementProgress(eq(user), any());
     }
 
     @Test
@@ -103,12 +106,56 @@ class AchievementEventListenerTest {
     }
 
     @Test
-    void onLogin_triggersLoginMission() {
+    void onReadingCompleted_triggersServices_whenUserFoundByPhone() {
+        when(userRepository.findByEmail("08123456789")).thenReturn(Optional.empty());
+        when(userRepository.findByPhone("08123456789")).thenReturn(Optional.of(user));
+
+        listener.onReadingCompleted(new ReadingCompletedEvent("08123456789"));
+
+        verify(achievementTrackingService).incrementProgress(user, AchievementType.READING);
+        verify(missionTrackingService).incrementProgress(user, MissionType.READING);
+    }
+
+    @Test
+    void onReadingCompleted_doesNothing_whenUserNotFound() {
+        when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
+        when(userRepository.findByPhone("ghost@test.com")).thenReturn(Optional.empty());
+
+        listener.onReadingCompleted(new ReadingCompletedEvent("ghost@test.com"));
+
+        verify(achievementTrackingService, never()).incrementProgress(any(), any());
+        verify(missionTrackingService, never()).incrementProgress(any(), any());
+    }
+
+    @Test
+    void onLogin_triggersBothServices() {
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
 
         listener.onLogin(new LoginEvent("test@test.com"));
 
+        verify(achievementTrackingService).incrementProgress(user, AchievementType.LOGIN);
         verify(missionTrackingService).incrementProgress(user, MissionType.LOGIN);
-        verify(achievementTrackingService).incrementProgress(eq(user), any());
+    }
+
+    @Test
+    void onLogin_triggersServices_whenUserFoundByPhone() {
+        when(userRepository.findByEmail("08123456789")).thenReturn(Optional.empty());
+        when(userRepository.findByPhone("08123456789")).thenReturn(Optional.of(user));
+
+        listener.onLogin(new LoginEvent("08123456789"));
+
+        verify(achievementTrackingService).incrementProgress(user, AchievementType.LOGIN);
+        verify(missionTrackingService).incrementProgress(user, MissionType.LOGIN);
+    }
+
+    @Test
+    void onLogin_doesNothing_whenUserNotFound() {
+        when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
+        when(userRepository.findByPhone("ghost@test.com")).thenReturn(Optional.empty());
+
+        listener.onLogin(new LoginEvent("ghost@test.com"));
+
+        verify(achievementTrackingService, never()).incrementProgress(any(), any());
+        verify(missionTrackingService, never()).incrementProgress(any(), any());
     }
 }
