@@ -307,7 +307,8 @@
             <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
             <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
-            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item" th:classappend="${currentUri == '/clans/my-clan' ? 'active' : ''}"><i class="fas fa-shield"></i> My Clan</a>
+            <a th:href="@{/clans/discover}" class="nav-item"><i class="fas fa-search"></i> Discover Clans</a>
             <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
             <a th:href="@{/discussions}" class="nav-item" th:classappend="${currentUri == '/discussions' ? 'active' : ''}"><i class="fas fa-comments"></i> Discussions</a>
             <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>

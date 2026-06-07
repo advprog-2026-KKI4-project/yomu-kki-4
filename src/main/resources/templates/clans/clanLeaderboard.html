@@ -10,8 +10,11 @@
         .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
         .logout-link:hover { background: #ffebee; }
 
+        body { background-color: var(--bg-page); color: var(--text-primary); font-size: 15px; }
+
         .tab-bar { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg-subtle); border-radius: 12px; padding: 4px; max-width: 320px; }
-        .tab-btn { flex: 1; padding: 10px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s; font-family: inherit; color: var(--text-muted); background: transparent; }
+        .tab-btn { flex: 1; padding: 10px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s; font-family: inherit; color: var(--text-muted); background: transparent; text-decoration: none; text-align: center; }
+        .tab-btn:hover { color: var(--primary-purple); }
         .tab-btn.active { background: var(--bg-card); color: var(--primary-purple); box-shadow: var(--card-shadow); }
 
         .leaderboard-row {
@@ -71,8 +74,9 @@
             <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
             <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
-            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
-            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-shield"></i> My Clan</a>
+            <a th:href="@{/clans/discover}" class="nav-item"><i class="fas fa-search"></i> Discover Clans</a>
+            <a th:href="@{/leaderboard}" class="nav-item" th:classappend="${currentUri == '/leaderboard' ? 'active' : ''}"><i class="fas fa-medal"></i> Leaderboard</a>
             <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
             <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>
             </nav>
@@ -93,8 +97,10 @@
         </header>
 
         <div class="tab-bar">
-            <button id="btn-global" class="tab-btn active" onclick="switchLeaderboard('global')">Global</button>
-            <button id="btn-division" class="tab-btn" onclick="switchLeaderboard('division')">Division</button>
+            <a th:href="@{/leaderboard(tab='global')}" id="btn-global" class="tab-btn"
+               th:classappend="${activeTab == 'global' || activeTab == null} ? 'active' : ''">Global</a>
+            <a th:href="@{/leaderboard(tab='division')}" id="btn-division" class="tab-btn"
+               th:classappend="${activeTab == 'division'} ? 'active' : ''">Division</a>
         </div>
 
         <div id="leaderboard-list">
@@ -160,7 +166,10 @@
                         <div class="members-section">
                             <h6>Members (<span th:text="${#lists.size(clan.members.?[status == 'ACCEPTED'])}"></span>/20)</h6>
                             <div th:each="member : ${clan.members}" th:if="${member.status == 'ACCEPTED'}" class="modal-member-row">
-                                <div><i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 6px;"></i> <span th:text="${member.studentId}"></span></div>
+                                <div>
+                                    <i class="fas fa-user-circle" style="color: var(--accent-lavender); margin-right: 6px;"></i>
+                                    <span th:text="${member.student != null ? member.student.username : member.studentId}"></span>
+                                </div>
                                 <span class="role-pill-modal" th:text="${member.role}"></span>
                             </div>
                         </div>
@@ -172,63 +181,5 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    async function switchLeaderboard(scope) {
-        const globalBtn = document.getElementById('btn-global');
-        const divisionBtn = document.getElementById('btn-division');
-
-        if (scope === 'global') {
-            globalBtn.classList.add('active');
-            divisionBtn.classList.remove('active');
-        } else {
-            divisionBtn.classList.add('active');
-            globalBtn.classList.remove('active');
-        }
-
-        const url = scope === 'global' ? '/api/leaderboard/global' : '/api/leaderboard/division/bronze';
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network error');
-            const clans = await response.json();
-            renderLeaderboard(clans);
-        } catch (error) {
-            console.error("Failed to load:", error);
-        }
-    }
-
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str || '';
-        return div.innerHTML;
-    }
-
-    function renderLeaderboard(clans) {
-        const listContainer = document.getElementById('leaderboard-list');
-
-        if (!clans || clans.length === 0) {
-            listContainer.innerHTML = '<div class="empty-state"><i class="fas fa-medal"></i><p>No clans found.</p></div>';
-            return;
-        }
-
-        listContainer.innerHTML = clans.map((clan, index) => {
-            const acceptedCount = clan.members ? clan.members.filter(m => m.status === 'ACCEPTED').length : 0;
-            const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-            return `
-                <div class="leaderboard-row" data-bs-toggle="modal" data-bs-target="#modal-${clan.id}">
-                    <div class="rank-num ${rankClass}">${index + 1}</div>
-                    <div class="clan-emblem-sm"><i class="fas fa-shield-halved"></i></div>
-                    <div class="clan-info">
-                        <h5>${escapeHtml(clan.name)} <span class="division-pill">${escapeHtml(clan.division)}</span></h5>
-                        <div class="clan-info-meta">
-                            <i class="fas fa-trophy trophy"></i> ${clan.totalScore.toLocaleString()} trophies
-                            · <i class="fas fa-users"></i> ${acceptedCount}/20
-                        </div>
-                    </div>
-                    <button class="btn-view">Details</button>
-                </div>`;
-        }).join('');
-    }
-</script>
 </body>
 </html>
