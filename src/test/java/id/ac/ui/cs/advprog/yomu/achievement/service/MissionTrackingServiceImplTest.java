@@ -143,4 +143,26 @@ class MissionTrackingServiceImplTest {
 
         assertThat(result).isEqualTo(expected);
     }
+
+    @Test
+    void getCompletedMissionCountForUsers_returnsZero_whenListIsNull() {
+        assertThat(service.getCompletedMissionCountForUsers(null, LocalDate.now())).isZero();
+        verify(progressRepository, never()).countUsersWithCompletedMissions(any(), any());
+    }
+
+    @Test
+    void getCompletedMissionCountForUsers_returnsZero_whenListIsEmpty() {
+        assertThat(service.getCompletedMissionCountForUsers(List.of(), LocalDate.now())).isZero();
+        verify(progressRepository, never()).countUsersWithCompletedMissions(any(), any());
+    }
+
+    @Test
+    void getCompletedMissionCountForUsers_delegatesToRepository() {
+        List<Long> userIds = List.of(1L, 2L, 3L);
+        LocalDate date = LocalDate.now();
+        when(progressRepository.countUsersWithCompletedMissions(userIds, date)).thenReturn(2L);
+
+        assertThat(service.getCompletedMissionCountForUsers(userIds, date)).isEqualTo(2L);
+        verify(progressRepository).countUsersWithCompletedMissions(userIds, date);
+    }
 }
