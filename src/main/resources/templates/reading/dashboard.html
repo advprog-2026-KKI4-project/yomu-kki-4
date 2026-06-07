@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -20,12 +20,13 @@
             <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
             <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
             <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
-            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
             <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
             <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
-        </nav>
+            <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+            </nav>
         <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
             <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
         </form>

@@ -3,6 +3,9 @@ package id.ac.ui.cs.advprog.yomu.achievement.controller;
 import id.ac.ui.cs.advprog.yomu.achievement.enums.MissionType;
 import id.ac.ui.cs.advprog.yomu.achievement.model.DailyMission;
 import id.ac.ui.cs.advprog.yomu.achievement.service.DailyMissionService;
+import id.ac.ui.cs.advprog.yomu.achievement.service.MissionTrackingService;
+import id.ac.ui.cs.advprog.yomu.auth.model.User;
+import id.ac.ui.cs.advprog.yomu.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,11 +20,29 @@ import java.util.UUID;
 public class DailyMissionController {
 
     private final DailyMissionService dailyMissionService;
+    private final MissionTrackingService missionTrackingService;
+    private final UserRepository userRepository;
+
+    private User resolveUser(Authentication authentication) {
+        String identifier = authentication.getName();
+        return userRepository.findByEmail(identifier)
+                .orElseGet(() -> userRepository.findByPhone(identifier)
+                        .orElseThrow(() -> new RuntimeException("User not found")));
+    }
 
     // ===== LIST ALL =====
     @GetMapping
     public String listMissions(Model model, Authentication authentication) {
+        User user = resolveUser(authentication);
+
+        java.util.Map<java.util.UUID, id.ac.ui.cs.advprog.yomu.achievement.model.UserMissionProgress> progressMap =
+                missionTrackingService.getUserProgressToday(user).stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                p -> p.getMission().getId(), p -> p));
+
         model.addAttribute("missions", dailyMissionService.findAll());
+        model.addAttribute("activeMissions", dailyMissionService.findActiveMissions());
+        model.addAttribute("progressMap", progressMap);
         model.addAttribute("currentUri", "/daily-missions");
         boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));

@@ -47,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         user = userRepository.save(user);
+        eventPublisher.publishEvent(new LoginEvent(hasText(user.getEmail()) ? user.getEmail() : user.getPhone()));
         return buildAuthResponse("Registration successful", user);
     }
 

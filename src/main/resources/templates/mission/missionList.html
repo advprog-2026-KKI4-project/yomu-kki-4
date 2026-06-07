@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -33,6 +33,26 @@
 
         .empty-state { padding: 60px 20px; text-align: center; color: var(--text-muted); }
         .empty-state i { font-size: 2.5rem; color: var(--accent-lavender); display: block; margin-bottom: 12px; }
+
+        .section-title { font-size: 16px; font-weight: 800; color: var(--text-heading); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: var(--primary-purple); }
+
+        .mission-checklist { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+        .mission-item { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--card-shadow); }
+        .mission-item.completed { border-color: var(--success-green); background: #f9fffe; }
+        .mission-check { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+        .mission-check.done { background: #e8f5e9; color: var(--success-green); }
+        .mission-check.pending { background: var(--bg-subtle); color: var(--text-muted); border: 2px solid var(--border-soft); }
+        .mission-body { flex: 1; min-width: 0; }
+        .mission-item-name { font-weight: 700; font-size: 14px; color: var(--text-heading); margin-bottom: 2px; }
+        .mission-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+        .mission-progress-text { font-size: 13px; font-weight: 700; color: var(--primary-purple); }
+        .mission-reward { font-size: 12px; font-weight: 800; color: var(--accent-peach-hover); }
+
+        .today-empty { padding: 32px 20px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; margin-bottom: 36px; }
+        .today-empty-ring { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #fff3e0, #ffe0b2); color: #ef8c00; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; }
+        .today-empty h3 { font-size: 16px; font-weight: 800; color: var(--text-heading); margin: 0 0 6px; }
+        .today-empty p { font-size: 13px; color: var(--text-muted); margin: 0; }
     </style>
 </head>
 <body>
@@ -43,12 +63,12 @@
             <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
             <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
             <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
-            <a th:href="@{/achievements}" class="nav-item" th:classappend="${currentUri == '/achievements' ? 'active' : ''}"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
             <a th:href="@{/daily-missions}" class="nav-item" th:classappend="${currentUri == '/daily-missions' ? 'active' : ''}"><i class="fas fa-bullseye"></i> Missions</a>
             <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
             <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
             <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
-            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${isAdmin}"><i class="fas fa-shield-alt"></i> Moderation</a>
+            <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>
         </nav>
         <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
             <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
@@ -71,7 +91,36 @@
             </div>
         </header>
 
-        <div class="table-container">
+        <!-- Today's Progress -->
+        <div class="section-title"><i class="fas fa-calendar-day"></i> Today's Progress</div>
+
+        <div class="mission-checklist" th:if="${not #lists.isEmpty(activeMissions)}">
+            <div th:each="m : ${activeMissions}"
+                 th:with="mp=${progressMap[m.id]}, completed=${mp != null and mp.completed}, currentCount=${mp != null ? mp.currentCount : 0}"
+                 th:classappend="${completed} ? 'mission-item completed' : 'mission-item'">
+                <div th:classappend="${completed} ? 'mission-check done' : 'mission-check pending'">
+                    <i th:class="${completed} ? 'fas fa-check' : 'fas fa-circle'"></i>
+                </div>
+                <div class="mission-body">
+                    <div class="mission-item-name" th:text="${m.name}"></div>
+                    <span class="type-pill" th:text="${m.type}"></span>
+                </div>
+                <div class="mission-right">
+                    <span class="mission-progress-text" th:text="${currentCount} + ' / ' + ${m.targetCount}"></span>
+                    <span class="mission-reward"><i class="fas fa-star"></i> <span th:text="${m.rewardPoints}"></span> pts</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="today-empty" th:if="${#lists.isEmpty(activeMissions)}">
+            <div class="today-empty-ring"><i class="fas fa-bullseye"></i></div>
+            <h3>No Active Missions Today</h3>
+            <p>Daily missions reset every day — check back tomorrow for new challenges!</p>
+        </div>
+
+        <!-- All Missions (admin management table) -->
+        <div class="section-title" th:if="${isAdmin}"><i class="fas fa-cog"></i> Manage Missions</div>
+        <div class="table-container" th:if="${isAdmin}">
             <table class="yomu-table">
                 <thead>
                 <tr>

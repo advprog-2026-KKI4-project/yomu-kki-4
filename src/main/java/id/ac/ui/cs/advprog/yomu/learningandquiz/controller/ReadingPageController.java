@@ -72,8 +72,7 @@ public class ReadingPageController {
         ReadingMaterial material = service.getById(id);
 
         if ("STUDENT".equals(getCurrentUserRole()) && material != null && material.getProgress() == 0) {
-            material.setProgress(50);
-            service.add(material);
+            service.completeReading(getCurrentUserId(), id);
         }
 
         model.addAttribute("material", material);

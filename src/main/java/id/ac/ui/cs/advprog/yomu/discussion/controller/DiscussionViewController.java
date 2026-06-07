@@ -3,7 +3,7 @@ package id.ac.ui.cs.advprog.yomu.discussion.controller;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.model.ReadingMaterial;
 import id.ac.ui.cs.advprog.yomu.learningandquiz.service.ReadingMaterialService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication; // Added
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,4 +44,12 @@ public class DiscussionViewController {
 
     }
 
+    @GetMapping("/admin/discussions")
+    public String adminDiscussions(org.springframework.ui.Model model, org.springframework.security.core.Authentication authentication) {
+        String username = (authentication != null && authentication.isAuthenticated()) ? authentication.getName() : "Admin";
+        model.addAttribute("username", username);
+        model.addAttribute("role", "ADMIN");
+        model.addAttribute("currentUri", "/discussions");
+        return "discussion/discussionAdmin";
+    }
 }
