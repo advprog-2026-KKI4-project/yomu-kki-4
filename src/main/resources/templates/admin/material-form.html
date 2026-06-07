@@ -77,14 +77,40 @@
         .option-input {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 14px;
+            margin-bottom: 12px;
+            width: 100%;
         }
-        .option-input input[type="text"] { flex: 1; }
-        .option-input input[type="radio"] { accent-color: var(--primary-purple); transform: scale(1.2); }
+        .option-input input[type="text"] {
+            flex: 1;
+            width: 100%;
+        }
+        .option-input input[type="radio"] {
+            width: auto;
+            accent-color: var(--primary-purple);
+            transform: scale(1.2);
+            margin: 0;
+        }
         .section-divider { margin: 36px 0 24px; border: 0; border-top: 1px solid var(--border-soft); }
         .section-heading { color: var(--text-heading); font-weight: 800; font-size: 18px; margin-bottom: 16px; }
         .save-btn { margin-top: 32px; width: auto; padding: 13px 44px; font-size: 15px; }
+        .add-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--primary-purple);
+            color: var(--primary-purple);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+        .add-btn:hover {
+            background: rgba(91, 75, 138, 0.05);
+        }
     </style>
 </head>
 <body>
@@ -127,11 +153,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Time Limit (Seconds)</label>
-                    <input type="number" th:field="*{timeLimit}" min="10" required>
-                </div>
-
-                <div class="form-group">
                     <label>Reading Content</label>
                     <textarea th:field="*{content}" rows="8" placeholder="Type the learning material here..." required></textarea>
                 </div>
@@ -139,6 +160,11 @@
                 <hr class="section-divider">
 
                 <h2 class="section-heading">Quiz Settings</h2>
+
+                <div class="form-group">
+                    <label>Time Limit (Seconds)</label>
+                    <input type="number" th:field="*{timeLimit}" min="10" required>
+                </div>
 
                 <div id="questions-container">
                     <div th:if="${material.questions != null}" th:each="question, qIter : ${material.questions}" class="question-editor" th:data-index="${qIter.index}">
@@ -170,10 +196,18 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary save-btn">Save Material</button>
+                <button type="button" class="add-btn" id="add-question-btn" onclick="addQuestionItem()">
+                    <i class="fas fa-plus"></i> Add New Question
+                </button>
+
+                <div style="text-align: right;">
+                    <button type="submit" class="btn btn-primary save-btn">Save Material</button>
+                </div>
             </form>
         </div>
     </main>
 </div>
+
+<script th:src="@{/js/material-form.js}"></script>
 </body>
 </html>
