@@ -1,69 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/components :: head('Admin - League Management')}"></th:block>
+    <meta charset="UTF-8">
+    <title>Dashboard — Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <style>
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
+    </style>
 </head>
-
 <body>
-    <div class="container-fluid row p-0 m-0">
-        <th:block th:replace="~{fragments/components :: sidebar('/admin/clans/league-management')}"></th:block>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item active"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
 
-        <main class="main-content">
-            <div class="container mt-5">
-                <h2 class="fw-bold text-primary mb-4"><i class="fas fa-trophy me-2"></i> League Season Management</h2>
-
-                <div class="card shadow-sm border-0" style="border-radius: 15px;">
-                    <div class="card-body p-5 text-center">
-                        <div class="mb-4">
-                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
-                        </div>
-                        <h4 class="fw-bold text-dark">End Current League Season</h4>
-                        <p class="text-muted mx-auto" style="max-width: 600px;">
-                            Clicking the button below will immediately halt the current season.
-                            The top 20% of clans in each division will be promoted, the bottom 20% will be relegated,
-                            and all clan/member scores will be reset to 0 to start the new season.
-                        </p>
-
-                        <button id="endSeasonBtn" class="btn btn-danger btn-lg rounded-pill px-5 mt-3 shadow-sm fw-bold"
-                            onclick="triggerEndSeason()">
-                            <i class="fas fa-power-off me-2"></i> End Season & Process Leaderboards
-                        </button>
-                    </div>
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <h2 th:text="'Hi, ' + ${username} + '!'">Hi, Learner!</h2>
                 </div>
             </div>
-        </main>
-    </div>
+            <div class="header-actions">
+                <div class="stat-chip purple">
+                    <i class="fas fa-id-badge"></i>
+                    <span th:text="${role}">STUDENT</span>
+                </div>
+            </div>
+        </header>
 
-    <th:block th:replace="~{fragments/components :: scripts}"></th:block>
-    <script>
-        async function triggerEndSeason() {
-            if (!confirm("CRITICAL WARNING: Are you absolutely sure you want to end the season? This will permanently reset all scores to zero and update divisions.")) {
-                return;
-            }
-
-            const btn = document.getElementById('endSeasonBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
-
-            try {
-                const response = await fetch('/api/admin/clans/end-season', {
-                    method: 'POST'
-                });
-
-                if (response.ok) {
-                    alert("Success! The season has ended. Promotions, relegations, and score resets have been processed.");
-                    window.location.reload();
-                } else {
-                    throw new Error("Action denied or failed.");
-                }
-            } catch (error) {
-                alert("An error occurred while ending the season. Check your Admin permissions.");
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-power-off me-2"></i> End Season & Process Leaderboards';
-            }
-        }
-    </script>
+        <section class="hub-section">
+            <h3 class="hub-section-title">Explore Modules</h3>
+            <div class="hub-tile-grid">
+                <a th:href="@{/reading}" class="hub-tile">
+                    <div class="hub-tile-icon"><i class="fas fa-book-open"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Learning Materials</div>
+                        <div class="hub-tile-desc">Browse reading materials and take quizzes to test your understanding.</div>
+                    </div>
+                    <div class="hub-tile-cta">Open Library <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/my-learning}" class="hub-tile">
+                    <div class="hub-tile-icon"><i class="fas fa-bookmark"></i></div>
+                    <div>
+                        <div class="hub-tile-title">My Learning</div>
+                        <div class="hub-tile-desc">Continue where you left off across your in-progress materials.</div>
+                    </div>
+                    <div class="hub-tile-cta">Resume <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/achievements}" class="hub-tile accent">
+                    <div class="hub-tile-icon"><i class="fas fa-trophy"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Achievements</div>
+                        <div class="hub-tile-desc">Track badges you've earned and progress toward new ones.</div>
+                    </div>
+                    <div class="hub-tile-cta">View Achievements <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/daily-missions}" class="hub-tile mint">
+                    <div class="hub-tile-icon"><i class="fas fa-bullseye"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Daily Missions</div>
+                        <div class="hub-tile-desc">Complete daily quests to earn extra points and stay motivated.</div>
+                    </div>
+                    <div class="hub-tile-cta">View Missions <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/clans/my-clan}" class="hub-tile sky">
+                    <div class="hub-tile-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="hub-tile-title">My Clan</div>
+                        <div class="hub-tile-desc">Team up with other learners and climb the leaderboard together.</div>
+                    </div>
+                    <div class="hub-tile-cta">Go to Clan <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/leaderboard}" class="hub-tile">
+                    <div class="hub-tile-icon"><i class="fas fa-medal"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Leaderboard</div>
+                        <div class="hub-tile-desc">See how clans rank globally and within their divisions.</div>
+                    </div>
+                    <div class="hub-tile-cta">View Rankings <i class="fas fa-arrow-right"></i></div>
+                </a>
+                <a th:href="@{/discussions}" class="hub-tile accent">
+                    <div class="hub-tile-icon"><i class="fas fa-comments"></i></div>
+                    <div>
+                        <div class="hub-tile-title">Discussions</div>
+                        <div class="hub-tile-desc">Join material discussions, share thoughts, and react.</div>
+                    </div>
+                    <div class="hub-tile-cta">Browse Discussions <i class="fas fa-arrow-right"></i></div>
+                </a>
+            </div>
+        </section>
+    </main>
+</div>
 </body>
-
 </html>

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>Yomu - My Clan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
         .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
         .logout-link:hover { background: #ffebee; }
@@ -92,15 +92,16 @@
     <aside class="sidebar">
         <h1 class="logo">YOMU</h1>
         <nav>
-        <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
-        <a th:href="@{/reading}" class="nav-item" th:classappend="${currentUri == '/reading' ? 'active' : ''}"><i class="fas fa-book-open"></i> Learning</a>
-        <a th:href="@{/my-learning}" class="nav-item" th:classappend="${currentUri == '/my-learning' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Learning</a>
-        <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
-        <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
-        <a th:href="@{/clans/my-clan}" class="nav-item" th:classappend="${currentUri == '/clans/my-clan' ? 'active' : ''}"><i class="fas fa-users"></i> Clan</a>
-        <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
-        <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
-    </nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item active"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+            <a th:href="@{/admin/discussions}" class="nav-item" th:if="${role == 'ADMIN'}"><i class="fas fa-shield-alt"></i> Moderation</a>
+        </nav>
         <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
             <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
         </form>
