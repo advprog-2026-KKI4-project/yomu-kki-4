@@ -1,8 +1,8 @@
 let currentStep = 0;
-const steps = document.querySelectorAll('.question-step');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
-const submitBtn = document.getElementById('submit-btn');
+let steps = [];
+let prevBtn = null;
+let nextBtn = null;
+let submitBtn = null;
 
 function updateNavigation() {
     if (!prevBtn || !nextBtn || !submitBtn || steps.length === 0) return;
@@ -19,6 +19,20 @@ function updateNavigation() {
 }
 
 function changeQuestion(direction) {
+    if (direction === 1) {
+        const currentCard = steps[currentStep];
+        const selected = currentCard.querySelector('input[type="radio"]:checked');
+        if (!selected) {
+            const tempSubmit = document.createElement('input');
+            tempSubmit.type = 'submit';
+            tempSubmit.style.display = 'none';
+            document.getElementById('quiz-form').appendChild(tempSubmit);
+            tempSubmit.click();
+            tempSubmit.remove();
+            return;
+        }
+    }
+
     if (currentStep + direction < 0 || currentStep + direction >= steps.length) return;
 
     steps[currentStep].classList.remove('active');
@@ -28,6 +42,14 @@ function changeQuestion(direction) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    steps = document.querySelectorAll('.question-step');
+    prevBtn = document.getElementById('prev-btn');
+    nextBtn = document.getElementById('next-btn');
+    submitBtn = document.getElementById('submit-btn');
+
+    if (prevBtn) prevBtn.addEventListener('click', () => changeQuestion(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => changeQuestion(1));
+
     updateNavigation();
 
     let lastSeconds = -1;

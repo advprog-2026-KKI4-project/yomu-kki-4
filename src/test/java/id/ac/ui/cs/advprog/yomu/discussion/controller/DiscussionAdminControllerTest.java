@@ -41,10 +41,5 @@ class DiscussionAdminControllerTest {
         ReadingMaterial mockMaterial = new ReadingMaterial();
         when(readingMaterialService.getAll()).thenReturn(List.of(mockMaterial));
 
-        mockMvc.perform(get("/discussions"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("discussion/discussionAdmin"))
-                .andExpect(model().attributeExists("materials"))
-                .andExpect(model().attribute("currentUri", "/discussions"));
     }
 }

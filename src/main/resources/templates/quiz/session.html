@@ -8,18 +8,21 @@
     <script th:src="@{/js/quiz-timer.js}" defer></script>
     <script th:src="@{/js/quiz-session.js}" defer></script>
     <style>
-        .quiz-top-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 32px; gap: 12px; flex-wrap: wrap; }
+        .quiz-top-bar { display: flex; justify-flex-end; align-items: center; margin-bottom: 32px; gap: 12px; flex-wrap: wrap; }
         .quiz-title { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 32px; color: var(--text-heading); letter-spacing: -0.3px; }
         .question-block { margin-bottom: 32px; }
         .question-block > p { font-weight: 700; margin-bottom: 16px; color: var(--text-heading); font-size: 16px; }
         .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; width: 100%; }
         .quiz-footer .btn { width: auto; padding: 13px 44px; font-size: 15px; }
+
+        .question-step { display: none; }
+        .question-step.active { display: block; }
     </style>
 </head>
 <body class="focused-view">
 <main class="quiz-focus-container">
     <header class="quiz-top-bar">
-        <div class="timer-badge">
+        <div class="timer-badge" id="timer-box">
             <i class="far fa-clock"></i> <span id="timer-display">0:00</span>
         </div>
     </header>
@@ -31,7 +34,7 @@
 
             <h1 class="quiz-title" th:text="'Quiz: ' + ${material.title}">Quiz: Title</h1>
 
-            <div class="question-block" th:each="question, iter : ${material.questions}">
+            <div class="question-block question-step" th:each="question, iter : ${material.questions}" th:classappend="${iter.index == 0} ? 'active' : ''">
                 <p th:text="(${iter.index} + 1) + '. ' + ${question.questionText}"></p>
 
                 <div class="options-stack">
