@@ -44,7 +44,7 @@ public class DailyMissionController {
         model.addAttribute("activeMissions", dailyMissionService.findActiveMissions());
         model.addAttribute("progressMap", progressMap);
         model.addAttribute("currentUri", "/daily-missions");
-        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+        boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
         return "mission/missionList";
