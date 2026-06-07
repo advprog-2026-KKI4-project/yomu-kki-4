@@ -39,6 +39,9 @@ out/
 # GCP service account key
 gcp-sa-key.json
 
+# Local environment secrets
+.env
+
 # OS junk files
 .DS_Store
 .AppleDouble
