@@ -158,4 +158,5 @@ class AchievementEventListenerTest {
         verify(achievementTrackingService, never()).incrementProgress(any(), any());
         verify(missionTrackingService, never()).incrementProgress(any(), any());
     }
+
 }

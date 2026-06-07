@@ -28,6 +28,9 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
+      - name: Setup Chrome for Selenium
+        uses: browser-actions/setup-chrome@v1
+
       - name: Run tests
         run: ./gradlew test --no-daemon
 

@@ -195,4 +195,155 @@ class AuthServiceImplTest {
 
         assertEquals("Google account email is required", exception.getMessage());
     }
+
+    @Test
+    void testLoginWithPhoneIdentifier() {
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrPhone("08123456789");
+        request.setPassword("password123");
+
+        User phoneUser = User.builder()
+                .id(2L)
+                .username("phoneuser")
+                .phone("08123456789")
+                .password("encodedPassword")
+                .role("STUDENT")
+                .build();
+
+        when(userRepository.findByPhone("08123456789")).thenReturn(Optional.of(phoneUser));
+        when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
+        when(jwtUtil.generateToken(phoneUser)).thenReturn("jwt-token");
+
+        AuthResponse response = authService.login(request);
+
+        assertNotNull(response);
+        assertEquals("Login successful", response.getMessage());
+    }
+
+    @Test
+    void testLoginThrowsWhenUserNotFound() {
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrPhone("ghost@example.com");
+        request.setPassword("password123");
+
+        when(userRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> authService.login(request));
+
+        assertEquals("Invalid credentials", exception.getMessage());
+    }
+
+    @Test
+    void testLoginWithGoogleExistingGoogleUser() {
+        OAuth2User oauth2User = org.mockito.Mockito.mock(OAuth2User.class);
+        when(oauth2User.getAttribute("email")).thenReturn("google@example.com");
+        when(oauth2User.getAttribute("sub")).thenReturn("google-sub");
+        when(oauth2User.getAttribute("given_name")).thenReturn(null);
+        when(oauth2User.getAttribute("family_name")).thenReturn(null);
+        when(oauth2User.getAttribute("name")).thenReturn(null);
+        when(oauth2User.getAttribute("picture")).thenReturn(null);
+
+        User existingUser = User.builder()
+                .id(50L)
+                .email("google@example.com")
+                .googleId("google-sub")
+                .username("existing")
+                .password("has-password")
+                .role("STUDENT")
+                .firstName("Existing")
+                .build();
+
+        when(userRepository.findByGoogleId("google-sub")).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+        when(jwtUtil.generateToken(any(User.class))).thenReturn("returning-jwt");
+
+        AuthResponse response = authService.loginWithGoogle(oauth2User);
+
+        assertNotNull(response);
+        assertEquals("Google login successful", response.getMessage());
+        assertEquals("returning-jwt", response.getToken());
+        assertEquals(50L, response.getUserId());
+    }
+
+    @Test
+    void testRegisterWithPhone() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("phoneuser");
+        request.setPhone("08123456789");
+        request.setPassword("password123");
+
+        User phoneSavedUser = User.builder()
+                .id(3L)
+                .username("phoneuser")
+                .phone("08123456789")
+                .password("encodedPassword")
+                .role("STUDENT")
+                .build();
+
+        when(userRepository.existsByPhone("08123456789")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(phoneSavedUser);
+        when(jwtUtil.generateToken(phoneSavedUser)).thenReturn("jwt-token");
+
+        AuthResponse response = authService.register(request);
+
+        assertNotNull(response);
+        assertEquals("Registration successful", response.getMessage());
+    }
+
+    @Test
+    void testRegisterDuplicatePhoneThrowsException() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("phoneuser");
+        request.setPhone("08123456789");
+        request.setPassword("password123");
+
+        when(userRepository.existsByPhone("08123456789")).thenReturn(true);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> authService.register(request));
+
+        assertEquals("Phone is already registered", exception.getMessage());
+    }
+
+    @Test
+    void testLoginWithGoogleNullRoleDefaultToStudent() {
+        OAuth2User oauth2User = org.mockito.Mockito.mock(OAuth2User.class);
+        when(oauth2User.getAttribute("email")).thenReturn("new@example.com");
+        when(oauth2User.getAttribute("sub")).thenReturn(null);
+        when(oauth2User.getAttribute("given_name")).thenReturn(null);
+        when(oauth2User.getAttribute("family_name")).thenReturn(null);
+        when(oauth2User.getAttribute("name")).thenReturn(null);
+        when(oauth2User.getAttribute("picture")).thenReturn(null);
+
+        when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(anyString())).thenReturn("generated-password");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(60L);
+            return user;
+        });
+        when(jwtUtil.generateToken(any(User.class))).thenReturn("new-jwt");
+
+        AuthResponse response = authService.loginWithGoogle(oauth2User);
+
+        assertNotNull(response);
+        assertEquals("Google login successful", response.getMessage());
+        assertEquals("STUDENT", response.getRole());
+    }
+
+    @Test
+    void testUpdateProfileNormalizesEmptyStringsToNull() {
+        UpdateProfileRequest request = new UpdateProfileRequest();
+        request.setFirstName("  ");
+        request.setBio("");
+
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(savedUser));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserProfileResponse response = authService.updateProfile("test@example.com", request);
+
+        assertNotNull(response);
+    }
 }

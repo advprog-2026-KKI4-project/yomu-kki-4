@@ -150,4 +150,29 @@ class AuthControllerTest {
         assertNotNull(result.getBody());
         assertEquals("/oauth2/authorization/google", result.getBody().get("authorizationUrl"));
     }
+
+    @Test
+    void testLoginReturns429WhenRateLimited() {
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrPhone("test@example.com");
+        request.setPassword("password123");
+
+        when(loginRateLimitBucket.tryConsume(1)).thenReturn(false);
+
+        org.springframework.mock.web.MockHttpServletResponse mockResponse = new org.springframework.mock.web.MockHttpServletResponse();
+        ResponseEntity<AuthResponse> result = authController.login(request, mockResponse);
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("Too many login attempts. Please try again in 1 minute.", result.getBody().getMessage());
+    }
+
+    @Test
+    void testGetProfileThrowsWhenAuthenticationIsNull() {
+        try {
+            authController.getProfile(null);
+        } catch (RuntimeException e) {
+            assertEquals("Unauthorized", e.getMessage());
+        }
+    }
 }

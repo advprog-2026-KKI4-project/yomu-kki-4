@@ -65,6 +65,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
+    testImplementation("org.seleniumhq.selenium:selenium-java:4.21.0")
+    testImplementation("io.github.bonigarcia:webdrivermanager:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("com.fasterxml.jackson.core:jackson-databind")
