@@ -14,7 +14,7 @@ RUN ./gradlew dependencies --no-daemon 2>/dev/null || true
 COPY src/ src/
 
 # Build the application (skip tests for speed — tests run in CI)
-RUN ./gradlew clean build -x test --no-daemon
+RUN ./gradlew clean build -x test -x seleniumTest --no-daemon
 
 # Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine AS runtime
