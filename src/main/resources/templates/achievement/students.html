@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Students - Yomu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <style>
+        .logout-link { margin-top: auto; padding: 12px 18px; color: var(--danger); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; transition: background 0.15s; background: none; border: none; cursor: pointer; text-align: left; width: 100%; font-family: inherit; }
+        .logout-link:hover { background: #ffebee; }
+
+        .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 12px; padding: 10px 16px; margin-bottom: 24px; }
+        .search-bar i { color: var(--text-muted); }
+        .search-bar input { border: none; outline: none; background: transparent; font-size: 14px; color: var(--text-primary); width: 100%; font-family: inherit; }
+
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+        .student-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 18px; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-decoration: none; color: inherit; transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s; }
+        .student-card:hover { border-color: var(--accent-lavender); box-shadow: var(--card-shadow-hover); transform: translateY(-2px); color: inherit; text-decoration: none; }
+        .student-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-purple), var(--accent-lavender)); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: white; overflow: hidden; flex-shrink: 0; }
+        .student-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .student-name { font-size: 15px; font-weight: 800; color: var(--text-heading); text-align: center; }
+        .student-username { font-size: 12px; color: var(--text-muted); text-align: center; }
+
+        .empty-state { padding: 60px 20px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; }
+        .empty-icon-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #ede7f6, #d1c4e9); color: var(--primary-purple); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 26px; }
+        .empty-state h3 { font-size: 16px; font-weight: 800; color: var(--text-heading); margin: 0 0 6px; }
+        .empty-state p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <h1 class="logo">YOMU</h1>
+        <nav>
+            <a th:href="@{/dashboard}" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a th:href="@{/reading}" class="nav-item"><i class="fas fa-book-open"></i> Learning</a>
+            <a th:href="@{/my-learning}" class="nav-item"><i class="fas fa-bookmark"></i> My Learning</a>
+            <a th:href="@{/achievements/progress}" class="nav-item"><i class="fas fa-trophy"></i> Achievements</a>
+            <a th:href="@{/daily-missions}" class="nav-item"><i class="fas fa-bullseye"></i> Missions</a>
+            <a th:href="@{/clans/my-clan}" class="nav-item"><i class="fas fa-users"></i> Clan</a>
+            <a th:href="@{/leaderboard}" class="nav-item"><i class="fas fa-medal"></i> Leaderboard</a>
+            <a th:href="@{/discussions}" class="nav-item"><i class="fas fa-comments"></i> Discussions</a>
+            <a th:href="@{/profile}" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+            <a th:href="@{/profile/students}" class="nav-item active"><i class="fas fa-users-between-lines"></i> Students</a>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin-top: auto; padding: 0 4px;">
+            <button type="submit" class="logout-link"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+        </form>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <div class="avatar"><i class="fas fa-users-between-lines"></i></div>
+                <div>
+                    <h2>Students</h2>
+                    <div class="greeting-sub">Browse and view other students' profiles.</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="stat-chip purple">
+                    <i class="fas fa-user-graduate"></i>
+                    <span th:text="${students.size()}">0</span> students
+                </div>
+            </div>
+        </header>
+
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Search by name or username…" oninput="filterStudents(this.value)">
+        </div>
+
+        <div class="student-grid" id="student-grid" th:if="${!students.isEmpty()}">
+            <a th:each="student : ${students}"
+               th:href="@{/profile/{id}(id=${student.id})}"
+               class="student-card"
+               th:data-name="${(student.firstName != null and !#strings.isEmpty(student.firstName)) ? (student.firstName + (student.lastName != null ? ' ' + student.lastName : '')) : student.username}"
+               th:data-username="${student.username}">
+                <div class="student-avatar">
+                    <img th:if="${student.avatarUrl != null}" th:src="${student.avatarUrl}" alt="avatar">
+                    <span th:unless="${student.avatarUrl != null}"
+                          th:text="${#strings.substring(
+                              (student.firstName != null and !#strings.isEmpty(student.firstName)) ? student.firstName : student.username,
+                              0, 1).toUpperCase()}"></span>
+                </div>
+                <div class="student-name"
+                     th:text="${(student.firstName != null and !#strings.isEmpty(student.firstName)) ? (student.firstName + (student.lastName != null ? ' ' + student.lastName : '')) : student.username}"></div>
+                <div class="student-username" th:text="'@' + ${student.username}"></div>
+            </a>
+        </div>
+
+        <div id="empty-search" class="empty-state hidden">
+            <div class="empty-icon-ring"><i class="fas fa-search"></i></div>
+            <h3>No results</h3>
+            <p>No students match your search.</p>
+        </div>
+
+        <div class="empty-state" th:if="${students.isEmpty()}">
+            <div class="empty-icon-ring"><i class="fas fa-users"></i></div>
+            <h3>No other students yet</h3>
+            <p>Check back once more students have joined.</p>
+        </div>
+    </main>
+</div>
+
+<script>
+function filterStudents(query) {
+    const q = query.toLowerCase().trim();
+    const cards = document.querySelectorAll('#student-grid .student-card');
+    let visible = 0;
+    cards.forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        const username = card.dataset.username.toLowerCase();
+        const match = !q || name.includes(q) || username.includes(q);
+        card.classList.toggle('hidden', !match);
+        if (match) visible++;
+    });
+    const emptySearch = document.getElementById('empty-search');
+    if (emptySearch) emptySearch.classList.toggle('hidden', visible > 0 || !q);
+}
+</script>
+</body>
+</html>

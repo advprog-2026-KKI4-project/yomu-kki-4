@@ -1,0 +1,20 @@
+2026-06-07 11:35:33,701 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-06-07 11:35:33,711 INFO o.a.j.JMeter: Loading user properties from: /Users/herdayanisitio/apache-jmeter/bin/user.properties
+2026-06-07 11:35:33,711 INFO o.a.j.JMeter: Loading system properties from: /Users/herdayanisitio/apache-jmeter/bin/system.properties
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: Version 5.6.3
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: java.version=21.0.10
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: os.name=Mac OS X
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: os.arch=aarch64
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: os.version=26.4.1
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: java.awt.headless=null
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-06-07 11:35:33,713 INFO o.a.j.JMeter: Available Processors =12
+2026-06-07 11:35:33,718 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-06-07 11:35:33,718 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-06-07 11:35:33,718 INFO o.a.j.JMeter: JMeterHome=/Users/herdayanisitio/apache-jmeter
+2026-06-07 11:35:33,718 INFO o.a.j.JMeter: user.dir  =/Users/herdayanisitio/Desktop/Advance Programming/Groups Assignment/yomu-kki-4
+2026-06-07 11:35:33,718 INFO o.a.j.JMeter: PWD       =/Users/herdayanisitio/Desktop/Advance Programming/Groups Assignment/yomu-kki-4
+2026-06-07 11:35:33,720 INFO o.a.j.JMeter: IP: 127.0.0.1 Name: Herdayanis-MacBook-Pro.local FullName: localhost
