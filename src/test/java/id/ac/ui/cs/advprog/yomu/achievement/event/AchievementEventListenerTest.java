@@ -90,7 +90,7 @@ class AchievementEventListenerTest {
         listener.onDiscussionPost(new DiscussionPostEvent(1L));
 
         verify(missionTrackingService).incrementProgress(user, MissionType.DISCUSSION);
-        verify(achievementTrackingService, never()).incrementProgress(any(), any());
+        verify(achievementTrackingService).incrementProgress(eq(user), any());
     }
 
     @Test
@@ -109,6 +109,6 @@ class AchievementEventListenerTest {
         listener.onLogin(new LoginEvent("test@test.com"));
 
         verify(missionTrackingService).incrementProgress(user, MissionType.LOGIN);
-        verify(achievementTrackingService, never()).incrementProgress(any(), any());
+        verify(achievementTrackingService).incrementProgress(eq(user), any());
     }
 }
