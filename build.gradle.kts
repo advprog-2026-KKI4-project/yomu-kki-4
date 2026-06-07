@@ -117,4 +117,5 @@ tasks.jacocoTestCoverageVerification {
 
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
+    dependsOn("seleniumTest")
 }
