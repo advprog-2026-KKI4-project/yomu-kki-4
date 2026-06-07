@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.yomu.achievement.service;
 import id.ac.ui.cs.advprog.yomu.achievement.enums.MissionType;
 import id.ac.ui.cs.advprog.yomu.achievement.model.DailyMission;
 import id.ac.ui.cs.advprog.yomu.achievement.repository.DailyMissionRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class DailyMissionServiceImpl implements DailyMissionService {
     }
 
     @Override
+    @Timed(value = "mission.find_all", description = "Time taken to fetch all daily missions")
     public List<DailyMission> findAll() {
         return dailyMissionRepository.findAll();
     }
@@ -39,6 +41,7 @@ public class DailyMissionServiceImpl implements DailyMissionService {
     }
 
     @Override
+    @Timed(value = "mission.find_active", description = "Time taken to fetch currently active daily missions")
     public List<DailyMission> findActiveMissions() {
         return dailyMissionRepository.findCurrentlyActive(LocalDateTime.now());
     }

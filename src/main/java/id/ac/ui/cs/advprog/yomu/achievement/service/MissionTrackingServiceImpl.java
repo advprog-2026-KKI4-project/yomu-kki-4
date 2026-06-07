@@ -89,6 +89,7 @@ public class MissionTrackingServiceImpl implements MissionTrackingService {
     }
 
     @Override
+    @Timed(value = "mission.get_completed_count", description = "Time taken to count completed missions for a set of users")
     public long getCompletedMissionCountForUsers(List<Long> userIds, LocalDate date) {
         if (userIds == null || userIds.isEmpty())
             return 0;

@@ -74,11 +74,13 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
     }
 
     @Override
+    @Timed(value = "achievement.get_user_progress", description = "Time taken to fetch all achievement progress for a user")
     public List<UserAchievementProgress> getUserAchievements(User user) {
         return progressRepository.findByUser(user);
     }
 
     @Override
+    @Timed(value = "achievement.get_unlocked", description = "Time taken to fetch unlocked achievements for a user")
     public List<UserAchievementProgress> getUnlockedAchievements(User user) {
         return progressRepository.findByUserAndUnlockedTrue(user);
     }
@@ -91,6 +93,7 @@ public class AchievementTrackingServiceImpl implements AchievementTrackingServic
 
     @Override
     @Transactional
+    @Timed(value = "achievement.set_show_on_profile", description = "Time taken to toggle achievement visibility on profile")
     public void setShowOnProfile(User user, UUID progressId, boolean show) {
         UserAchievementProgress progress = progressRepository
                 .findByIdAndUser(progressId, user)
