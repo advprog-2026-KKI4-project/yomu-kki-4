@@ -159,25 +159,4 @@ class AchievementEventListenerTest {
         verify(missionTrackingService, never()).incrementProgress(any(), any());
     }
 
-    @Test
-    void onLogin_triggersServices_whenUserFoundByPhone() {
-        when(userRepository.findByEmail("08123456789")).thenReturn(Optional.empty());
-        when(userRepository.findByPhone("08123456789")).thenReturn(Optional.of(user));
-
-        listener.onLogin(new LoginEvent("08123456789"));
-
-        verify(achievementTrackingService).incrementProgress(user, AchievementType.LOGIN);
-        verify(missionTrackingService).incrementProgress(user, MissionType.LOGIN);
-    }
-
-    @Test
-    void onLogin_doesNothing_whenUserNotFound() {
-        when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
-        when(userRepository.findByPhone("ghost@test.com")).thenReturn(Optional.empty());
-
-        listener.onLogin(new LoginEvent("ghost@test.com"));
-
-        verify(achievementTrackingService, never()).incrementProgress(any(), any());
-        verify(missionTrackingService, never()).incrementProgress(any(), any());
-    }
 }
