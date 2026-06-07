@@ -69,11 +69,31 @@ dependencies {
     testImplementation("io.github.bonigarcia:webdrivermanager:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    // Selenium
+    testImplementation("org.seleniumhq.selenium:selenium-java:4.25.0")
+    testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")
+
     implementation("com.fasterxml.jackson.core:jackson-databind")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("selenium")
+    }
+}
+
+tasks.register<Test>("seleniumTest") {
+    description = "Runs Selenium browser tests for the achievement module"
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("selenium")
+    }
 }
 
 tasks.jacocoTestReport {
@@ -99,4 +119,5 @@ tasks.jacocoTestCoverageVerification {
 
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
+    dependsOn("seleniumTest")
 }
